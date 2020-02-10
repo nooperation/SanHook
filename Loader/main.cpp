@@ -27,7 +27,7 @@ void DumpError(DWORD error_code)
     }
 }
 
-bool InjectDll(std::experimental::filesystem::path dll_path, HANDLE process_handle)
+bool InjectDll(std::filesystem::path dll_path, HANDLE process_handle)
 {
     auto payload = dll_path.wstring();
 
@@ -97,8 +97,8 @@ int main()
 
     printf("Creating process...\n");
     auto result_create_process = CreateProcess(
-        TEXT("target.exe"),
-        nullptr,
+        TEXT("C:\\Program Files\\Sansar\\Client\\SansarClient.exe"),
+        (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -system.maxCores 1"),
         nullptr,
         nullptr,
         false,
@@ -110,11 +110,12 @@ int main()
     );
     if(result_create_process == false)
     {
+        printf("Failed to create process: %d\n", GetLastError()); 
         return 0;
     }
 
     printf("Injecting dll...\n");
-    auto injection_was_successful = InjectDll("SanHook.dll", process_info.hProcess);
+    auto injection_was_successful = InjectDll("R:\\cpp\\SanHook\\SanHook\\x64\\Debug\\SanHook.dll", process_info.hProcess);
     if(injection_was_successful == false)
     {
         DumpError(GetLastError());
