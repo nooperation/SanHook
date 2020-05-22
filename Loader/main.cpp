@@ -90,6 +90,35 @@ bool InjectDll(std::filesystem::path dll_path, HANDLE process_handle)
     return true;
 }
 
+#include <tlhelp32.h>
+uint64_t GetBaseAddress(DWORD process_id)
+{
+    uintptr_t modBaseAddr = 0;
+    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE| TH32CS_SNAPALL, process_id);
+    if (hSnap == INVALID_HANDLE_VALUE)
+    {
+        return 0;
+    }
+     
+    MODULEENTRY32 module_entry = {0};
+    module_entry.dwSize = sizeof(module_entry);
+
+    if (Module32First(hSnap, &module_entry))
+    {
+        do
+        {
+            if (module_entry.th32ProcessID == process_id)
+            {
+                return (uint64_t)module_entry.modBaseAddr;
+            }
+        } while (Module32Next(hSnap, &module_entry));
+    }
+
+    CloseHandle(hSnap);
+    return 0;
+}
+
+
 int main()
 {
     PROCESS_INFORMATION process_info = {};
@@ -98,7 +127,9 @@ int main()
     printf("Creating process...\n");
     auto result_create_process = CreateProcess(
         TEXT("C:\\Program Files\\Sansar\\Client\\SansarClient.exe"),
-        (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -system.maxCores 1"),
+        //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -sceneUri sansar://sansar.com/experience/nopnop/flatt"),
+        (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false"),
+        //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -system.maxCores 1"),
         nullptr,
         nullptr,
         false,
@@ -115,7 +146,12 @@ int main()
     }
 
     printf("Injecting dll...\n");
+#ifndef _DEBUG
+    auto injection_was_successful = InjectDll("R:\\cpp\\SanHook\\SanHook\\x64\\Release\\SanHook.dll", process_info.hProcess);
+#else
     auto injection_was_successful = InjectDll("R:\\cpp\\SanHook\\SanHook\\x64\\Debug\\SanHook.dll", process_info.hProcess);
+#endif
+
     if(injection_was_successful == false)
     {
         DumpError(GetLastError());
