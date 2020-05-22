@@ -19,8 +19,10 @@ uint16_t last_chat_server_sequence = 0;
 void DumpPacket(const char* buff, int len, bool is_sending);
 std::string GetAddressFromAddr(const sockaddr* addr);
 
-#include <thread>
+#include "bitReader.hpp"
 
+
+#include <thread>
 #include <intrin.h>
 uint16_t Sansar_ShortCRC(uint8_t* packet, int64_t packetLength, uint64_t initialChecksum)
 {
@@ -717,12 +719,24 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
           //  ((char*)buf)[37] = 0x9a;
            // ((char*)buf)[38] = 0x1d;
            // ((char*)buf)[39] = 0x00;
+
+
            // WriteThreeByteInt(5000, (char*)&buf[37]);
            // WriteThreeByteInt(5000, (char*)&buf[40]);
             //WriteThreeByteInt(0, (char*)&buf[50]);
 
+            //  Id   Seq     MsgId            Frame                     AgentId       ResourceId                            AttachmentNode   SpawnPosition(78bit)|height?(32bit)|SpawnOrientation(43bit)         Checksum
+            // [07] [91 01] [31 0D 85 21] 2C [C6 6D 00 00 00 00 00 00] [05 00 00 00] [37 7F 61 06 51 D3 9B EF 5F B0 FB 67 89 AD EE 79] [FF] [EB AE 00 F2 3A 02 48 2A A0 C0 FE BF FF F7 FE 51] [77 96]
 
+            // [frame?][agentControllerId?][ResourceId][AttachmentNode?][SpawnPosition(0x4E)][SpawnOrientation(0x2B)]
 
+            /*
+                result = v9 & 0x80000007;
+                if ( (signed int)result < 0 )
+                {
+                    result = (((_BYTE)result - 1) | 0xFFFFFFF8) + 1;
+                }
+            */
            /*
             uint8_t* buff_out = (uint8_t*)buf;
             buff_out[43] = 0x48;
@@ -731,18 +745,34 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             buff_out[46] = 0xc0;
             */
 
+            // 39 bit x,y pos??
+            //int64_t positionX = 0;
+           // int64_t positionY = 0;
 
-            auto timeRezzed = *((uint64_t*)&buf[8]);
-            auto unknownA = *((uint32_t*)&buf[16]);
+            auto frame = *((uint64_t*)&buf[8]);
+            auto agentControllerId = *((uint32_t*)&buf[16]);
             auto clusterId = ((uint8_t*)&buf[20]);
-            auto unknownB = *((uint8_t*)&buf[36]);
-            int positionX = ReadThreeByteInt(&buf[37]);
-            int positionY = ReadThreeByteInt(&buf[40]);
-            auto height = *((float*)&buf[43]);
-            int rotationX = ReadThreeByteInt(&buf[47]);
-            int rotationY = ReadThreeByteInt(&buf[50]);
+            auto attachmentNode = *((uint8_t*)&buf[36]); // 9
 
-            
+            BitReader br((uint8_t*)&buf[37], 10);
+            auto positionX = br.ReadFloat(26, false);
+            auto positionY = br.ReadFloat(26, false);
+            auto positionZ = br.ReadFloat(26, true);
+
+            br.Reset();
+            br.WriteFloat(positionX, 26, false);
+            br.WriteFloat(positionY, 26, false);
+            br.WriteFloat(0.01f, 26, true);
+
+            br.Reset();
+            positionX = br.ReadFloat(26, false);
+            positionY = br.ReadFloat(26, false);
+            positionZ = br.ReadFloat(26, true);
+
+            //static int agent = 0;
+            //*((uint32_t*)&buf[16]) = agent;
+            //*((uint8_t*)&buf[36]) = 3;
+
             /*
             if (positionY < 0) {
                 *((uint32_t*)&height) ^= 1 << 30;
@@ -766,7 +796,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
                 clusterId[9],
                 clusterId[8]
             );
-            printf("unknownA=%d unknownB=%d | Pos=<%d, %d> | Height=%f | <%d, %d>\n", unknownA, unknownB, positionX, positionY, height, rotationX, rotationY);
+            printf("agentControllerId=%d attachmentNode=%d | Pos=<%f, %f, %f>\n", agentControllerId, attachmentNode, positionX, positionY, positionZ);
             DumpPacket(buf, len, true);
             //////////////////////////////
             uint8_t newClusterId[16] = {};
