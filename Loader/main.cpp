@@ -128,9 +128,64 @@ int main()
     printf("Resuming process...\n");
     ResumeThread(process_info.hThread);
 
+    Sleep(500);
+
+    auto base = GetBaseAddress(process_info.dwProcessId);
+    SIZE_T written = 0;
+
+    // NOTE: COPY RVA, NOT FILE OFFSET!
+    // NOTE: COPY RVA, NOT FILE OFFSET!
+    // NOTE: COPY RVA, NOT FILE OFFSET!
+    // NOTE: COPY RVA, NOT FILE OFFSET!
+
+    ///////////////////////////////////
+    /// GRAVITYS (right above collision hack, look for "skyCubemap")
+    ///////////////////////////////////
+    uint8_t gravityHack[] = {
+        0xB8, 0x14, 0xAE, 0xE7, 0x3F, 0x90, 0x90
+    };
+    *((float*)&gravityHack[1]) = 2.0f;
+
+    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17088C0), gravityHack, sizeof(gravityHack), &written);
+    printf("Written to %X: %d bytes\n", base + 0x17088C0, written);
+
+
+    ///////////////////////////////////
+    /// COLLISION - ALWAYS COLLIDE AVATARS (right above freecam hack, look for "skyCubemap")
+    ///////////////////////////////////
+    uint8_t collisionHack[] = {
+        0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
+    };
+  //  WriteProcessMemory(process_info.hProcess, (void*)(base + 0x170890B), collisionHack, sizeof(collisionHack), &written);
+    printf("Written to %X: %d bytes\n", base + 0x170890B, written);
+    
+
+    ///////////////////////////////////
+    /// FREECAM - ALLOW ALWAYS (rigth below freecam hack, look for "skyCubemap")
+    ///////////////////////////////////
+    uint8_t freecamHack[] = {
+        0xB0, 0x01, 0x90
+    };
+    written = 0;
+    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1708955), freecamHack, sizeof(freecamHack), &written);
+    printf("Written to %X: %d bytes\n", base + 0x1708955, written);
+
+
+    
+    ///////////////////////////////////
+    /// INVENTORY - ALLOW ALWAYS
+    ///////////////////////////////////
+    uint8_t inventoryAlwaysHack[] = {
+       0xB0, 0x01, 0x88, 0x07
+    };
+    written = 0;
+    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x170E9C5), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
+    printf("Written to %X: %d bytes\n", base + 0x170E9C5, written);
+
     printf("Process resumed. Cleaning up...\n");
     CloseHandle(process_info.hThread);
     CloseHandle(process_info.hProcess);
 
     return injection_was_successful ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+
