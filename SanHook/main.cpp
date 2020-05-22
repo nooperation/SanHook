@@ -582,6 +582,47 @@ public:
     static const int TutorialHintsSetEnabled = 0xE4C496DF;
 };
 
+#include <windows.h>
+#include <tlhelp32.h>
+uint8_t* kBaseAddress = nullptr;
+
+uint8_t *GetBaseAddress()
+{
+    if (kBaseAddress != nullptr) {
+        return kBaseAddress;
+    }
+
+    auto process_id = GetCurrentProcessId();
+
+    uintptr_t modBaseAddr = 0;
+    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPALL, process_id);
+    if (hSnap == INVALID_HANDLE_VALUE)
+    {
+        return 0;
+    }
+
+    MODULEENTRY32 module_entry = { 0 };
+    module_entry.dwSize = sizeof(module_entry);
+
+    if (Module32First(hSnap, &module_entry))
+    {
+        do
+        {
+            if (module_entry.th32ProcessID == process_id)
+            {
+                kBaseAddress = (uint8_t*)module_entry.modBaseAddr;
+                CloseHandle(hSnap);
+
+                return kBaseAddress;
+            }
+        } while (Module32Next(hSnap, &module_entry));
+    }
+
+    CloseHandle(hSnap);
+    return nullptr;
+}
+
+
 int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const struct sockaddr* to, int tolen)
 {
 
@@ -759,16 +800,35 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             auto positionY = br.ReadFloat(26, false);
             auto positionZ = br.ReadFloat(26, true);
 
+            auto base = GetBaseAddress();
+
+            // We got this constant from memory.
+            // Search for "no-input-source".
+            // Between "room scale" and "no-input-source"
+            // Right below a call to RotMatrix, enter that call
+            // rcx+30 = our pointer
+            // Function above it with a bunch of xmm stuff going on (see screenshots)
+            const static auto kCameraPositionOffset = 0x49DD300;
+
+            positionX = *((float*)(base + kCameraPositionOffset + 0));
+            positionY = *((float*)(base + kCameraPositionOffset + 4));
+            positionZ = *((float*)(base + kCameraPositionOffset + 8));
+
             br.Reset();
             br.WriteFloat(positionX, 26, false);
             br.WriteFloat(positionY, 26, false);
-            br.WriteFloat(0.01f, 26, true);
+            br.WriteFloat(positionZ, 26, true);
 
             br.Reset();
             positionX = br.ReadFloat(26, false);
             positionY = br.ReadFloat(26, false);
             positionZ = br.ReadFloat(26, true);
 
+
+            //float cameraRotationX = *((float*)(base + 0x49DD2D0 + 0));
+            //float cameraRotationY = *((float*)(base + 0x49DD2D0 + 4));
+            //float cameraRotationZ = *((float*)(base + 0x49DD2D0 + 8));
+           // printf("[%f,%f,%f]\n", xxx, yyy, zzz);
             //static int agent = 0;
             //*((uint32_t*)&buf[16]) = agent;
             //*((uint8_t*)&buf[36]) = 3;
