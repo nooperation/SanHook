@@ -6,29 +6,49 @@
 class PacketReader
 {
 private:
-	const uint8_t * const begin;
-	const uint8_t * const end;
-	const uint32_t buffSize;
-
-	const uint8_t * iter;
+	std::vector<uint8_t> buffer;
+	std::size_t bufferIndex = 0;
 
 public:
-
-	PacketReader(const uint8_t *packet, uint32_t size) : 
-		begin(packet),
-		iter(packet),
-		buffSize(size),
-		end(packet + size)
+	PacketReader()
 	{
-
+		
 	}
 
-	void CheckOutOfBoundsRead(uint32_t numBytes) const
+	PacketReader(const uint8_t *packet, uint32_t size)
 	{
-		if (iter + numBytes >= end) {
+		Add(packet, size);
+	}
+
+	void Reset() 
+	{
+		printf("PacketReader::Reset()\n");
+		buffer.clear();
+		bufferIndex = 0;
+	}
+
+	void Add(const uint8_t* packet, uint32_t size)
+	{
+		buffer.insert(buffer.end(), packet, packet + size);
+
+		/*
+		printf("ADD: Buffer dump (size = %d):\n", buffer.size());
+		for (auto& item : buffer) {
+			printf(" %02X", item);
+		}
+		printf("\n\n");
+		printf("bufferIndex = %d\n", bufferIndex);
+		*/
+	}
+
+	void CheckOutOfBoundsRead(std::size_t numBytes) const
+	{
+		if (bufferIndex + numBytes > buffer.size()) {
 			printf("\n--------------------------\nAttempt to read out of bounds\n--------------------------\n");
 			throw std::exception("Attempt to read out of bounds");
 		}
+
+
 	}
 
 	template<typename T>
@@ -37,8 +57,8 @@ public:
 
 		CheckOutOfBoundsRead(numBytes);
 
-		T result = *((T*)iter);
-		iter += numBytes;
+		T result = *((T*)&buffer[bufferIndex]);
+		bufferIndex += numBytes;
 
 		return result;
 	}
@@ -102,8 +122,8 @@ public:
 
 		CheckOutOfBoundsRead(length);
 
-		std::string result((const char*)iter, length);
-		iter += length;
+		std::string result((const char*)&buffer[bufferIndex], length);
+		bufferIndex += length;
 
 		return result;
 	}
@@ -122,18 +142,16 @@ public:
 
 	void Skip(int numBytes)
 	{
+		//printf("Skip %d\n", numBytes);
 		CheckOutOfBoundsRead(numBytes);
 
-		iter += numBytes;
+		bufferIndex += numBytes;
 	}
 
 	int64_t GetBytesRemaining() const 
 	{
-		return (end - iter);
+		//printf("GetBytesRemaining --> Buffer size = %lld | bufferIndex = %lld\n", buffer.size(), bufferIndex);
+		return (buffer.size() - bufferIndex);
 	}
 
-	const uint8_t* getIter() const 
-	{
-		return iter;
-	}
 };

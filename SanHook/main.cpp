@@ -466,19 +466,27 @@ void OnAddUser(PacketReader& reader)
 {
     printf("ClientRegionMessages::AddUser\n");
 
-    auto sessionId = reader.ReadUint32();
-    auto userName = reader.ReadString();
-    auto avatarType = reader.ReadString();
-    auto personaId = reader.ReadUUID();
+    auto sessionId = reader.ReadUint32();    
+    auto userName = reader.ReadString();     
+    auto avatarType = reader.ReadString();   
+    auto personaId = reader.ReadUUID();      
 
-    auto personaIdButts = ClusterButt(personaId);
-    auto personaIdFormatted = ToUUID(personaId);
+    
+    auto personaIdButts = ClusterButt(personaId);  
+    auto personaIdFormatted = ToUUID(personaId);   
 
-    printf(" SessionID: %d\n Username: %s\n AvatarType: %s\n PersonaId: %s [%s] | %s\n", sessionId, userName.c_str(), avatarType.c_str(), personaIdFormatted.c_str(), personaIdButts.c_str());
+    printf(" SessionID: %d\n Username: %s\n AvatarType: %s\n PersonaId: %s [%s]\n", sessionId, userName.c_str(), avatarType.c_str(), personaIdFormatted.c_str(), personaIdButts.c_str());
 }
 
 
-bool skippedABigassPacket = false;
+uint16_t lastSequence = 0;
+
+std::mutex recvLock;
+
+
+std::map<SOCKET, PacketReader> readers;
+std::map<SOCKET, uint16_t> sequences;
+
 int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sockaddr* from, int* fromlen)
 {
     auto result = original_recvfrom(s, buff, len, flags, from, fromlen);
@@ -487,65 +495,149 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sock
         return result;
     }
 
-    //DumpPacket(buff, result, false);
 
-    if (result == 512) {
-        printf("Bigass packet detected. Skipping above packet and the next !!!\n");
-        skippedABigassPacket = true;
-        return result;
-    }
-    if (skippedABigassPacket) {
-        printf("Bigass packet previously detected. Skipping above packet!!!\n");
-        skippedABigassPacket = false;
+    if (buff == nullptr || len < 3) {
         return result;
     }
 
+    auto packetType = *((uint8_t*)&buff[0]);
+    auto sequence = *((uint16_t*)&buff[1]);
 
-    if (buff == nullptr || len < 8) {
+    if (packetType != 0x07) {
         return result;
     }
 
-    if (buff[0] != 0x07) {
-        return result;
+
+    std::unique_lock<std::mutex> lck(recvLock);
+
+    /*
+    auto previousReader = readers.find(s);
+    if (previousReader == readers.end()) {
+        readers[s] = PacketReader();
+        previousReader = readers.find(s);
     }
 
-    // (1:ID) (2:sequence) (1:payload length) (N: payload) (2: checksum)
+    if (previousReader != readers.end()) {
+        printf("Retrieved reader for socket %d\n", s);
+        reader = previousReader->second;
+        readers.erase(previousReader);
+    }
+    else {
+        printf("Starting new reader for socket %d\n", s);
+    }*/
 
-    //last_sent_sequence = *((uint16_t*)&buff[1]);
-    //auto messageId = *((uint32_t*)&buff[4]);
-    
-    PacketReader reader((const uint8_t*)buff, result);
-    auto packetType = reader.ReadUint8();
-    last_sent_sequence = reader.ReadUint16();
+    // We do get out of order packets and this just won't do :X
+    auto previousSequenceIter = sequences.find(s);
+    if (previousSequenceIter != sequences.end()) 
+    {
+        auto previousSequence = previousSequenceIter->second;
 
-   // printf("Hooked_Recvfrom: packetType = %d | Sequence = %04X | Length=%d\n", packetType, last_sent_sequence, result);
-
-    int packetsParsed = 0;
-    while (reader.GetBytesRemaining() > 2) {
-        auto packetLength = reader.ReadUint8();
-        /*
-        if (packetLength == 0xFF) {
-            //printf("Bigass packet detected. Skipping this packet and the next !!!\n");
-            skippedABigassPacket = true;
-            // Bigass packet ABORT!
+        if (previousSequence >= sequence)
+        {
+            // SKIP
+            printf("Skipping out of order packet with sequence %X\n", sequence);
             return result;
         }
-        if (skippedABigassPacket) {
-            // Bigass packet tail - ABORT!
-            printf("Bigass packet previously detected. Skipping this smaller followup packet!!!\n");
-            skippedABigassPacket = false;
-            return result;
+    }
+
+    PacketReader &reader = readers[s];
+    sequences[s] = sequence;
+
+    printf("[%08X][%d]\n", from,s);
+    DumpPacket(buff, result, false);
+
+
+    // |Type (1)|Sequence (2)|<packet>[1..N]|Checksum
+
+    // <packet>:
+    //   If <= 512 bytes
+    //      |Length|Message ID|<Payload>
+    //   Else
+    //      |0xFF|2-byte Length|MessageId|<Payload>
+
+    // NOTE: <Payload> may be split between multiple packets, so |Length| may refer to all of the remaining data
+    //       in the current packet (excluding the two byte checksum and 4-byte message id) and the next N bytes
+    //       in the next packets (excluding their headers and checksums)
+
+    // For each chunk:
+    //   Confirm first byte is 0x07
+    //   Ignore sequence (second two bytes)
+    //   Copy the packet to the PacketReader buffer (excluding 3-byte header and 2-byte checksum footer)
+    //   Attempt to process packets (if we're done waiting for more data)
+    //   
+    // For each packet...
+    //   Read the length.
+    //        If the length is within the packet, process the packet.
+    //        If the length exceeds the packet, un-read the length and                          [wait for the packet reader buffer to fill with the next packet(s)]
+    //        If the length is 0xFF, read the full length and store it. Un-read the lengths and [Wait for the packet reader buffer to fill with the next packet(s)]
+    //
+
+    // |Type(1)|Sequence(2)|Len-0(1)|Id-0(4)
+    // |Type(1)|Sequence(2)|Len-0(1)|Id-0(4)|<payload 0>|Len-1(1)|Id-1(4)|<payload 1>|...|Len-N(1)|Id-N(4)|<payload N>
+    // |Type(1)|Sequence(2)|Len-0(1)|Id-0(4)
+
+
+    // Copy the packet to the PacketReader buffer (excluding 3-byte header and 2-byte checksum footer)
+    reader.Add(sequence, (const uint8_t*)(buff + 3), result - 5);
+
+    // Attempt to process packets (if we're done waiting for more data)
+    while (reader.GetBytesRemaining() > 0) {
+        
+        // For each packet...
+        //   Read the length.
+        //        If the length is within the packet, process the packet.
+        //        If the length exceeds the packet, un-read the length and                          [wait for the packet reader buffer to fill with the next packet(s)]
+        //        If the length is 0xFF, read the full length and store it. Un-read the lengths and [Wait for the packet reader buffer to fill with the next packet(s)]
+        //
+
+        uint64_t packetLength = reader.ReadUint8();
+        if (packetLength == 0xFF)
+        {
+            packetLength = reader.ReadUint16();
+            if (packetLength == 0xFFFF)
+            {
+                // 32-bit length
+
+                packetLength = reader.ReadUint32();
+
+                printf("This is a huge message. We need to wait for %d more bytes. Our buffer currently has %d bytes remaining. So in total we need %d bytes.\n", packetLength, reader.GetBytesRemaining(), packetLength - reader.GetBytesRemaining());
+
+                if (reader.GetBytesRemaining() - (int64_t)packetLength < 0)
+                {
+                    reader.Skip(-7); // Un-read the 1bit, 2bit, 4bit lengths
+                    return result;
+                }
+            }
+            else 
+            {
+                // 16-bit length
+
+                printf("This is a big message. We need to wait for %d more bytes. Our buffer currently has %d bytes remaining. So in total we need %d bytes.\n", packetLength, reader.GetBytesRemaining(), packetLength - reader.GetBytesRemaining());
+
+                if (reader.GetBytesRemaining() - (int64_t)packetLength < 0)
+                {
+                    reader.Skip(-3); // Un-read the 1bit,2bit lengths
+                    return result;
+                }
+
+            }
+
+            printf("Ignore the previous message. We're actually done waiting and can now process this %d byte message with %d bytes to spare in the buffer.\n", packetLength, (reader.GetBytesRemaining() - packetLength));
         }
-        */
-        if (reader.GetBytesRemaining() < packetLength) {
-            printf("Malformed or multipart packet detected. Skipping this packet and the next !!!\n");
-            skippedABigassPacket = true;
-            return result;
+        else if (packetLength > reader.GetBytesRemaining()) 
+        {
+            printf("This is a small message split between two packets. We need to wait for %d more bytes. Our buffer currently has %d bytes remaining. So in total we need %d bytes.\n", packetLength, reader.GetBytesRemaining(), packetLength - reader.GetBytesRemaining());
+
+            if (reader.GetBytesRemaining() - (int64_t)packetLength < 0) {
+                reader.Skip(-1); // Un-read the length
+                return result;
+            }
+
+            printf("Ignore the previous message. We're actually done waiting and can now process this message with %d bytes to spare in the buffer.\n", packetLength, (reader.GetBytesRemaining() - packetLength));
         }
 
         auto messageId = reader.ReadUint32();
-        //printf("  %d: Packet %08X | len=%d\n", packetsParsed, messageId, packetLength);
-        packetsParsed++;
+        printf("MessageId = %08X\n", messageId);
 
         if (messageId == ClientRegionMessages::UserLoginReply)
         {
@@ -559,10 +651,9 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sock
         {
             reader.Skip(packetLength - 4);
         }
-
-
-       // printf("Bytes remaining = %d\n", reader.GetBytesRemaining());
     }
+
+    reader.Reset();
 
 
 
