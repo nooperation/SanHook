@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <string>
+#include <map>
+
 
 class PacketReader
 {
@@ -9,36 +11,80 @@ private:
 	std::vector<uint8_t> buffer;
 	std::size_t bufferIndex = 0;
 
+	bool previousSequenceIsValid = false;
+	uint16_t previousSequence = 0;
+
+	std::map<uint16_t, std::vector<uint8_t> > outOfOrderPackets;
+
+	void ProcessOutOfOrderPackets()
+	{
+		while(!outOfOrderPackets.empty())
+		{
+			auto nextPacket = outOfOrderPackets.find(previousSequence + 1);
+			if (nextPacket == outOfOrderPackets.end())
+			{
+				break;
+			}
+
+			auto& outOfOrderBuffer = nextPacket->second;
+			auto& outOfOrderSequence = nextPacket->first;
+
+			buffer.insert(buffer.end(), outOfOrderBuffer.begin(), outOfOrderBuffer.end());
+
+			previousSequenceIsValid = true;
+			previousSequence = outOfOrderSequence;
+
+			//printf("Next packet %d found in out of order packet collection.\n", outOfOrderSequence);
+
+			outOfOrderPackets.erase(nextPacket);
+		}
+	}
+
 public:
 	PacketReader()
 	{
 		
 	}
 
-	PacketReader(const uint8_t *packet, uint32_t size)
+	PacketReader(uint16_t sequence, const uint8_t *packet, uint32_t size)
 	{
-		Add(packet, size);
+		Add(sequence, packet, size);
+	}
+
+	uint16_t getPreviousSequence() const {
+		return previousSequence;
 	}
 
 	void Reset() 
 	{
-		printf("PacketReader::Reset()\n");
+		//printf("PacketReader::Reset()\n");
 		buffer.clear();
 		bufferIndex = 0;
+		previousSequenceIsValid = false;
+		previousSequence = 0;
+
+		outOfOrderPackets.clear();
 	}
 
-	void Add(const uint8_t* packet, uint32_t size)
+	void Add(uint16_t sequence, const uint8_t* packet, uint32_t size)
 	{
+		if (previousSequenceIsValid)
+		{
+			if (sequence != previousSequence + 1)
+			{
+				//printf("Packet %d found, expected %d. Added it to our out of order packet collection.", sequence, previousSequence + 1);
+				outOfOrderPackets[sequence] = std::vector<uint8_t>(packet, packet + size);
+				return;
+			}
+		}
+
 		buffer.insert(buffer.end(), packet, packet + size);
 
-		/*
-		printf("ADD: Buffer dump (size = %d):\n", buffer.size());
-		for (auto& item : buffer) {
-			printf(" %02X", item);
-		}
-		printf("\n\n");
-		printf("bufferIndex = %d\n", bufferIndex);
-		*/
+		previousSequenceIsValid = true;
+		previousSequence = sequence;
+		//printf("Added packet %d to buffer\n", sequence);
+
+		ProcessOutOfOrderPackets();
 	}
 
 	void CheckOutOfBoundsRead(std::size_t numBytes) const
