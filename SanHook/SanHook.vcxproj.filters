@@ -23,5 +23,11 @@
     <ClInclude Include="bitReader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Messages.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketReader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

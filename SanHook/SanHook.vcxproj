@@ -155,6 +155,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitReader.hpp" />
+    <ClInclude Include="Messages.h" />
+    <ClInclude Include="PacketReader.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

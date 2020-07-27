@@ -20,7 +20,8 @@ void DumpPacket(const char* buff, int len, bool is_sending);
 std::string GetAddressFromAddr(const sockaddr* addr);
 
 #include "bitReader.hpp"
-
+#include "Messages.h"
+#include "PacketReader.hpp"
 
 #include <thread>
 #include <intrin.h>
@@ -302,6 +303,65 @@ void DumpPacket(const char* buff, int len, bool is_sending)
     }
 }
 
+std::string ClusterButt(std::string uuidBytes)
+{
+    char buffer[32];
+    uint32_t i = 0;
+
+    buffer[i++] = uuidBytes[14];
+    buffer[i++] = uuidBytes[15];
+    buffer[i++] = uuidBytes[12];
+    buffer[i++] = uuidBytes[13];
+    buffer[i++] = uuidBytes[10];
+    buffer[i++] = uuidBytes[11];
+    buffer[i++] = uuidBytes[8];
+    buffer[i++] = uuidBytes[9];
+    buffer[i++] = uuidBytes[6];
+    buffer[i++] = uuidBytes[7];
+    buffer[i++] = uuidBytes[4];
+    buffer[i++] = uuidBytes[5];
+    buffer[i++] = uuidBytes[2];
+    buffer[i++] = uuidBytes[3];
+    buffer[i++] = uuidBytes[0];
+    buffer[i++] = uuidBytes[1];
+    buffer[i++] = uuidBytes[30];
+    buffer[i++] = uuidBytes[31];
+    buffer[i++] = uuidBytes[28];
+    buffer[i++] = uuidBytes[29];
+    buffer[i++] = uuidBytes[26];
+    buffer[i++] = uuidBytes[27];
+    buffer[i++] = uuidBytes[24];
+    buffer[i++] = uuidBytes[25];
+    buffer[i++] = uuidBytes[22];
+    buffer[i++] = uuidBytes[23];
+    buffer[i++] = uuidBytes[20];
+    buffer[i++] = uuidBytes[21];
+    buffer[i++] = uuidBytes[18];
+    buffer[i++] = uuidBytes[19];
+    buffer[i++] = uuidBytes[16];
+    buffer[i++] = uuidBytes[17];
+
+    auto newString = std::string(buffer, sizeof(buffer)/sizeof(buffer[0]));
+
+    return newString;
+}
+
+std::string ToUUID(std::string id)
+{
+    std::string result = "";
+
+    result.append(id, 0, 8);
+    result.append("-");
+    result.append(id, 8, 4);
+    result.append("-");
+    result.append(id, 12, 4);
+    result.append("-");
+    result.append(id, 16, 4);
+    result.append("-");
+    result.append(id, 20, 12);
+
+    return result;
+}
 
 #include <map>
 std::string GetAddressFromAddr(const sockaddr* addr)
@@ -376,211 +436,158 @@ void WriteThreeByteInt(int32_t value, char* buff) {
     ((uint8_t*)buff)[0] = (uint8_t)((value) & 0xFF);
 }
 
-int WINAPI Hooked_Recvfrom(SOCKET s, char* buf, int len, int flags, struct sockaddr* from, int* fromlen)
+#include <vector>
+
+void OnUserLoginReply(PacketReader &reader) 
 {
-    //DumpPacket(buf, len, true);
+   printf("ClientRegionMessages::UserLoginReply\n");
 
-    auto result = original_recvfrom(s, buf, len, flags, from, fromlen);
-    if (result != SOCKET_ERROR)
+    auto success = reader.ReadUint8();
+    auto sessionId = reader.ReadUint32();
+    auto regionServerVersion = reader.ReadString();
+
+    std::vector<std::string> privileges;
+    auto count = reader.ReadUint32();
+    for (size_t i = 0; i < count; i++)
     {
-        //printf("hooked recvfrom [%s] -> %d\n", GetAddressFromAddr(from).c_str(), result);
-        DumpPacket(buf, result, false);
+        auto priv = reader.ReadString();
+        privileges.push_back(priv);
+    }
 
-        if (buf[0] == 0x0A) {
-            if (s == last_chat_sendto_socket) {
-                last_chat_server_sequence = *((uint16_t*)&buf[1]);
-                printf("** last_chat_server_sequence = %X\n", last_chat_server_sequence);
-            }
+    printf("LoginReply:\n Success: %d\n SessionId: %d\n RegionServerVersion: %s\n Privileges: \n", success, sessionId, regionServerVersion.c_str());
+    for (const auto& item : privileges) 
+    {
+        printf("   %s\n", item.c_str());
+    }
+}
+
+
+void OnAddUser(PacketReader& reader)
+{
+    printf("ClientRegionMessages::AddUser\n");
+
+    auto sessionId = reader.ReadUint32();
+    auto userName = reader.ReadString();
+    auto avatarType = reader.ReadString();
+    auto personaId = reader.ReadUUID();
+
+    auto personaIdButts = ClusterButt(personaId);
+    auto personaIdFormatted = ToUUID(personaId);
+
+    printf(" SessionID: %d\n Username: %s\n AvatarType: %s\n PersonaId: %s [%s] | %s\n", sessionId, userName.c_str(), avatarType.c_str(), personaIdFormatted.c_str(), personaIdButts.c_str());
+}
+
+
+bool skippedABigassPacket = false;
+int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sockaddr* from, int* fromlen)
+{
+    auto result = original_recvfrom(s, buff, len, flags, from, fromlen);
+    if (result == SOCKET_ERROR)
+    {
+        return result;
+    }
+
+    //DumpPacket(buff, result, false);
+
+    if (result == 512) {
+        printf("Bigass packet detected. Skipping above packet and the next !!!\n");
+        skippedABigassPacket = true;
+        return result;
+    }
+    if (skippedABigassPacket) {
+        printf("Bigass packet previously detected. Skipping above packet!!!\n");
+        skippedABigassPacket = false;
+        return result;
+    }
+
+
+    if (buff == nullptr || len < 8) {
+        return result;
+    }
+
+    if (buff[0] != 0x07) {
+        return result;
+    }
+
+    // (1:ID) (2:sequence) (1:payload length) (N: payload) (2: checksum)
+
+    //last_sent_sequence = *((uint16_t*)&buff[1]);
+    //auto messageId = *((uint32_t*)&buff[4]);
+    
+    PacketReader reader((const uint8_t*)buff, result);
+    auto packetType = reader.ReadUint8();
+    last_sent_sequence = reader.ReadUint16();
+
+   // printf("Hooked_Recvfrom: packetType = %d | Sequence = %04X | Length=%d\n", packetType, last_sent_sequence, result);
+
+    int packetsParsed = 0;
+    while (reader.GetBytesRemaining() > 2) {
+        auto packetLength = reader.ReadUint8();
+        /*
+        if (packetLength == 0xFF) {
+            //printf("Bigass packet detected. Skipping this packet and the next !!!\n");
+            skippedABigassPacket = true;
+            // Bigass packet ABORT!
+            return result;
         }
-        if (buf[0] == 0x07)
-        {
+        if (skippedABigassPacket) {
+            // Bigass packet tail - ABORT!
+            printf("Bigass packet previously detected. Skipping this smaller followup packet!!!\n");
+            skippedABigassPacket = false;
+            return result;
+        }
+        */
+        if (reader.GetBytesRemaining() < packetLength) {
+            printf("Malformed or multipart packet detected. Skipping this packet and the next !!!\n");
+            skippedABigassPacket = true;
+            return result;
+        }
 
+        auto messageId = reader.ReadUint32();
+        //printf("  %d: Packet %08X | len=%d\n", packetsParsed, messageId, packetLength);
+        packetsParsed++;
+
+        if (messageId == ClientRegionMessages::UserLoginReply)
+        {
+            OnUserLoginReply(reader);
+        }
+        else if (messageId == ClientRegionMessages::AddUser)
+        {
+            OnAddUser(reader);
+        }
+        else 
+        {
+            reader.Skip(packetLength - 4);
+        }
+
+
+       // printf("Bytes remaining = %d\n", reader.GetBytesRemaining());
+    }
+
+
+
+    /*
+
+*/
+
+
+    ///printf("hooked recvfrom [%s] -> %d\n", GetAddressFromAddr(from).c_str(), result);
+   // DumpPacket(buff, result, false);
+    /*
+    if (buff[0] == 0x0A) {
+        if (s == last_chat_sendto_socket) {
+            last_chat_server_sequence = *((uint16_t*)&buff[1]);
+            printf("** last_chat_server_sequence = %X\n", last_chat_server_sequence);
         }
     }
+    if (buff[0] == 0x07)
+    {
+
+    }*/
 
     return result;
 }
 
-class AudioMessages
-{
-public:
-    //static const int = 0x;
-    static const int LoadSound = 0x412484C4;
-    static const int PlaySound = 0x8FC77316;
-    static const int PlayStream= 0x6A2C4CEF;
-    static const int StopBroadcastingSound = 0x866BF5CF;
-    static const int SetAudioStream = 0x5DCD6123;
-    static const int SetMediaSource = 0xEC3CA8EC;
-    static const int PerformMediaAction = 0x559B7F04;
-    static const int StopSound = 0x1A5C9610;
-    static const int SetLoudness= 0x20EDD0C4;
-    static const int SetPitch = 0x7BB86A5B;
-};
-
-class RenderMessages
-{
-public:
-    //static const int = 0x;
-    static const int LightStateChanged = 0x6951DAEC;
-};
-
-class AgentControllerMessages 
-{
-public:
-    static const int PlayAnimation = 0x009385A0;
-    static const int AgentPlayanimation = 0x00AC2B81;
-    static const int ExitSit = 0x0B617A9A;
-    static const int ObjectInteractionPromptUpdate = 0x1651CD68;
-    static const int ObjectInteractionCreate = 0xBB086E9B;
-    static const int RequestSitOnObject = 0xE5321C47;
-    static const int SitOnObject = 0x191F08C0;
-    static const int RiggedMeshScaleChanged = 0xEA2934E8;
-    static const int ScriptCameraMessage = 0x60C955C0;
-    static const int SetAgentFiltersBody = 0x09DD53F6;
-    static const int RequestSetAgentFiltersBody = 0x2B87F09D;
-    static const int SetCharacterUserProperty = 0x31D1EC43;
-    static const int CreateSpeechGraphicsPlayer = 0x158B2580;
-    static const int RequestSpawnItem = 0x2C21850D;
-    static const int RequestDeleteLatestSpawn = 0xEB3C4296;
-    static const int RequestDeleteAllSpawns = 0x3EB3EDF7;
-    static const int ControlPoint = 0x2DF35CF3;
-    static const int WarpCharacter = 0x75C0AC6B;
-    static const int RequestWarpCharacter = 0x25C093E0;
-    static const int CharacterControlPointInput = 0xFCA3EF20;
-    static const int CharacterControlPointInputReliable = 0x8FB6F456;
-    static const int CharacterControllerInput = 0x3D490CAB;
-    static const int CharacterControllerInputReliable = 0xA7D6EFD1;
-    static const int RequestAgentPlayAnimation = 0x982B98D8;
-    static const int RequestBehaviorStateUpdate = 0x5489A347;
-    static const int AttachToCharacterNode = 0x85BA6E75;
-    static const int DetachFromCharacterNode = 0x80F90328;
-    static const int RequestDetachFromCharacterNode = 0x67B63AA3;
-    static const int SetCharacterNodePhysics = 0x645C4976;
-    static const int WarpCharacterNode = 0x83F1D7DB;
-    static const int CharacterIKBone = 0xBB382C6B;
-    static const int CharacterIKPose = 0xE945D8B8;
-    static const int CharacterIKBoneDelta = 0x4C3B3B4B;
-    static const int CharacterIKPoseDelta = 0x893A18BE;
-    static const int ObjectInteraction = 0xA25F81AB;
-    static const int ObjectInteractionUpdate = 0x17B7D18A;
-};
-
-class GameWorldMessages {
-public:
-   // static const int = 0x;
-    static const int StaticMeshFlagsChanged = 0xAE522F17;
-    static const int StaticMeshScaleChanged = 0xCA6CCC08;
-    static const int RiggedMeshFlagsChange = 0x3F020C77;
-    static const int Timestamp = 0xD22C9D73;
-    static const int MoveEntity = 0xEFC20B7F;
-    static const int ChangeMaterialVectorParam = 0x403D5704;
-    static const int ChangeMaterialFloatParam = 0x4F20B073;
-    static const int ChangeMaterial = 0x45C605B8;
-};
-
-class WorldStateMessages {
-public:
-    static const int DynamicPlayback = 0x1505C6D8;
-    static const int MasterFrameSync = 0x5A4AFA33;
-    static const int AgentControllerMapping = 0xBB5865E8;
-    static const int CreateCharacterNode = 0x32DC63D7;
-    static const int CreateAgentController = 0xF555FE2D;
-};
-
-class ClientKafkaMessages
-{
-public:
-    static const int FriendResponseLoaded = 0x0AF50C12;
-    static const int PresenceUpdateFanoutLoaded = 0x5915FBFE;
-    static const int FriendTableLoaded = 0xB4AB87F5;
-    static const int RelationshipTableLoaded = 0x0A7562A7;
-    static const int PrivateChatLoaded = 0x4B73CF2C;
-    static const int PrivateChatStatusLoaded = 0x9BC4EF8A;
-    static const int ScriptRegionConsoleLoaded = 0xD3CAA979;
-    static const int ClientMetric = 0x4AC30FE7;
-    static const int RegionHeartbeatMetric = 0xDCF900A4;
-    static const int RegionEventMetric = 0xBA6DB2FC;
-    static const int SubscribeScriptRegionConsole = 0x3BFA4474;
-    static const int UnsubscriptScriptRegionConsole = 0xD49B04C3;
-    static const int ScriptConsoleLog = 0x00B0E15E;
-    static const int LongLivedNotification = 0x46C5FDF3;
-    static const int LongLivedNotificationDelete = 0x59CF6950;
-    static const int LongLivedNotificationLoaded = 0x3494608D;
-    static const int shortLivedNotification = 0xAD589C6F;
-    static const int Login= 0x0C0C9D81;
-    static const int LoginReply = 0xA685E82B;
-    static const int EnterRegion = 0x08445006;
-    static const int LeaveRegion = 0xE4ADC2EB;
-    static const int RegionChat = 0x304D3746;
-    static const int PrivateChat = 0x2DC9B029;
-    static const int PrivateChatStatus = 0x955C35EB;
-    static const int PresenceUpdate = 0x1DB989E8;
-    static const int FriendRequest = 0xA356B3ED;
-    static const int FriendRequestStatus = 0x14FFCD37;
-    static const int FriendResponse = 0xE24EBDD3;
-    static const int FriendresponseStatus = 0x22565685;
-    static const int FriendTable = 0x203CC0A8;
-    static const int RelationshipOperational= 0x650939F7;
-    static const int RelationshipTable = 0x078DCC26;
-    static const int InventoryItemCapabilities = 0xA2190F5D;
-    static const int InventoryItemRevision = 0xE3466906;
-    static const int InventoryItemUpdate = 0xD7C7DC26;
-    static const int InventoryItemDelete = 0xB11C8C84;
-    static const int InventoryLoaded = 0x75BAFB95;
-    static const int FriendRequestLoaded = 0xF5361468;
-};
-
-
-class ClientRegionMessages {
-public:
-    static const int UserLogin = 0x3902800A;
-    static const int UserLoginReply = 0x30CDBED6;
-    static const int AddUser = 0xF6B9093E;
-    static const int RemoveUser = 0x0A7FC621;
-    static const int RenameUser = 0xC67C58F7;
-    static const int ChatMessageToClient = 0x083642BD;
-    static const int ChatMessageToServer = 0xDDDEC199;
-    static const int SetAgentController = 0xD6F4CF23;
-    static const int DebugTimeChangeToServer = 0x41FE0612;
-    static const int VisualDebuggerCaptureToServer = 0x0741CA9B;
-    static const int ClientStaticReady = 0xF8E77C8E;
-    static const int ClientDynamicReady = 0x575AC239;
-    static const int ClientRegionCommandMessage = 0xECE56EFD;
-    static const int RequestDropPortal = 0x7D22C30C;
-    static const int VibrationPulseToClient = 0x0D3809EB;
-    static const int TeleportTo = 0x5C7CC1FC;
-    static const int TeleportToUri = 0x2BDBDB56;
-    static const int TeleportToEditMode = 0x706F63FB;
-    static const int DebugTimeChangeToClient = 0x5178DC5E;
-    static const int VisualDebuggerCaptureToClient = 0xF66AD9BF;
-    static const int ScriptModalDialog = 0x88023C72;
-    static const int ScriptModalDialogResponse = 0xB34F3A45;
-    static const int TwitchEventSubscription = 0x981AB0D6;
-    static const int TwitchEvent = 0x28F54053;
-    static const int InitialChunkSubscribed = 0xB4E1AB7B;
-    static const int ClientKickNotification = 0x4B68A51C;
-    static const int ClientSmiteNotification = 0x58003034;
-    static const int ClientNotification= 0x6188A537;
-    static const int ClientVoiceBroadcastStartNotification = 0x7E28AEAF;
-    static const int ClientVoiceBroadcastStopNotification = 0xC33DE58B;
-    static const int CreateRegionBroadcasted = 0x87341F77;
-    static const int SubscribeCommand = 0xABDA80C7;
-    static const int UnsubscribeCommand = 0xA36E9F9C;
-    static const int ClientCommand = 0xB87F9C66;
-    static const int OpenStoreListing = 0x05C1A8D7D;
-    static const int OpenUserStore = 0x53078A1E;
-    static const int OpenQuestCharacterDialog = 0x4221836F;
-    static const int UIScriptableBarStart = 0x036164050;
-    static const int UIScriptableBarStopped = 0xBAFD799D;
-    static const int UIScriptableBarCancel = 0x604E18DE;
-    static const int UIHintTextUpdate = 0x64225637;
-    static const int QuestOfferResponse = 0x4DB48E35;
-    static const int QuestCompleted = 0xE1EE5F5D;
-    static const int QuestRemoved = 0x34793AB0;
-    static const int ShowWorldDetail = 0x5F483F0C;
-    static const int ShowTutorialHint = 0x581827CC;
-    static const int TutorialHintsSetEnabled = 0xE4C496DF;
-};
 
 #include <windows.h>
 #include <tlhelp32.h>
@@ -625,33 +632,54 @@ uint8_t *GetBaseAddress()
 
 int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const struct sockaddr* to, int tolen)
 {
-
-    // search for network ptr thingy, this + 0x7c or somewhat = sequence
-    //unsigned char rawData[40] = {
-    //    0x10, 0x78, 0xCA, 0x39, 0x2E, 0x04, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
-    //    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00,
-    //    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    //    0x00, 0x00, 0x00, 0x00
-    //};
-
     if (s == last_chat_sendto_socket) {
         last_chat_server_sequence = *((uint16_t*)&buf[1]);
-        printf("** last_chat_server_sequence = %X\n", last_chat_server_sequence);
+        //printf("** last_chat_server_sequence = %X\n", last_chat_server_sequence);
     }
-
     //  DumpPacket(buf, len, true);
 
-
-    // TODO: Listen for 'ACK' messages from server. get our 'sequence' from there?
-
-    if (buf == nullptr || len < 8 || (buf[0] != 0x01 && buf[0] != 0x07)) {
+    if (buf == nullptr || len < 8) {
         return original_sendto(s, buf, len, flags, to, tolen);
     }
 
-   // std::unique_lock<std::mutex> m(send_mutex);
+    // (1:ID) (2:sequence) (1:payload length) (N: payload) (2: checksum)
 
     last_sent_sequence = *((uint16_t*)&buf[1]);
     auto messageId = *((uint32_t*)&buf[4]);
+
+    
+    if (messageId == ClientKafkaMessages::Login)
+    {
+        // where is this sent..?
+        printf("ClientKafkaMessage::Login ->\n");
+        DumpPacket(buf, len, true);
+    }
+    else if (messageId == ClientRegionMessages::UserLogin)
+    {
+        // ClientRegionMessages::UserLogin ->  07 | 03 00 | 08 | 0A 80 02 39 | 71 06 F7 77 | E4 8B
+        auto secret = *((uint32_t*)&buf[8]);
+        printf("ClientRegionMessages::UserLogin (secret = %u | %X)\n", secret, secret);
+    }
+    else if (messageId == ClientRegionMessages::SetAgentController)
+    {
+        printf("ClientRegionMessages::SetAgentController --> \n");
+        DumpPacket(buf, len, true);
+    }    
+    else if (messageId == ClientRegionMessages::SubscribeCommand)
+    {
+        printf("ClientRegionMessages::SubscribeCommand --> \n");
+        DumpPacket(buf, len, true);
+    }   
+    else if (messageId == ClientRegionMessages::RequestDropPortal)
+    {
+        printf("ClientRegionMessages::RequestDropPortal --> \n");
+        DumpPacket(buf, len, true);
+    }
+
+    if (buf[0] != 0x01 && buf[0] != 0x07) {
+        return original_sendto(s, buf, len, flags, to, tolen);
+    }
+
 
     //printf("Hooked sendto [%s] -> %d\n", GetAddressFromAddr(to).c_str(), result);
     if (buf[0] == 0x01)
@@ -685,6 +713,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
     }
     else if (buf[0] == 0x08)
     {
+
         // Useless kafka login... or is it?
         if (0 && messageId == 0x9D813000)
         {
@@ -757,38 +786,8 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
         // rez item
         if (messageId == AgentControllerMessages::RequestSpawnItem)
         {
-          //  ((char*)buf)[37] = 0x9a;
-           // ((char*)buf)[38] = 0x1d;
-           // ((char*)buf)[39] = 0x00;
-
-
-           // WriteThreeByteInt(5000, (char*)&buf[37]);
-           // WriteThreeByteInt(5000, (char*)&buf[40]);
-            //WriteThreeByteInt(0, (char*)&buf[50]);
-
             //  Id   Seq     MsgId            Frame                     AgentId       ResourceId                            AttachmentNode   SpawnPosition(78bit)|height?(32bit)|SpawnOrientation(43bit)         Checksum
             // [07] [91 01] [31 0D 85 21] 2C [C6 6D 00 00 00 00 00 00] [05 00 00 00] [37 7F 61 06 51 D3 9B EF 5F B0 FB 67 89 AD EE 79] [FF] [EB AE 00 F2 3A 02 48 2A A0 C0 FE BF FF F7 FE 51] [77 96]
-
-            // [frame?][agentControllerId?][ResourceId][AttachmentNode?][SpawnPosition(0x4E)][SpawnOrientation(0x2B)]
-
-            /*
-                result = v9 & 0x80000007;
-                if ( (signed int)result < 0 )
-                {
-                    result = (((_BYTE)result - 1) | 0xFFFFFFF8) + 1;
-                }
-            */
-           /*
-            uint8_t* buff_out = (uint8_t*)buf;
-            buff_out[43] = 0x48;
-            buff_out[44] = 0x2a;
-            buff_out[45] = 0xa0;
-            buff_out[46] = 0xc0;
-            */
-
-            // 39 bit x,y pos??
-            //int64_t positionX = 0;
-           // int64_t positionY = 0;
 
             auto frame = *((uint64_t*)&buf[8]);
             auto agentControllerId = *((uint32_t*)&buf[16]);
@@ -800,43 +799,41 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             auto positionY = br.ReadFloat(26, false);
             auto positionZ = br.ReadFloat(26, true);
 
-            auto base = GetBaseAddress();
+            auto camrez_enabled = false;
+            FILE* inFileCamRez = nullptr;
+            fopen_s(&inFileCamRez, "u:\\sanhook_config_camrez.txt", "rb");
+            if (inFileCamRez != nullptr)
+            {
+                camrez_enabled = fgetc(inFileCamRez);
+                fclose(inFileCamRez);
+            }
+            if (camrez_enabled)
+            {
+                auto base = GetBaseAddress();
 
-            // We got this constant from memory.
-            // Search for "no-input-source".
-            // Between "room scale" and "no-input-source"
-            // Right below a call to RotMatrix, enter that call
-            // rcx+30 = our pointer
-            // Function above it with a bunch of xmm stuff going on (see screenshots)
-            const static auto kCameraPositionOffset = 0x49DD300;
+                // We got this constant from memory.
+                // Search for "no-input-source".
+                // Between "room scale" and "no-input-source"
+                // Right below a call to RotMatrix, enter that call
+                // rcx+30 = our pointer
+                // Function above it with a bunch of xmm stuff going on (see screenshots)
+                //const static auto kCameraPositionOffset = 0x49DD300;
+                const static auto kCameraPositionOffset = 0x4A86940;
 
-            positionX = *((float*)(base + kCameraPositionOffset + 0));
-            positionY = *((float*)(base + kCameraPositionOffset + 4));
-            positionZ = *((float*)(base + kCameraPositionOffset + 8));
+                positionX = *((float*)(base + kCameraPositionOffset + 0));
+                positionY = *((float*)(base + kCameraPositionOffset + 4));
+                positionZ = *((float*)(base + kCameraPositionOffset + 8));
 
-            br.Reset();
-            br.WriteFloat(positionX, 26, false);
-            br.WriteFloat(positionY, 26, false);
-            br.WriteFloat(positionZ, 26, true);
+                br.Reset();
+                br.WriteFloat(positionX, 26, false);
+                br.WriteFloat(positionY, 26, false);
+                br.WriteFloat(positionZ, 26, true);
 
-            br.Reset();
-            positionX = br.ReadFloat(26, false);
-            positionY = br.ReadFloat(26, false);
-            positionZ = br.ReadFloat(26, true);
-
-
-            //float cameraRotationX = *((float*)(base + 0x49DD2D0 + 0));
-            //float cameraRotationY = *((float*)(base + 0x49DD2D0 + 4));
-            //float cameraRotationZ = *((float*)(base + 0x49DD2D0 + 8));
-           // printf("[%f,%f,%f]\n", xxx, yyy, zzz);
-            //static int agent = 0;
-            //*((uint32_t*)&buf[16]) = agent;
-            //*((uint8_t*)&buf[36]) = 3;
-
-            /*
-            if (positionY < 0) {
-                *((uint32_t*)&height) ^= 1 << 30;
-            }*/
+                br.Reset();
+                positionX = br.ReadFloat(26, false);
+                positionY = br.ReadFloat(26, false);
+                positionZ = br.ReadFloat(26, true);
+            }
 
             printf("ClusterId = %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",
                 clusterId[7],
@@ -857,17 +854,12 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
                 clusterId[8]
             );
             printf("agentControllerId=%d attachmentNode=%d | Pos=<%f, %f, %f>\n", agentControllerId, attachmentNode, positionX, positionY, positionZ);
-            DumpPacket(buf, len, true);
+            //DumpPacket(buf, len, true);
             //////////////////////////////
+
             uint8_t newClusterId[16] = {};
             bool enabled = false;
-
             FILE* inFile = nullptr;
-
-            // time? will they expire if this is -1? ^^;
-          //  *((uint64_t*)&buf[8]) = 0;
-           // *((uint32_t*)&buf[16]) = -1;
-
             fopen_s(&inFile, "u:\\sanhook_config_rez.txt", "rb");
             if (inFile != nullptr) {
                 enabled = fgetc(inFile);
@@ -1042,7 +1034,6 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             last_chat_sendto_flags = flags;
             last_chat_sendto_socket = s;
             last_chat_sequence = last_sent_sequence;
-            
 
             auto payload = (uint8_t*)&buf[8];
             auto personaIdBytes = (uint8_t*)&payload[0];
@@ -1056,10 +1047,6 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             auto unknownH = *((uint64_t*)&payload[44 + textLength + 16]);
             auto unknownI = *((uint64_t*)&payload[44 + textLength + 24]);
             auto textLen2 = *((uint32_t*)&payload[44 + textLength + 32]);
-
-            //printf("textLen2 -> %d", textLen2);
-            //*((uint32_t*)&payload[44 + textLength + 18 + 4]) = 0;
-            //len = 44 + textLength + 18 + 4 + 4;
 
             printf("SpecialChat:\n    PersonaID = %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n    unknownB = %llu\n    UnknownC = %llu\n    unknownD = %llu\n    unknownF = %llu\n    unknownG = %llu\n    unknownH = %llu\n    unknownI = %llu\n    CHAT = %s | ",
                 personaIdBytes[7],
@@ -1112,38 +1099,9 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             }
             ///////////////////////
 
-            //static bool x = false;
-            static std::string trigger = "test123";
-
-            /*
-            if (text == "test123") {
-
-                static unsigned char otherPersonaaa[16] = {
-                    0x90, 0x4C, 0x58, 0x02, 0x2B, 0xAD, 0x3A, 0x1C, 0xF9, 0x43, 0x97, 0x5A,
-                    0xA3, 0x0D, 0x04, 0xA6
-                };
-               // memcpy(personaIdBytes, otherPersona, sizeof(otherPersona) / sizeof(otherPersona[0]));
-
-                SendAcceptFriend(otherPersona, last_chat_server_sequence, s, flags, to, tolen);
-                *((uint16_t*)&buf[1]) = last_chat_server_sequence+1;
-               //SpecialChat(text, last_chat_server_sequence, s, flags, to, tolen, checksumSeed_first_cvc100);
-               // auto result = original_sendto(s, buf, len, flags, to, tolen);
-
-            }
-            */
-            if (enabled /*|| text == trigger*/) {
-
-                /*static unsigned char otherPersona[16] = {
-                    0x96, 0x45, 0xD3, 0x64, 0xB7, 0x9C, 0x1F, 0xD6, 0x54, 0x83, 0x78, 0xF7,
-                    0x8F, 0x42, 0x69, 0xA3
-                };*/
-
+            if (enabled) {
                 memcpy(personaIdBytes, otherPersona, sizeof(otherPersona) / sizeof(otherPersona[0]));
-
-                // return SpecialChat("XXXX", *((uint16_t*)&buf[1]), s, flags, to, tolen);
             }
-
-            //return;
         }
         else if (0 && messageId == ClientRegionMessages::ChatMessageToServer)
         {
@@ -1165,14 +1123,6 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             auto myChecksum = Sansar_ShortCRC((uint8_t*)buf, len - 2, checksumSeed_send);
 
             printf("Chat: [%d] %s\n", unknownB, text.c_str());
-            /*
-            printf("Expected checksum: %d | calculated checksum: %d  -> %s", checksum, myChecksum, myChecksum == checksum ? "OK" : "FAIL");
-
-            static bool x = true;//false;
-            if (x == true || text == "test") {
-                return Chat("Butts", *((uint16_t*)&buf[1]), s, flags, to, tolen);
-            }
-            */
         }
     }
 
@@ -1233,53 +1183,16 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         printf("++++++++++++++++++++++++++++++++++\n");
         printf("++++++++++++++++++++++++++++++++++\n");
 
-        /*
-        auto baseAddress = GetModuleHandle("SansarClient.exe");
-        uint8_t freecamHack[] = {
-            0xB0, 0x01, 0x90, 0x90, 0x90, 0x90
-        };
-
-        printf("Base Address: %X\n", baseAddress);
-        printf("hinstDLL: %X\n", baseAddress);
-
-        SIZE_T written = 0;
-        auto xxx = WriteProcessMemory(GetModuleHandle("SansarClient.exe"), (void*)0x14170C24F, freecamHack, sizeof(freecamHack), &written);
-        printf("Write memory: %d | %d bytes written | %X\n", xxx, written, baseAddress);
-        */
-        /*
-        memcpy((void*)((uint64_t)baseAddress + 0x170FA12), freecamHack, sizeof(freecamHack));
-        printf("Hack1: %X\n", (void*)((uint64_t)baseAddress + 0x170FA12));
-
-        uint8_t inventoryAlwaysHack[] = {
-           0xB0, 0x01, 0x88, 0x07
-        };
-        memcpy((void*)((uint64_t)baseAddress + 0x1715A85), inventoryAlwaysHack, sizeof(inventoryAlwaysHack));
-
-        printf("----------------------------------\n");
-        printf("----------------------------------\n");
-        printf("----------------------------------\n");
-        printf("----------------------------------\n");
-        printf("----------------------------------\n");
-        printf("----------------------------------\n");
-        */
         DetourRestoreAfterWith();
 
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
-        //DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom);
+        DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom);
       //  DetourAttach(&(PVOID &)original_recv, Hooked_Recv); // need to hard hook into ssl functions or post-decrypted recv handler...
         DetourAttach(&(PVOID&)original_sendto, Hooked_Sendto);
       // DetourAttach(&(PVOID &)original_send, Hooked_Send);
 
         DetourTransactionCommit();
-
-        //// Freecam always
-        //170FA12
-        //B0 01 90 90 90 90
-
-        //// Inventory always
-        //1715A85
-        //B0 01 88 07
 
         break;
     }

@@ -6,7 +6,7 @@
 class BitReader
 {
 public:
-    BitReader()
+    BitReader() : data(nullptr), dataLength(0)
     {
     }
 
