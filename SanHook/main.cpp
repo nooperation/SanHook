@@ -461,6 +461,11 @@ void OnUserLoginReply(PacketReader &reader)
     }
 }
 
+#include <regex>
+#include <filesystem>
+#include <chrono>
+
+std::regex patternAvatarType("avatarAssetId = \"([^\"]+)\"[^a]+avatarInventoryId = \"([^\"]+)\"");
 
 void OnAddUser(PacketReader& reader)
 {
@@ -469,13 +474,43 @@ void OnAddUser(PacketReader& reader)
     auto sessionId = reader.ReadUint32();    
     auto userName = reader.ReadString();     
     auto avatarType = reader.ReadString();   
-    auto personaId = reader.ReadUUID();      
+    auto personaId = reader.ReadUUID(); 
 
+    auto personaIdButts = ClusterButt(personaId);
+    auto personaIdFormatted = ToUUID(personaId);
+
+    std::string avatarAssetId = "";
+    std::string avatarInventoryId = "";
+
+    std::smatch match;
+    std::regex_search(avatarType, match, patternAvatarType);
+
+    if (match[1].matched) {
+        avatarAssetId = match[1].str();
+    }
+    if(match[2].matched) {
+        avatarInventoryId = match[2].str();
+    }
+
+    std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\userdump.csv";
     
-    auto personaIdButts = ClusterButt(personaId);  
-    auto personaIdFormatted = ToUUID(personaId);   
+    bool needToAddHeader = false;
+    if (!std::filesystem::exists(userdumpPath) || std::filesystem::file_size(userdumpPath) == 0) {
+        needToAddHeader = true;
+    }
+    
+    auto now = std::chrono::system_clock::now();
+    auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
-    printf(" SessionID: %d\n Username: %s\n AvatarType: %s\n PersonaId: %s [%s]\n", sessionId, userName.c_str(), avatarType.c_str(), personaIdFormatted.c_str(), personaIdButts.c_str());
+    FILE* outFile = nullptr;
+    fopen_s(&outFile, userdumpPath.string().c_str(), "a");
+    if (needToAddHeader) {
+        fprintf(outFile, "timestamp,username,personaId,personaIdSwapped,avatarAssetId,avatarInventoryId\n");
+    }
+    fprintf(outFile, "\"%lld\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n", timestamp, userName.c_str(), personaIdFormatted.c_str(), personaIdButts.c_str(), avatarAssetId.c_str(), avatarInventoryId.c_str());
+    fclose(outFile);
+
+    printf(" SessionID: %d\n Username: %s\n AvatarType: '%s'\n PersonaId: %s [%s]\n", sessionId, userName.c_str(), avatarType.c_str(), personaIdFormatted.c_str(), personaIdButts.c_str());
 }
 
 
@@ -633,8 +668,10 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sock
     catch (std::exception& ex)
     {
         printf("Shit hit the fan. Clearning reader on socket %d.\n", s);
-        lastProcessedSequence.erase(s);
         reader.Reset();
+
+        lastProcessedSequence.erase(s);
+        readers.erase(s);
     }
 
     return result;
@@ -1213,6 +1250,180 @@ int WINAPI Hooked_Send(SOCKET s, const char* buf, int len, int flags)
     return result;
 }
 
+#include "Magic.h"
+unsigned long long ReturnPoint = 0;
+unsigned long long ReturnPoint_HandleUpdateNotificationMessage = 0;
+unsigned long long ReturnPoint_HandleChatMessage = 0;
+unsigned long long ReturnPoint_HandleScriptConsoleStuff = 0;
+
+
+void RewriteCode(void *targetAddress, uint8_t* newCode, std::size_t newCodeLength)
+{
+    DWORD oldProtection = 0;
+    if (!VirtualProtect(targetAddress, newCodeLength, PAGE_EXECUTE_READWRITE, &oldProtection)) {
+        printf("Failed to VirtualProtect address...\n");
+    }
+
+    printf("Writing %d bytes to %X...\n", newCodeLength, (uint64_t)targetAddress);
+    auto result = memcpy(targetAddress, newCode, newCodeLength);
+
+    if (!VirtualProtect(targetAddress, newCodeLength, oldProtection, &oldProtection)) {
+        printf("Failed to restore VirtualProtect protection...\n");
+    }
+}
+
+
+// Pretty much only handles UserLoginReply when entering an experience and AddUser when a user joins an experience
+void ProcessClientRegionMessage(uint64_t messageId, uint8_t* packet, uint64_t length) {
+   // printf("ProcessClientRegionMessage: MessageId = %X | Length = %d | packet = %X\n", messageId, length, (uint64_t)packet);
+
+    PacketReader reader;
+    reader.Add(0, packet, length);
+    
+    messageId = reader.ReadUint32();
+    
+    if (messageId == ClientRegionMessages::UserLoginReply)
+    {
+        OnUserLoginReply(reader);
+    }
+    else if (messageId == ClientRegionMessages::AddUser)
+    {
+        OnAddUser(reader);
+    }
+    else {
+        printf("ProcessClientRegionMessage: Unhandled message %X\n", messageId);
+    }
+
+    reader.Reset();
+}
+
+void OnChatMessageToClient(PacketReader& reader)
+{
+    auto fromSessionId = reader.ReadUint32();
+    auto toSessionId = reader.ReadUint32();
+    auto message = reader.ReadString();
+
+    printf("OnChatMessageToClient: %X -> %X: %s\n", fromSessionId, toSessionId, message.c_str());
+}
+
+
+void OnClientVoiceLoginReply(PacketReader& reader)
+{
+    auto success = reader.ReadUint8();
+    auto message = reader.ReadString();
+
+    printf("OnClientVoiceLoginReply: Success=%d: %s\n", success, message.c_str());
+}
+
+void ProcessChatMessage(uint64_t messageId, uint8_t* packet, uint64_t length) {
+    printf("ProcessChatMessage: MessageId = %X | Length = %d | packet = %X\n", messageId, length, (uint64_t)packet);
+
+    PacketReader reader;
+    reader.Add(0, packet, length);
+
+    messageId = reader.ReadUint32();
+
+    if (messageId == ClientRegionMessages::ChatMessageToClient)
+    {
+        OnChatMessageToClient(reader);
+    }
+    else if (messageId == ClientVoiceMessages::LoginReply)
+    {
+        OnClientVoiceLoginReply(reader);
+    }
+    else {
+        printf("ProcessChatMessage: Unhandled message %X\n", messageId);
+    }
+
+    reader.Reset();
+}
+
+void OnScriptConsoleLog(PacketReader& reader)
+{
+    auto logLevel = reader.ReadUint32();
+    auto tag = reader.ReadString();
+    auto message = reader.ReadString();
+    auto timestamp = reader.ReadUint64();
+    auto scriptId = reader.ReadUint32();
+    auto scriptClassName = reader.ReadString();
+    auto worldId = reader.ReadString();
+    auto instanceId = reader.ReadString();
+    auto ownerPersonaId = reader.ReadUUID();
+    auto offset = reader.ReadUint64();
+
+    printf("OnScriptConsoleLog: logLevel = %u\n  tag = %s\n  message = %s\n  timestamp = %llu\n  scriptId = %u\n  scriptClassName = %s\n  worldId = %s\n  instanceId = %s\n  ownerPersonaId = %s\n  offset = %llu\n", 
+        logLevel,
+        tag,
+        message.c_str(),
+        timestamp,
+        scriptId,
+        scriptClassName.c_str(),
+        worldId.c_str(),
+        instanceId.c_str(),
+        ownerPersonaId.c_str(),
+        offset
+    );
+}
+
+void ProcessScriptConsoleStuff(uint64_t messageId, uint8_t* packet, uint64_t length) {
+    printf("ProcessScriptConsoleStuff: MessageId = %X | Length = %d | packet = %X\n", messageId, length, (uint64_t)packet);
+
+    PacketReader reader;
+    reader.Add(0, packet, length);
+
+    messageId = reader.ReadUint32();
+
+    if (messageId == ClientKafkaMessages::ScriptConsoleLog)
+    {
+        OnScriptConsoleLog(reader);
+    }
+    else {
+        printf("ProcessScriptConsoleStuff: Unhandled message %X\n", messageId);
+    }
+
+    reader.Reset();
+}
+
+// Useless notifications I don't care about. Nothing to be gained here.
+void ProcessUpdateNotificationMessage(uint64_t messageId, uint8_t* packet, uint64_t length) {
+    PacketReader reader;
+    reader.Add(0, packet, length);
+
+    messageId = reader.ReadUint32();
+
+    if (messageId == ClientKafkaMessages::LongLivedNotificationLoaded)
+    {
+        printf("LongLivedNotificationLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+    }
+    else if (messageId == ClientKafkaMessages::PrivateChatStatusLoaded) {
+        printf("PrivateChatStatusLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+    }
+    else if (messageId == ClientKafkaMessages::PrivateChatLoaded) {
+        printf("PrivateChatLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+    }
+    else if (messageId == ClientKafkaMessages::RelationshipTableLoaded) {
+        printf("RelationshipTableLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+    }
+    else if (messageId == ClientKafkaMessages::PresenceUpdateFanoutLoaded) {
+        printf("PresenceUpdateFanoutLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+    }
+    else if (messageId == ClientKafkaMessages::InventoryLoaded) {
+        printf("InventoryLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+    }
+    else if (messageId == ClientRegionMessages::InitialChunkSubscribed) {
+        printf("InitialChunkSubscribed\n");
+    }
+    else if (messageId == ClientRegionMessages::CreateRegionBroadcasted) {
+        printf("CreateRegionBroadcasted\n");
+    }
+    else {
+        printf("ProcessUpdateNotificationMessage: Unhandled message %X\n", messageId);
+    }
+
+    reader.Reset();
+}
+
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
     if (DetourIsHelperProcess())
@@ -1235,11 +1446,60 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         printf("++++++++++++++++++++++++++++++++++\n");
         printf("++++++++++++++++++++++++++++++++++\n");
 
+
+        auto base = GetBaseAddress();
+
+        if (true) {
+            uint8_t hijackClientRegionMessage_AddUserLogin[] = {
+                0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE0
+            };
+            *((uint64_t*)&hijackClientRegionMessage_AddUserLogin[2]) = (uint64_t)intercept_client_region_message;
+            RewriteCode(base + 0x1242F90, hijackClientRegionMessage_AddUserLogin, sizeof(hijackClientRegionMessage_AddUserLogin));
+
+            ReturnPoint = (uint64_t)(base + 0x1242F9C);
+        }
+
+
+        if (false) {
+            uint8_t hijack_HandleUpdateNotificationMessage[] = {
+                0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE0, 0x90, 0x90, 0x90, 0x90
+            };
+            *((uint64_t*)&hijack_HandleUpdateNotificationMessage[2]) = (uint64_t)intercept_HandleUpdateNotificationMessage;
+            RewriteCode(base + 0x11C8840, hijack_HandleUpdateNotificationMessage, sizeof(hijack_HandleUpdateNotificationMessage));
+
+            ReturnPoint_HandleUpdateNotificationMessage = (uint64_t)(base + 0x11C8850);
+        }
+        
+        if (true) {
+            uint8_t hijack_HandleScriptConsoleStuff[] = {
+                0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE0, 0x90, 0x90, 0x90, 0x90
+            };
+            *((uint64_t*)&hijack_HandleScriptConsoleStuff[2]) = (uint64_t)intercept_HandleScriptConsoleStuff;
+            RewriteCode(base + 0x177A7E0, hijack_HandleScriptConsoleStuff, sizeof(hijack_HandleScriptConsoleStuff));
+
+            ReturnPoint_HandleScriptConsoleStuff = (uint64_t)(base + 0x177A7F0);
+        }
+
+        if (true) {
+            uint8_t hijack_HandleChatMessage[] = {
+                0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE0
+            };
+            *((uint64_t*)&hijack_HandleChatMessage[2]) = (uint64_t)intercept_HandleChatMessage;
+            RewriteCode(base + 0x123FA60, hijack_HandleChatMessage, sizeof(hijack_HandleChatMessage));
+
+            ReturnPoint_HandleChatMessage = (uint64_t)(base + 0x123FA6C);
+        }
+
+
+
+
+
+
         DetourRestoreAfterWith();
 
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
-        DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom);
+       // DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
       //  DetourAttach(&(PVOID &)original_recv, Hooked_Recv); // need to hard hook into ssl functions or post-decrypted recv handler...
         DetourAttach(&(PVOID&)original_sendto, Hooked_Sendto);
       // DetourAttach(&(PVOID &)original_send, Hooked_Send);

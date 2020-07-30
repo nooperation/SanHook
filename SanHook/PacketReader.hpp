@@ -168,8 +168,11 @@ public:
 
 		CheckOutOfBoundsRead(length);
 
-		std::string result((const char*)&buffer[bufferIndex], length);
-		bufferIndex += length;
+		std::string result = "";
+		if (length > 0) {
+			result = std::string((const char*)&buffer[bufferIndex], length);
+			bufferIndex += length;
+		}
 
 		return result;
 	}

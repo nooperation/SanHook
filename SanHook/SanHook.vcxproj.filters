@@ -29,5 +29,13 @@
     <ClInclude Include="PacketReader.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Magic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Magic.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
