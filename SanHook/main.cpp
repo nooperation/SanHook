@@ -1251,11 +1251,7 @@ int WINAPI Hooked_Send(SOCKET s, const char* buf, int len, int flags)
 }
 
 #include "Magic.h"
-unsigned long long ReturnPoint = 0;
-unsigned long long ReturnPoint_HandleUpdateNotificationMessage = 0;
-unsigned long long ReturnPoint_HandleChatMessage = 0;
-unsigned long long ReturnPoint_HandleScriptConsoleStuff = 0;
-
+unsigned long long ReturnPoint_ProcessPacketRecv = 0;
 
 void RewriteCode(void *targetAddress, uint8_t* newCode, std::size_t newCodeLength)
 {
@@ -1272,30 +1268,6 @@ void RewriteCode(void *targetAddress, uint8_t* newCode, std::size_t newCodeLengt
     }
 }
 
-
-// Pretty much only handles UserLoginReply when entering an experience and AddUser when a user joins an experience
-void ProcessClientRegionMessage(uint64_t messageId, uint8_t* packet, uint64_t length) {
-   // printf("ProcessClientRegionMessage: MessageId = %X | Length = %d | packet = %X\n", messageId, length, (uint64_t)packet);
-
-    PacketReader reader;
-    reader.Add(0, packet, length);
-    
-    messageId = reader.ReadUint32();
-    
-    if (messageId == ClientRegionMessages::UserLoginReply)
-    {
-        OnUserLoginReply(reader);
-    }
-    else if (messageId == ClientRegionMessages::AddUser)
-    {
-        OnAddUser(reader);
-    }
-    else {
-        printf("ProcessClientRegionMessage: Unhandled message %X\n", messageId);
-    }
-
-    reader.Reset();
-}
 
 void OnChatMessageToClient(PacketReader& reader)
 {
@@ -1315,27 +1287,19 @@ void OnClientVoiceLoginReply(PacketReader& reader)
     printf("OnClientVoiceLoginReply: Success=%d: %s\n", success, message.c_str());
 }
 
-void ProcessChatMessage(uint64_t messageId, uint8_t* packet, uint64_t length) {
-    printf("ProcessChatMessage: MessageId = %X | Length = %d | packet = %X\n", messageId, length, (uint64_t)packet);
+void OnLocalAudioStreamState(PacketReader& reader)
+{
+    auto instance = reader.ReadString();
+    auto agentControllerId = reader.ReadUint32();
+    auto broadcast = reader.ReadUint8();
+    auto mute = reader.ReadUint8();
 
-    PacketReader reader;
-    reader.Add(0, packet, length);
-
-    messageId = reader.ReadUint32();
-
-    if (messageId == ClientRegionMessages::ChatMessageToClient)
-    {
-        OnChatMessageToClient(reader);
-    }
-    else if (messageId == ClientVoiceMessages::LoginReply)
-    {
-        OnClientVoiceLoginReply(reader);
-    }
-    else {
-        printf("ProcessChatMessage: Unhandled message %X\n", messageId);
-    }
-
-    reader.Reset();
+    printf("OnClientVoiceLoginReply:\n  instance=%s\n  agentControllerId = %u\n  broacast = %d\n  mute = %d\n", 
+        instance.c_str(),
+        agentControllerId,
+        broadcast,
+        mute
+    );
 }
 
 void OnScriptConsoleLog(PacketReader& reader)
@@ -1353,7 +1317,7 @@ void OnScriptConsoleLog(PacketReader& reader)
 
     printf("OnScriptConsoleLog: logLevel = %u\n  tag = %s\n  message = %s\n  timestamp = %llu\n  scriptId = %u\n  scriptClassName = %s\n  worldId = %s\n  instanceId = %s\n  ownerPersonaId = %s\n  offset = %llu\n", 
         logLevel,
-        tag,
+        tag.c_str(),
         message.c_str(),
         timestamp,
         scriptId,
@@ -1365,59 +1329,187 @@ void OnScriptConsoleLog(PacketReader& reader)
     );
 }
 
-void ProcessScriptConsoleStuff(uint64_t messageId, uint8_t* packet, uint64_t length) {
-    printf("ProcessScriptConsoleStuff: MessageId = %X | Length = %d | packet = %X\n", messageId, length, (uint64_t)packet);
+void OnCharacterControllerInput(PacketReader& reader)
+{
+    auto frame = reader.ReadUint64();
+    auto agentControllerId = reader.ReadUint32();
+    auto jumpState = reader.ReadUint8();
+    auto jumpBtnPressed = reader.ReadUint8();
+
+    printf("OnCharacterControllerInput: Frame = %llu | Agent = %u | jumpState = %d | jump = %d\n",
+        frame,
+        agentControllerId,
+        jumpState,
+        jumpBtnPressed
+    );
+    /*
+    auto moveRight = ;
+    auto moveForward = ;
+    auto cameraYaw = ;
+    auto cameraPitch = ;
+    auto cameraYaw = ;
+    auto cameraYaw = ;
+    auto cameraYaw = ;
+    auto cameraYaw = ;
+    ... TBD, weird packed float stuff again
+    */
+}
+
+void OnClientKafkaMessageLoginReply(PacketReader& reader)
+{
+    auto success = reader.ReadUint8();
+    auto message = reader.ReadString();
+
+    printf("ClientKafkaMessages::LoginReply: Success = %d (Message = '%s')\n", success, message.c_str());
+}
+
+void OnClientKafkaMessagePresenceUpdate(PacketReader& reader)
+{
+    auto personaId = reader.ReadUUID();
+    auto present = reader.ReadUint8();
+    auto sessionId = reader.ReadUUID();
+    auto state = reader.ReadString();
+    auto sansarUri = reader.ReadString();
+
+    printf("ClientKafkaMessages::PresenceUpdate:\n  personaId = %s\n  present = %d\n  sessionId = %s\n  state = %s\n  sansarUri = %s\n",
+        personaId.c_str(),
+        present,
+        sessionId.c_str(),
+        state.c_str(),
+        sansarUri.c_str()
+    );
+}
+
+void OnClientKafkaMessageRelationshipTable(PacketReader& reader)
+{
+    auto other = reader.ReadUUID();
+    auto fromSelf = reader.ReadUint8();
+    auto fromOther = reader.ReadUint8();
+    auto status = reader.ReadUint32();
+
+    printf("ClientKafkaMessages::RelationshipTable: other = %d, fromSelf = %d, fromOther = %d, status = %d\n",
+        other.c_str(),
+        fromSelf,
+        fromOther,
+        status
+    );
+}
+
+void OnInventoryItemUpdate(PacketReader& reader)
+{
+    auto id = reader.ReadString();
+    auto licensee_label = reader.ReadString();
+    auto licensor_label = reader.ReadString();
+    auto compat_version  = reader.ReadString();
+    auto licensor_pid = reader.ReadString();
+    auto creationTime = reader.ReadString();
+    auto modificationTime = reader.ReadString();
+
+    auto origin = reader.ReadUint32();
+    auto originReference = reader.ReadString();
+    auto ReversionsLength = reader.ReadUint32();
+
+    auto offset = reader.ReadUint64();
+    auto state = reader.ReadUint8();
+
+    printf("ClientKafkaMessages::InventoryItemUpdate:\n  id = %s\n  licensee_label = %s\n  compat_version = %s\n  licensor_pid = %s\n  creationTime = %s\n  modificationTime = %s\n  origin = %u\n  originReference = %s\n  revisionsLength = %d\n  offset = %llu\n  state = %d\n",
+        id.c_str(),
+        licensee_label.c_str(),
+        licensor_label.c_str(),
+        compat_version.c_str(),
+        licensor_pid.c_str(),
+        creationTime.c_str(),
+        modificationTime.c_str(),
+        origin,
+        originReference.c_str(),
+        ReversionsLength,
+        offset,
+        state,
+    );
+}
+
+void ProcessPacketRecv(uint64_t messageId, uint8_t* packet, uint64_t length) {
+    //printf("ProcessPacketRecv: MessageId = %X | Length = %d | packet = %X\n", messageId, length, (uint64_t)packet);
 
     PacketReader reader;
     reader.Add(0, packet, length);
 
     messageId = reader.ReadUint32();
 
-    if (messageId == ClientKafkaMessages::ScriptConsoleLog)
+    if (messageId == ClientRegionMessages::UserLoginReply)
+    {
+        OnUserLoginReply(reader);
+    }
+    else if (messageId == ClientRegionMessages::AddUser)
+    {
+        OnAddUser(reader);
+    }
+    else if (messageId == ClientKafkaMessages::ScriptConsoleLog)
     {
         OnScriptConsoleLog(reader);
     }
-    else {
-        printf("ProcessScriptConsoleStuff: Unhandled message %X\n", messageId);
-    }
-
-    reader.Reset();
-}
-
-// Useless notifications I don't care about. Nothing to be gained here.
-void ProcessUpdateNotificationMessage(uint64_t messageId, uint8_t* packet, uint64_t length) {
-    PacketReader reader;
-    reader.Add(0, packet, length);
-
-    messageId = reader.ReadUint32();
-
-    if (messageId == ClientKafkaMessages::LongLivedNotificationLoaded)
+    else if (messageId == AgentControllerMessages::CharacterControllerInput)
     {
-        printf("LongLivedNotificationLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+        // OnCharacterControllerInput(reader);
+    }
+    else if (messageId == ClientRegionMessages::ChatMessageToClient)
+    {
+        OnChatMessageToClient(reader);
+    }
+    else if (messageId == ClientVoiceMessages::LoginReply)
+    {
+        OnClientVoiceLoginReply(reader);
+    }
+    else if (messageId == ClientRegionMessages::UserLoginReply)
+    {
+        OnUserLoginReply(reader);
+    }
+    else if (messageId == ClientRegionMessages::AddUser)
+    {
+        OnAddUser(reader);
+    }
+    else if (messageId == ClientKafkaMessages::LoginReply)
+    {
+        OnClientKafkaMessageLoginReply(reader);
+    }
+    else if (messageId == ClientKafkaMessages::PresenceUpdate)
+    {
+        OnClientKafkaMessagePresenceUpdate(reader);
+    }
+    else if (messageId == ClientKafkaMessages::RelationshipTable) 
+    {
+        OnClientKafkaMessageRelationshipTable(reader);
+    }
+    else if (messageId == ClientKafkaMessages::InventoryItemUpdate) {
+        OnInventoryItemUpdate(reader);
+    }
+    else if (messageId == ClientKafkaMessages::LongLivedNotificationLoaded)
+    {
+        //printf("LongLivedNotificationLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
     }
     else if (messageId == ClientKafkaMessages::PrivateChatStatusLoaded) {
-        printf("PrivateChatStatusLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+        //printf("PrivateChatStatusLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
     }
     else if (messageId == ClientKafkaMessages::PrivateChatLoaded) {
-        printf("PrivateChatLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+        // printf("PrivateChatLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
     }
     else if (messageId == ClientKafkaMessages::RelationshipTableLoaded) {
-        printf("RelationshipTableLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+        //printf("RelationshipTableLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
     }
     else if (messageId == ClientKafkaMessages::PresenceUpdateFanoutLoaded) {
-        printf("PresenceUpdateFanoutLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+        //printf("PresenceUpdateFanoutLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
     }
     else if (messageId == ClientKafkaMessages::InventoryLoaded) {
-        printf("InventoryLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+        //printf("InventoryLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
     }
     else if (messageId == ClientRegionMessages::InitialChunkSubscribed) {
-        printf("InitialChunkSubscribed\n");
+        //printf("InitialChunkSubscribed\n");
     }
     else if (messageId == ClientRegionMessages::CreateRegionBroadcasted) {
-        printf("CreateRegionBroadcasted\n");
+        //printf("CreateRegionBroadcasted\n");
     }
     else {
-        printf("ProcessUpdateNotificationMessage: Unhandled message %X\n", messageId);
+        printf("ProcessPacketRecv: Unhandled message %X\n", messageId);
     }
 
     reader.Reset();
@@ -1450,49 +1542,25 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         auto base = GetBaseAddress();
 
         if (true) {
-            uint8_t hijackClientRegionMessage_AddUserLogin[] = {
-                0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE0
+            /*
+                mov RDX, <address>
+                call RDX
+                nop
+                nop
+                nop
+                nop
+            */
+            uint8_t hijack_ProcessPacketRecv[] = {
+                0x48, 0xBA, 0xC1, 0x25, 0x85, 0xAF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE2,
+                0x90, 0x90, 0x90, 0x90
             };
-            *((uint64_t*)&hijackClientRegionMessage_AddUserLogin[2]) = (uint64_t)intercept_client_region_message;
-            RewriteCode(base + 0x1242F90, hijackClientRegionMessage_AddUserLogin, sizeof(hijackClientRegionMessage_AddUserLogin));
 
-            ReturnPoint = (uint64_t)(base + 0x1242F9C);
+            *((uint64_t*)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
+            RewriteCode(base + 0x142220A, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+
+            // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14225C1);
         }
-
-
-        if (false) {
-            uint8_t hijack_HandleUpdateNotificationMessage[] = {
-                0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE0, 0x90, 0x90, 0x90, 0x90
-            };
-            *((uint64_t*)&hijack_HandleUpdateNotificationMessage[2]) = (uint64_t)intercept_HandleUpdateNotificationMessage;
-            RewriteCode(base + 0x11C8840, hijack_HandleUpdateNotificationMessage, sizeof(hijack_HandleUpdateNotificationMessage));
-
-            ReturnPoint_HandleUpdateNotificationMessage = (uint64_t)(base + 0x11C8850);
-        }
-        
-        if (true) {
-            uint8_t hijack_HandleScriptConsoleStuff[] = {
-                0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE0, 0x90, 0x90, 0x90, 0x90
-            };
-            *((uint64_t*)&hijack_HandleScriptConsoleStuff[2]) = (uint64_t)intercept_HandleScriptConsoleStuff;
-            RewriteCode(base + 0x177A7E0, hijack_HandleScriptConsoleStuff, sizeof(hijack_HandleScriptConsoleStuff));
-
-            ReturnPoint_HandleScriptConsoleStuff = (uint64_t)(base + 0x177A7F0);
-        }
-
-        if (true) {
-            uint8_t hijack_HandleChatMessage[] = {
-                0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE0
-            };
-            *((uint64_t*)&hijack_HandleChatMessage[2]) = (uint64_t)intercept_HandleChatMessage;
-            RewriteCode(base + 0x123FA60, hijack_HandleChatMessage, sizeof(hijack_HandleChatMessage));
-
-            ReturnPoint_HandleChatMessage = (uint64_t)(base + 0x123FA6C);
-        }
-
-
-
-
 
 
         DetourRestoreAfterWith();

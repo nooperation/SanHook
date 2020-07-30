@@ -160,7 +160,9 @@ public:
 class ClientVoiceMessages {
 public:
     static const uint32_t LoginReply = 0xA6972017;
+    static const uint32_t LocalAudioStreamState = 0xF2FB6AD0; /// uhhh double check these two
 };
+
 class ClientRegionMessages {
 public:
     static const uint32_t UserLogin = 0x3902800A;
@@ -210,4 +212,39 @@ public:
     static const uint32_t ShowWorldDetail = 0x5F483F0C;
     static const uint32_t ShowTutorialHint = 0x581827CC;
     static const uint32_t TutorialHintsSetEnabled = 0xE4C496DF;
+};
+
+class EditServerMessages {
+public:
+    static const uint32_t UserLogin = 0x046D3C1E;
+    static const uint32_t UserLoginReply = 0xE227C3E2;
+    static const uint32_t AddUser = 0x50155562;
+    static const uint32_t RemoveUser = 0x5729AC25;
+    static const uint32_t OpenWorkspace = 0xBC512F47;
+    static const uint32_t CloseWorkspace = 0x43C06583;
+    static const uint32_t EditWorkspaceCommand = 0x76363E28;
+    static const uint32_t SaveWorkspace = 0x7C7BDCA8;
+    static const uint32_t SaveWorkspaceReply = 0xFAE838FC;
+    static const uint32_t BuildWorkspace = 0x5963934F;
+    static const uint32_t UpdateWorkspaceClientbuiltBakeData = 0xF12FD324;
+    static const uint32_t BuildWorkspaceCompileReply = 0x15B220E0;
+    static const uint32_t BuildWorkspaceProgressUpdate = 0xC9FCDB71;
+    static const uint32_t BuildWorkspaceUploadReply = 0xF090AF8E;
+    static const uint32_t WorkspaceReadyReply = 0x7D87DBEA;
+    static const uint32_t SaveWorkspaceSelectionToInventory = 0x7E37F335;
+    static const uint32_t SaveWorkspaceSelectionToInventoryReply = 0x439C3637;
+    static const uint32_t InventoryCreateItem = 0xB5487205;
+    static const uint32_t InventoryDeleteItem = 0x6F75848E;
+    static const uint32_t InventoryChangeItemName = 0x690612C6;
+    static const uint32_t InventoryChangeItemState = 0x6C202756;
+    static const uint32_t InventoryModifyItemThumbnailAssetId = 0x2C2AE45E;
+    static const uint32_t InventoryModifyItemCapabilities = 0xF93582DD;
+    static const uint32_t InventorySaveItem = 0xA67D88F8;
+    static const uint32_t InventoryUpdateItemReply = 0x144D39F8;
+    static const uint32_t InventoryItemUpload = 0xF2E11A50;
+    static const uint32_t InventoryItemUploadReply = 0xA25566F4;
+    static const uint32_t InventoryCreateListing = 0xBE2C532E;
+    static const uint32_t InventoryCreateListingReply = 0x4EA3D072;
+    static const uint32_t BeginEditServerSpawn = 0xB5BFECD3;
+    static const uint32_t EditServerSpawnReady = 0xB3623297;
 };
