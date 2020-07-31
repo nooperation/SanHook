@@ -182,18 +182,19 @@ int main()
     };
     *((float*)&gravityHack[1]) = 2.0f;
 
-    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17088C0), gravityHack, sizeof(gravityHack), &written);
-    printf("Written to %X: %d bytes\n", base + 0x17088C0, written);
+    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17533DA), gravityHack, sizeof(gravityHack), &written);
+    printf("Written to %X: %d bytes\n", base + 0x17533DA, written);
 
 
     ///////////////////////////////////
     /// COLLISION - ALWAYS COLLIDE AVATARS (right above freecam hack, look for "skyCubemap")
     ///////////////////////////////////
     uint8_t collisionHack[] = {
-        0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
+       // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
+         0xB0, 0x01, 0x90
     };
-  //  WriteProcessMemory(process_info.hProcess, (void*)(base + 0x170890B), collisionHack, sizeof(collisionHack), &written);
-    printf("Written to %X: %d bytes\n", base + 0x170890B, written);
+    //WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1753423), collisionHack, sizeof(collisionHack), &written);
+    printf("Written to %X: %d bytes\n", base + 0x1753423, written);
     
 
     ///////////////////////////////////
@@ -203,8 +204,8 @@ int main()
         0xB0, 0x01, 0x90
     };
     written = 0;
-    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1708955), freecamHack, sizeof(freecamHack), &written);
-    printf("Written to %X: %d bytes\n", base + 0x1708955, written);
+    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175346E), freecamHack, sizeof(freecamHack), &written);
+    printf("Written to %X: %d bytes\n", base + 0x175346E, written);
 
 
     
@@ -215,8 +216,34 @@ int main()
        0xB0, 0x01, 0x88, 0x07
     };
     written = 0;
-    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x170E9C5), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
-    printf("Written to %X: %d bytes\n", base + 0x170E9C5, written);
+    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1759A65), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
+    printf("Written to %X: %d bytes\n", base + 0x1759A65, written);
+
+
+
+    //uint8_t hijackClientRegionMessage_AddUserLogin[] = {
+    //    0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0x20
+    //};
+    //*((uint64_t*)&hijackClientRegionMessage_AddUserLogin[2]) = 0;
+    //uint64_t hijackClientRegionMessage_RETURN = 0x1242F9C;
+    //written = 0;
+    //WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1242F90), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
+    //printf("Written to %X: %d bytes\n", base + 0x1242F90, written);
+
+
+
+
+
+
+    // see main.cpp "no-input-source"
+    uint8_t no1minTelemetry[] = {
+        0xEB, 0x08
+    };
+    auto telemetryCallerAddress = 0x1165C5B;
+    written = 0;
+    //WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
+    printf("Written to %X: %d bytes\n", base + telemetryCallerAddress, written);
+
 
     printf("Process resumed. Cleaning up...\n");
     CloseHandle(process_info.hThread);

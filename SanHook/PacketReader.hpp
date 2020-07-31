@@ -46,9 +46,38 @@ public:
 		
 	}
 
-	PacketReader(uint16_t sequence, const uint8_t *packet, uint32_t size)
+	PacketReader(uint16_t sequence, const uint8_t *packet, uint64_t size)
 	{
 		Add(sequence, packet, size);
+	}
+
+	void Dump() const
+	{
+		static const char kHexLookup[] = {
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+		};
+
+		char output_buffer[65536 * 3 + 1] = {};
+		std::size_t output_index = 0;
+
+		for (int i = 0; i < this->buffer.size(); ++i)
+		{
+			auto low = ((uint8_t)this->buffer[i] & 0xF0) >> 4;
+			auto high = (uint8_t)this->buffer[i] & 0x0F;
+
+			output_buffer[output_index++] = kHexLookup[low];
+			output_buffer[output_index++] = kHexLookup[high];
+			output_buffer[output_index++] = ' ';
+		}
+
+		if (!output_buffer)
+		{
+			printf("Bad output buffer\n");
+		}
+		else
+		{
+			printf("DUMP [%zd] %s\n", this->buffer.size(), output_buffer);
+		}
 	}
 
 	uint16_t getPreviousSequence() const {
@@ -66,7 +95,7 @@ public:
 		outOfOrderPackets.clear();
 	}
 
-	void Add(uint16_t sequence, const uint8_t* packet, uint32_t size)
+	void Add(uint16_t sequence, const uint8_t* packet, uint64_t size)
 	{
 		if (previousSequenceIsValid)
 		{
@@ -189,7 +218,7 @@ public:
 		return result;
 	}
 
-	void Skip(int numBytes)
+	void Skip(std::size_t numBytes)
 	{
 		//printf("Skip %d\n", numBytes);
 		CheckOutOfBoundsRead(numBytes);

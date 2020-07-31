@@ -26,7 +26,7 @@ public:
         {
             printf("%02X ", data[i]);
         }
-        printf("ByteIndex = %d | BitIndex = %d\n", byteIndex, bitIndex);
+        printf("ByteIndex = %lld | BitIndex = %lld\n", byteIndex, bitIndex);
         printf("\n");
     }
 
