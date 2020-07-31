@@ -1407,7 +1407,7 @@ void OnInventoryItemUpdate(PacketReader& reader)
 
     auto origin = reader.ReadUint32();
     auto originReference = reader.ReadString();
-    auto ReversionsLength = reader.ReadUint32();
+    auto revisionsLength = reader.ReadUint32();
 
     auto offset = reader.ReadUint64();
     auto state = reader.ReadUint8();
@@ -1422,10 +1422,203 @@ void OnInventoryItemUpdate(PacketReader& reader)
         modificationTime.c_str(),
         origin,
         originReference.c_str(),
-        ReversionsLength,
+        revisionsLength,
         offset,
-        state,
+        state
     );
+}
+
+void OnEditServerAddUser(PacketReader& reader)
+{
+    auto sessionId = reader.ReadUint32();
+    auto userName = reader.ReadString();
+    auto personaId = reader.ReadUUID();
+
+    printf("EditServerMessages::AddUser\n  sessionId = %u\n  userName = %s\n  personaId = %s\n",
+        sessionId,
+        userName.c_str(),
+        personaId.c_str()
+    );
+}
+
+void OnEditServerUserLoginReply(PacketReader& reader)
+{
+    auto success = reader.ReadUint8();
+    auto sessionId = reader.ReadUint32();
+    auto editServerVersion = reader.ReadString();
+
+    printf("EditServerMessages::LoginReply\n  success = %d\n  sessionId = %d\n  editServerVersion = %s\n",
+        success,
+        sessionId,
+        editServerVersion.c_str()
+    );
+}
+
+void OnEditServerWorkspaceReadyReply(PacketReader& reader)
+{
+    auto workspaceId = reader.ReadUint32();
+
+    printf("EditServerMessages::WorkspaceReadyReply\n  workspaceId = %u\n",
+        workspaceId
+    );
+}
+
+void OnCharacterTransform(PacketReader& reader)
+{
+    auto componentId = reader.ReadUint64();
+    auto serverFrame = reader.ReadUint64();
+    auto groundComponentId = reader.ReadUint64();
+    // auto position = ; // Weird packed float stuff again
+    // auto orientationQuat = ; // Weird packed float stuff again
+
+    printf("OnCharacterTransform:\n  componentId = %llu\n  serverFrame = %llu\n groundComponentId = %llu\n",
+        componentId,
+        serverFrame,
+        groundComponentId
+    );
+}
+
+void OnCharacterTransformPersistent(PacketReader& reader)
+{
+    auto componentId = reader.ReadUint64();
+    auto serverFrame = reader.ReadUint64();
+    auto groundComponentId = reader.ReadUint64();
+    // auto position = ; // Weird packed float stuff again
+    // auto orientationQuat = ; // Weird packed float stuff again
+
+    printf("OnCharacterTransformPersistent:\n  componentId = %llu\n  serverFrame = %llu\n groundComponentId = %llu\n",
+        componentId,
+        serverFrame,
+        groundComponentId
+    );
+}
+
+
+void OnCreateWorld(PacketReader& reader)
+{
+    auto worldDefinition = reader.ReadUUID();
+    auto startingClusterId = reader.ReadUint32();
+    auto startingObjectId = reader.ReadUint32();
+
+    printf("OnCreateWorld:\n  worldDefinition = %s\n  unk1 = %d\n  startingObjectId = %d\n",
+        worldDefinition.c_str(),
+        startingClusterId,
+        startingObjectId
+    );
+}
+
+
+void OnInitiateCluster(PacketReader& reader)
+{
+    auto clusterId = reader.ReadUint32();
+    auto frame = reader.ReadUint64();
+    auto rigidBodyInitialStatesLength = reader.ReadUint32();
+    auto animationInitialStatesLength = reader.ReadUint32();
+
+    printf("OnInitiateCluster:\n  clusterId = %d\n  frame = %llu\n  rigidBodyInitialStatesLength = %u\n  animationInitialStatesLength = %u\n",
+        clusterId,
+        frame,
+        rigidBodyInitialStatesLength,
+        animationInitialStatesLength
+   );
+}
+
+
+void OnLoadClusterDefinition(PacketReader& reader)
+{
+    auto resourceId = reader.ReadUUID();
+    auto clusterId = reader.ReadUint32();
+
+    printf("OnLoadClusterDefinition:\n  resourceId = %s\n  clusterId = %d\n",
+        resourceId.c_str(),
+        clusterId
+    );
+}
+
+
+void OnCreateClusterViaDefinition(PacketReader& reader)
+{
+    auto clusterId = reader.ReadUint32();
+    auto startingObjectId = reader.ReadUint32();
+    auto resourceId = reader.ReadUUID();
+    
+    // TODO: reader.readVec3f
+    auto spawnPosition_x = reader.ReadFloat();
+    auto spawnPosition_y = reader.ReadFloat();
+    auto spawnPosition_z = reader.ReadFloat();
+
+    // TODO: reader.readVec4f
+    auto spawnRotation_x = reader.ReadFloat();
+    auto spawnRotation_y = reader.ReadFloat();
+    auto spawnRotation_z = reader.ReadFloat();
+    auto spawnRotation_w = reader.ReadFloat();
+
+    printf("OnCreateClusterViaDefinition:\  clusterId = %d\n  startingObjectId = %d\n  resourceId = %s\n spawnPosition = <%f, %f, %f>\n  spawnRotation = <%f, %f, %f, %f>\n",
+        clusterId,
+        startingObjectId,
+        resourceId.c_str(),
+        spawnPosition_x,
+        spawnPosition_y,
+        spawnPosition_z,
+        spawnRotation_x,
+        spawnRotation_y,
+        spawnRotation_z,
+        spawnRotation_w
+    );
+}
+
+
+void OnSetAgentController(PacketReader& reader)
+{
+    auto agentControllerId = reader.ReadUint32();
+    auto frame = reader.ReadUint64();
+
+    printf("OnSetAgentController:\n  agentControllerId = %u\n  frame = %llu\n",
+        agentControllerId,
+        frame
+    );
+}
+
+
+void OnCreateAgentController(PacketReader& reader)
+{
+    auto sessionId = reader.ReadUint32();
+    auto clusterId = reader.ReadUint32();
+    auto agentControllerId = reader.ReadUint32();
+    auto characterObjectId = reader.ReadUint32();
+    auto characterNodesLength = reader.ReadUint32();
+    auto frame = reader.ReadUint64();
+    auto personaId = reader.ReadUUID();
+    auto isRemoteAgent = reader.ReadUint8();
+
+    printf("OnCreateAgentController:\n  sessionId = %d\n  clusterId = %u\n  agentControllerId = %u\n  characterObjectId = %u\n  frame = %llu\n  personaId = %s\n  isRemoteAgent = %d\n",
+        sessionId,
+        clusterId,
+        agentControllerId,
+        characterObjectId,
+        characterNodesLength,
+        frame,
+        personaId.c_str(),
+        isRemoteAgent
+    );
+}
+
+
+void OnInitialTimestamp(PacketReader& reader)
+{
+    auto nanoseconds = reader.ReadUint64();
+    auto frame = reader.ReadUint64();
+
+    printf("OnInitialTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
+}
+
+
+void OnTimestamp(PacketReader& reader)
+{
+    auto nanoseconds = reader.ReadUint64();
+    auto frame = reader.ReadUint64();
+
+    printf("OnTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
 }
 
 void ProcessPacketRecv(uint64_t messageId, uint8_t* packet, uint64_t length) {
@@ -1468,6 +1661,46 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t* packet, uint64_t length) {
     {
         OnAddUser(reader);
     }
+    else if (messageId == AnimationComponentMessages::CharacterTransform) // 0xAB2F1EB1 // 1551160 // Okay-ish
+    {
+        OnCharacterTransform(reader);
+    }
+    else if (messageId == AnimationComponentMessages::CharacterTransformPersistent) // 0x970F93D4 // 15511D0 // Okay-ish
+    {
+        OnCharacterTransformPersistent(reader);
+    }
+    else if (messageId == WorldStateMessages::CreateWorld) // 0x685B436C // 1B7FB00 // OK
+    {
+        OnCreateWorld(reader);
+    }
+    else if (messageId == WorldStateMessages::InitiateCluster) // 0x349AD257 // 1B7FEF0 // OK
+    {
+        OnInitiateCluster(reader);
+    } 
+    else if (messageId == WorldStateMessages::LoadClusterDefinition) // 0xA5C4FB23 // 1B7FE10 // OK
+    {
+        OnLoadClusterDefinition(reader);
+    }
+    else if (messageId == WorldStateMessages::CreateClusterViaDefinition) // 0x73810D53 // 1B7FF60 // OK
+    {
+        OnCreateClusterViaDefinition(reader);
+    }
+    else if (messageId == ClientRegionMessages::SetAgentController) // 0xD6F4CF23 // 1B659D0 // OK
+    {
+        OnSetAgentController(reader);
+    }
+    else if (messageId == WorldStateMessages::CreateAgentController) // 0xF555FE2D // 1B80430 // OK
+    {
+        OnCreateAgentController(reader);
+    }
+    else if (messageId == SimulationMessages::InitialTimestamp) // 0xD094FEA // 1543730 // OK
+    {
+        OnInitialTimestamp(reader);
+    }
+    else if (messageId == SimulationMessages::Timestamp) //0x1E9B31CE // 15437A0 // OK
+    {
+        OnTimestamp(reader);
+    }
     else if (messageId == ClientKafkaMessages::LoginReply)
     {
         OnClientKafkaMessageLoginReply(reader);
@@ -1480,8 +1713,21 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t* packet, uint64_t length) {
     {
         OnClientKafkaMessageRelationshipTable(reader);
     }
-    else if (messageId == ClientKafkaMessages::InventoryItemUpdate) {
+    else if (messageId == ClientKafkaMessages::InventoryItemUpdate)
+    {
         OnInventoryItemUpdate(reader);
+    }
+    else if (messageId == EditServerMessages::AddUser) // 50155562 // 1984E40 // ok
+    {
+        OnEditServerAddUser(reader);
+    }
+    else if (messageId == EditServerMessages::UserLoginReply) //E227C3E2 //1984DD0 // ok
+    {
+        OnEditServerUserLoginReply(reader);
+    }
+    else if (messageId == EditServerMessages::WorkspaceReadyReply) // 7D87DBEA //19857A0 // ok
+    {
+        OnEditServerWorkspaceReadyReply(reader);
     }
     else if (messageId == ClientKafkaMessages::LongLivedNotificationLoaded)
     {
@@ -1541,7 +1787,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
         auto base = GetBaseAddress();
 
-        if (true) {
+        if (false) {
             /*
                 mov RDX, <address>
                 call RDX

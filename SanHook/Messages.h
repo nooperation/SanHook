@@ -248,3 +248,24 @@ public:
     static const uint32_t BeginEditServerSpawn = 0xB5BFECD3;
     static const uint32_t EditServerSpawnReady = 0xB3623297;
 };
+
+class AnimationComponentMessages {
+public:
+    static const uint32_t FloatVariable = 0x0B3B7D2E;
+    static const uint32_t FloatNodeVariable = 0x4C1B3DF2;
+    static const uint32_t FloatRangeNodeVariable = 0x91419DEB;
+    static const uint32_t VectorVariable = 0x23314E53;
+    static const uint32_t QuaternionVariable = 0x0CC9F1B8;
+    static const uint32_t Int8Variable = 0xC11AFDE7;
+    static const uint32_t BoolVariable = 0xA67454F0;
+    static const uint32_t CharacterTransform = 0xAB2F1EB1;
+    static const uint32_t CharacterTransformPersistent = 0x970F93D4;
+    static const uint32_t CharacterAnimationDestroyed = 0x53A4BF26;
+    static const uint32_t AnimationOverride = 0x8C738C9E;
+    static const uint32_t BehaviorInternalState = 0xCE9B5148;
+    static const uint32_t CharacterBehaviorInternalState = 0x16C090B1;
+    static const uint32_t BehaviorStateUpdate = 0x217192BE;
+    static const uint32_t BehaviorInitializationData = 0x7846436E;
+    static const uint32_t CharacterSetPosition = 0x51A1705A;
+    static const uint32_t PlayAnimation = 0x009385A0;
+};
