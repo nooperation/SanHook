@@ -2819,7 +2819,10 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         // KAFKA STUFF
         else if (messageId == ClientKafkaMessages::Login) // 0C0C9D81 // 17A1290 ?
         {
-            OnKafkaLogin(reader);
+            auto accountId = reader.ReadUUID();
+            auto personaId = reader.ReadUUID();
+            auto secret = reader.ReadUint32();
+            auto inventoryOffset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::LoginReply)
         {
@@ -2827,11 +2830,11 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == ClientKafkaMessages::EnterRegion) // // 17A1370 ? 
         {
-            OnKafkaEnterRegion(reader);
+            auto regionAddress = reader.ReadString();
         }
         else if (messageId == ClientKafkaMessages::LeaveRegion) // // 17A1520 ? 
         {
-            OnKafkaLeaveRegion(reader);
+            auto regionAddress = reader.ReadString();
         }
         else if (messageId == ClientKafkaMessages::PrivateChat) // // 17A1740 ? 
         {
@@ -2847,27 +2850,42 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == ClientKafkaMessages::FriendRequest) // // 17A1890 ? 
         {
-            OnKafkaFriendRequest(reader);
+            auto offset = reader.ReadUint64();;
+            auto fromPersonaId = reader.ReadUUID();
+            auto toPersonaId = reader.ReadUUID();
+            auto timestamp = reader.ReadString(); // WHAT
+            auto fromSignature = reader.ReadString();
         }
         else if (messageId == ClientKafkaMessages::FriendRequestStatus) // // 17A1900 ? 
         {
-            OnKafkaFriendRequestStatus(reader);
+            auto offset = reader.ReadUint64();
+            auto status = reader.ReadUint32();
         }
         else if (messageId == ClientKafkaMessages::FriendResponse) // // 17A1970 ? 
         {
-            OnKafkaFriendResponse(reader);
+            auto offset = reader.ReadUint64();;
+            auto fromPersonaId = reader.ReadUUID();
+            auto toPersonaId = reader.ReadUUID();
+            auto timestamp = reader.ReadString(); // WHAT
+            auto fromSignature = reader.ReadString();
+            auto response = reader.ReadUint32();
+            auto toSignature = reader.ReadString();
         }
         else if (messageId == ClientKafkaMessages::FriendResponseStatus) // // 17A19E0 ? 
         {
-            OnKafkaFriendResponseStatus(reader);
+            auto offset = reader.ReadUint64();
+            auto status = reader.ReadUint32();
         }
         else if (messageId == ClientKafkaMessages::FriendTable) // // 17A1A50 ? 
         {
-            OnKafkaFriendTable(reader);
+            auto fromPersonaId = reader.ReadUUID();
+            auto toPersonaId = reader.ReadUUID();
+            auto status = reader.ReadUint32();
         }
         else if (messageId == ClientKafkaMessages::RelationshipOperation) // // 17A1AC0 ? 
         {
-            OnKafkaRelationshipOperation(reader);
+            auto other = reader.ReadUUID();
+            auto operation = reader.ReadUint32();
         }
         else if (messageId == ClientKafkaMessages::RelationshipTable) // 17A1B30
         {
@@ -2875,11 +2893,29 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == ClientKafkaMessages::InventoryItemCapabilities) // 17A1BA0
         {
-            OnKafkaInventoryItemCapabilities(reader);
+            auto capabilitiesLength = reader.ReadUint32();
+            std::vector<std::string> capabilities(capabilitiesLength);
+            for (size_t i = 0; i < capabilitiesLength; i++)
+            {
+                auto capability = reader.ReadString();
+                capabilities.push_back(capability);
+            }
         }
         else if (messageId == ClientKafkaMessages::InventoryItemRevision) // 17A1D80
         {
-            OnKafkaInventoryItemRevision(reader);
+            auto asset_id = reader.ReadString();
+            auto asset_type = reader.ReadString();
+            auto asset_hint = reader.ReadUint32();
+            auto thumbnail_asset_id = reader.ReadString();
+            auto license_asset_id = reader.ReadString();
+
+            auto capabilitiesLength = reader.ReadUint32();
+            auto capabilities = std::vector<std::string>(capabilitiesLength);
+            for (size_t i = 0; i < capabilitiesLength; i++)
+            {
+                auto capability = reader.ReadString();
+                capabilities.push_back(capability);
+            }
         }
         else if (messageId == ClientKafkaMessages::InventoryItemUpdate) // 17A1DF0
         {
@@ -2887,63 +2923,96 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == ClientKafkaMessages::InventoryItemDelete) // 17A1E60
         {
-            OnKafkaInventoryItemDelete(reader);
+            auto id = reader.ReadString();
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::InventoryLoaded) // 17A1ED0
         {
-            //printf("InventoryLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::FriendRequestLoaded) // 17A2090
         {
-            OnKafkaFriendRequestLoaded(reader);
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::FriendResponseLoaded) // 17A2250
         {
-            OnKafkaFriendResponseLoaded(reader);
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::PresenceUpdateFanoutLoaded) // 17A2410
         {
-            //printf("PresenceUpdateFanoutLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::FriendTableLoaded) // 17A25D0
         {
-            OnKafkaFriendTableLoaded(reader);
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::RelationshipTableLoaded) // 17A2790
         {
-            //printf("RelationshipTableLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::PrivateChatLoaded) // 17A2950
         {
-            // printf("PrivateChatLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::PrivateChatStatusLoaded) // 17A2B10
         {
-            //printf("PrivateChatStatusLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::ScriptRegionConsoleLoaded) // 17A2CD0
         {
-            OnKafkaScriptRegionConsoleLoaded(reader);
+            auto instanceId = reader.ReadString();
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::ClientMetric) // 17A2D40
         {
-            OnKafkaClientMetric(reader);
+            auto jsonString = reader.ReadString();
         }
         else if (messageId == ClientKafkaMessages::RegionHeartbeatMetric) // 17A2EF0
         {
-            OnKafkaRegionHeartbeatMetric(reader);
+            auto ownerPersonaID = reader.ReadUUID();
+            auto averageFrameRate = reader.ReadFloat();
+            auto minFrameRate = reader.ReadFloat();
+            auto maxFrameRate = reader.ReadFloat();
+            auto headcount = reader.ReadUint32();
+            auto grid = reader.ReadString();
+            auto ownerPersonaHandle = reader.ReadString();
+            auto experienceHandle = reader.ReadString();
+            auto instanceId = reader.ReadString();
+            auto buildID = reader.ReadString();
+            auto locationHandle = reader.ReadString();
+            auto sansarURI = reader.ReadString();
+            auto compatVersion = reader.ReadString();
+            auto protoVersion = reader.ReadString();
+            auto accessGroup = reader.ReadString();
+            auto configuration = reader.ReadString();
+            auto worldId = reader.ReadString();
         }
         else if (messageId == ClientKafkaMessages::RegionEventMetric) // 17A2F60
         {
-            OnKafkaRegionEventMetric(reader);
+            auto ownerPersonaID = reader.ReadUUID();
+            auto eventName = reader.ReadString();
+            auto headcount = reader.ReadUint32();
+            auto grid = reader.ReadString();
+            auto ownerPersonaHandle = reader.ReadString();
+            auto experienceHandle = reader.ReadString();
+            auto instanceId = reader.ReadString();
+            auto buildID = reader.ReadString();
+            auto locationHandle = reader.ReadString();
+            auto sansarURI = reader.ReadString();
+            auto compatVersion = reader.ReadString();
+            auto protoVersion = reader.ReadString();
+            auto accessGroup = reader.ReadString();
+            auto configuration = reader.ReadString();
+            auto worldId = reader.ReadString();
         }
         else if (messageId == ClientKafkaMessages::SubscribeScriptRegionConsole) // 17A2FD0
         {
-            OnKafkaSubscribeScriptRegionConsole(reader);
+            auto instanceId = reader.ReadString();
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::UnsubscriptScriptRegionConsole) // 17A3040
         {
-            OnKafkaUnsubscriptScriptRegionConsole(reader);
+            auto instanceId = reader.ReadString();
         }
         else if (messageId == ClientKafkaMessages::ScriptConsoleLog) // 17A31F0
         {
@@ -2951,19 +3020,25 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == ClientKafkaMessages::LongLivedNotification) // 17A3260
         {
-            OnKafkaLongLivedNotification(reader);
+            auto id = reader.ReadUUID();
+            auto type = reader.ReadUint32();
+            auto message = reader.ReadString();
+            auto timestamp = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::LongLivedNotificationDelete) // 17A32D0 
         {
-            OnKafkaLongLivedNotificationDelete(reader);
+            auto id = reader.ReadUUID();
         }
         else if (messageId == ClientKafkaMessages::LongLivedNotificationsLoaded) // 17A3460
         {
-            OnKafkaLongLivedNotificationsLoaded(reader);
+            auto offset = reader.ReadUint64();
         }
         else if (messageId == ClientKafkaMessages::ShortLivedNotification) // 17A3620
         {
-            OnKafkaShortLivedNotification(reader);
+            auto id = reader.ReadUUID();
+            auto type = reader.ReadUint32();
+            auto message = reader.ReadString();
+            auto timestamp = reader.ReadUint64();
         }
 
 
