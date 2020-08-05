@@ -1829,7 +1829,6 @@ void OnObjectInteractionUpdate(PacketReader& reader)
 
 void OnLightStateChanged(PacketReader& reader)
 {
-    // TODO: Something odd is going on here. These values look correct, but we're getting all sorts of random access violations when exiting or constructing this function. our Magic.asm might not be doing what it needs to : (
     auto componentId = reader.ReadUint64();
     auto frame = reader.ReadUint64();
     auto rgb_r = reader.ReadFloat();
@@ -1841,15 +1840,6 @@ void OnLightStateChanged(PacketReader& reader)
     auto spotAngularFalloff = reader.ReadFloat();
     auto spotNearClip = reader.ReadFloat();
 
-    /*
-    printf("RenderMessages::OnLightStateChanged:\n  componentId = %llu\n  frame = %llu\n  rgb = <%f, %f, %f>\n",
-        componentId,
-        frame,
-        rgb_r, rgb_g, rgb_b
-    );
-    */
-
-    /*
     printf("RenderMessages::OnLightStateChanged:\n  componentId = %llu\n  frame = %llu\n  rgb = <%f, %f, %f>\n  range = %f\n  shadowPriority = %u\n  spotSinHalfAngle = %f\n  spotAngularFalloff = %f\n  spotNearClip = %f\n",
         componentId,
         frame,
@@ -1860,7 +1850,6 @@ void OnLightStateChanged(PacketReader& reader)
         spotAngularFalloff,
         spotNearClip
     );
-    */
 }
 
 void OnActiveRigidBodyUpdate(PacketReader& reader)
@@ -2055,7 +2044,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t* packet, uint64_t length) {
         }
         else if (messageId == RenderMessages::LightStateChanged) // 0x6951DAEC // 1611170
         {
-            //OnLightStateChanged(reader); // do not use. something's up with this... potential underlying problem with our handling
+           // OnLightStateChanged(reader); 
         }
         else if (messageId == SimulationMessages::ActiveRigidBodyUpdate)  // 0x864418DA // 1573510
         {
