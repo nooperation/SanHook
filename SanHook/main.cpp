@@ -2669,27 +2669,41 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == AgentControllerMessages::RequestSitOnObject)  // 1710420
         {
-            On(reader);
+            // No palyload
         }
         else if (messageId == AgentControllerMessages::SitOnObject)  // 1710490
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
+            auto componentId = reader.ReadUint64();
+            auto ownershipWatermark = reader.ReadUint8();
+            auto skipAnimation = reader.ReadUint8();
         }
         else if (messageId == AgentControllerMessages::ExitSit)  // 1710500
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
+            auto componentId = reader.ReadUint64();
+            auto skipAnimation = reader.ReadBits(1);
+            auto skipExitTeleport = reader.ReadBits(1);
         }
         else if (messageId == AgentControllerMessages::SetAgentFiltersBody)  // 1710570
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
+            auto componentId = reader.ReadUint64();
+            auto filterBody = reader.ReadUint8();
         }
         else if (messageId == AgentControllerMessages::RequestSetAgentFiltersBody)  // 17105E0
         {
-            On(reader);
+            // No palyload
         }
         else if (messageId == AgentControllerMessages::SetCharacterUserProperty)  // 1710650
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
+            auto value = reader.ReadFloat();
+            auto propertyType = reader.ReadUint8();
         }
         else if (messageId == AgentControllerMessages::CreateSpeechGraphicsPlayer) // 0x158B2580  // 17106C0
         {
@@ -2697,19 +2711,27 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == AgentControllerMessages::RequestSpawnItem)  // 1710730
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
+            auto resourceId = reader.ReadUUID();
+            auto attachmentNode = reader.ReadUint8();
+            auto spawnPosition = reader.ReadBits(0x4E);
+            auto spawnOrientation = reader.ReadBits(0x2B);
         }
         else if (messageId == AgentControllerMessages::RequestDeleteLatestSpawn)  // 17107A0
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
         }
         else if (messageId == AgentControllerMessages::RequestDeleteAllSpawns)  // 1710810
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
         }
         else if (messageId == GameWorldMessages::Timestamp)  // 16E9DC0
         {
-            On(reader);
+            auto nanoseconds = reader.ReadUint64();
+            auto frame = reader.ReadUint64();
         }
         else if (messageId == GameWorldMessages::MoveEntity) // 0xEFC20B7F  // 16E9E30
         {
@@ -2717,41 +2739,81 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == GameWorldMessages::ChangeMaterialVectorParam)  // 16E9EA0
         {
-            On(reader);
+            auto parameter = reader.ReadUint8();
+            auto start = reader.ReadVectorF(3);
+            auto end = reader.ReadVectorF(3);
         }
         else if (messageId == GameWorldMessages::ChangeMaterialFloatParam)  // 16E9F10
         {
-            On(reader);
+            auto parameter = reader.ReadUint8();
+            auto start = reader.ReadFloat();
+            auto end = reader.ReadFloat();
         }
         else if (messageId == GameWorldMessages::ChangeMaterial)  // 16E9F80
         {
-            On(reader);
+            auto startFrame = reader.ReadUint64();
+            auto componentId = reader.ReadUint64();
+            auto materialIndex = reader.ReadUint8();
+            auto time = reader.ReadUint32();
+
+            /*
+            auto interpMode = reader.ReadBits(4); // ???
+
+            auto vectorParametersLength = reader.ReadUint32();
+            for (size_t i = 0; i < vectorParametersLength; i++)
+            {
+                auto parameter = reader.ReadUint8();
+                auto start = reader.ReadVectorF(3);
+                auto end = reader.ReadVectorF(3);
+            }
+
+            auto floatParametersLength = reader.ReadUint32();
+            for (size_t i = 0; i < floatParametersLength; i++)
+            {
+                auto parameter = reader.ReadUint8();
+                auto start = reader.ReadFloat();
+                auto end = reader.ReadFloat();
+            }
+            */
         }
         else if (messageId == GameWorldMessages::StaticMeshFlagsChanged)  // 16E9FF0
         {
-            On(reader);
+            auto componentid = reader.ReadUint64();
+            auto frame = reader.ReadUint64();
+            auto flags = reader.ReadUint8();
         }
         else if (messageId == GameWorldMessages::StaticMeshScaleChanged)  // 16EA060
         {
-            On(reader);
+            auto componentid = reader.ReadUint64();
+            auto frame = reader.ReadUint64();
+            auto scale = reader.ReadFloat();
         }
         else if (messageId == GameWorldMessages::RiggedMeshFlagsChange)  // 16EA0D0
         {
-            On(reader);
+            auto componentid = reader.ReadUint64();
+            auto frame = reader.ReadUint64();
+            auto flags = reader.ReadUint8();
         }
         else if (messageId == GameWorldMessages::RiggedMeshScaleChanged)  // 16EA140
         {
-            On(reader);
+            auto componentid = reader.ReadUint64();
+            auto frame = reader.ReadUint64();
+            auto scale = reader.ReadFloat();
         }
         else if (messageId == GameWorldMessages::ScriptCameraMessage)  // 16EA1B0
         {
-            On(reader);
+            auto componentid = reader.ReadUint64();
+            auto frame = reader.ReadUint64();
+            auto controlMode = reader.ReadBits(4);
         }
         else if (messageId == GameWorldMessages::UpdateRuntimeInventorySettings)  // 16EA220
         {
-            On(reader);
+            auto spawnSource = reader.ReadUint8();
+            auto spawnLifetimePolicy = reader.ReadUint8();
+            auto totalSpawnLimit = reader.ReadUint16();
+            auto perUserSpawnLimit = reader.ReadUint16();
+            auto spawnTimeout = reader.ReadUint32();
         }
-
 
 
         // KAFKA STUFF
