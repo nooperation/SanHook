@@ -88,7 +88,8 @@ void SendPacket(const char *buff, int len)
 
 std::mutex send_mutex;
 
-int Chat(const std::string &newMessage, int sequence, SOCKET s, int flags, const struct sockaddr *to, int tolen) {
+int Chat(const std::string &newMessage, int sequence, SOCKET s, int flags, const struct sockaddr *to, int tolen)
+{
     uint8_t payloadLength = 0;
 
     auto buffer_length = (uint32_t)(18 + newMessage.length());
@@ -112,14 +113,16 @@ int Chat(const std::string &newMessage, int sequence, SOCKET s, int flags, const
     auto result = original_sendto(s, buffer, buffer_length, flags, to, tolen);
 
     printf("Result = %d\n", result);
-    if (result == -1) {
+    if (result == -1)
+    {
         printf("Last error = %d\n", WSAGetLastError());
     }
 
     return result;
 }
 
-int SpecialChat(const std::string &newMessage, uint16_t sequence, SOCKET s, int flags, const struct sockaddr *to, int tolen, uint64_t seed) {
+int SpecialChat(const std::string &newMessage, uint16_t sequence, SOCKET s, int flags, const struct sockaddr *to, int tolen, uint64_t seed)
+{
     auto text_length = (uint32_t)newMessage.size();
 
     auto buffer_length = 90 + text_length;
@@ -173,14 +176,16 @@ int SpecialChat(const std::string &newMessage, uint16_t sequence, SOCKET s, int 
 
 
     printf("Result = %d\n", result);
-    if (result == -1) {
+    if (result == -1)
+    {
         printf("Last error = %d\n", WSAGetLastError());
     }
 
     return result;
 }
 
-int SendAcceptFriend(uint8_t *newUuid, int sequence, SOCKET s, int flags, const struct sockaddr *to, int tolen) {
+int SendAcceptFriend(uint8_t *newUuid, int sequence, SOCKET s, int flags, const struct sockaddr *to, int tolen)
+{
 
     printf("SendAcceptFriend...");
 
@@ -266,7 +271,8 @@ int SendAcceptFriend(uint8_t *newUuid, int sequence, SOCKET s, int flags, const 
     auto result = original_sendto(s, (const char *)&rawData[0], sizeof(rawData), flags, to, tolen);
 
     printf("Result = %d\n", result);
-    if (result == -1) {
+    if (result == -1)
+    {
         printf("Last error = %d\n", WSAGetLastError());
     }
 
@@ -298,10 +304,12 @@ void DumpPacket(const char *buff, int len, bool is_sending)
     }
     else
     {
-        if (is_sending) {
+        if (is_sending)
+        {
             printf("--> [%d] %s\n", len, output_buffer);
         }
-        else {
+        else
+        {
             printf("<-- [%d] %s\n", len, output_buffer);
         }
     }
@@ -370,7 +378,8 @@ std::string ToUUID(std::string id)
 #include <map>
 std::string GetAddressFromAddr(const sockaddr *addr)
 {
-    if (!addr) {
+    if (!addr)
+    {
         return "NULL";
     }
     static std::map<uint64_t, std::string> addr_lookup;
@@ -434,7 +443,8 @@ uint32_t ReadThreeByteInt(const char *buf)
     return result;
 }
 
-void WriteThreeByteInt(int32_t value, char *buff) {
+void WriteThreeByteInt(int32_t value, char *buff)
+{
     ((uint8_t *)buff)[2] = (uint8_t)((value >> 16) & 0xFF);
     ((uint8_t *)buff)[1] = (uint8_t)((value >> 8) & 0xFF);
     ((uint8_t *)buff)[0] = (uint8_t)((value) & 0xFF);
@@ -492,10 +502,12 @@ void OnAddUser(PacketReader &reader)
     std::smatch match;
     std::regex_search(avatarType, match, patternAvatarType);
 
-    if (match[1].matched) {
+    if (match[1].matched)
+    {
         avatarAssetId = match[1].str();
     }
-    if (match[2].matched) {
+    if (match[2].matched)
+    {
         avatarInventoryId = match[2].str();
     }
 
@@ -504,7 +516,8 @@ void OnAddUser(PacketReader &reader)
     std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\userdump.csv";
 
     bool needToAddHeader = false;
-    if (!std::filesystem::exists(userdumpPath) || std::filesystem::file_size(userdumpPath) == 0) {
+    if (!std::filesystem::exists(userdumpPath) || std::filesystem::file_size(userdumpPath) == 0)
+    {
         needToAddHeader = true;
     }
 
@@ -513,7 +526,8 @@ void OnAddUser(PacketReader &reader)
 
     FILE *outFile = nullptr;
     fopen_s(&outFile, userdumpPath.string().c_str(), "a");
-    if (needToAddHeader) {
+    if (needToAddHeader)
+    {
         fprintf(outFile, "timestamp,username,handle,personaIdSwapped,avatarAssetIdSwapped,personaId,avatarAssetId,avatarInventoryId\n");
     }
     fprintf(outFile, "\"%lld\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
@@ -547,10 +561,12 @@ void OnRemoveUser(PacketReader &reader)
 
     auto userName = std::string();
     auto foundName = sessionIdToNameMap.find(sessionId);
-    if (foundName != sessionIdToNameMap.end()) {
+    if (foundName != sessionIdToNameMap.end())
+    {
         userName = foundName->second;
     }
-    else {
+    else
+    {
         userName = "UNKNOWN";
     }
 
@@ -573,14 +589,16 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sock
         return result;
     }
 
-    if (buff == nullptr || len < 3) {
+    if (buff == nullptr || len < 3)
+    {
         return result;
     }
 
     auto packetType = *((uint8_t *)&buff[0]);
     auto sequence = *((uint16_t *)&buff[1]);
 
-    if (packetType != 0x07) {
+    if (packetType != 0x07)
+    {
         return result;
     }
 
@@ -589,7 +607,8 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sock
     PacketReader &reader = readers[s];
     lastProcessedSequence[s] = reader.getPreviousSequence();
 
-    if (sequence <= lastProcessedSequence[s]) {
+    if (sequence <= lastProcessedSequence[s])
+    {
         //  printf("Ignoring old packet sequence %d\n", sequence);
         return result;
     }
@@ -632,9 +651,11 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sock
     // Copy the packet to the PacketReader buffer (excluding 3-byte header and 2-byte checksum footer)
     reader.Add(sequence, (const uint8_t *)(buff + 3), result - 5);
 
-    try {
+    try
+    {
         // Attempt to process packets (if we're done waiting for more data)
-        while (reader.GetBytesRemaining() > 0) {
+        while (reader.GetBytesRemaining() > 0)
+        {
 
             // For each packet...
             //   Read the length.
@@ -681,7 +702,8 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sock
             {
                 // printf("This is a small message split between two packets. We need to wait for %d more bytes. Our buffer currently has %d bytes remaining. So in total we need %d bytes.\n", packetLength, reader.GetBytesRemaining(), packetLength - reader.GetBytesRemaining());
 
-                if (reader.GetBytesRemaining() - (int64_t)packetLength < 0) {
+                if (reader.GetBytesRemaining() - (int64_t)packetLength < 0)
+                {
                     reader.Skip(-1); // Un-read the length
                     return result;
                 }
@@ -727,7 +749,8 @@ uint8_t *kBaseAddress = nullptr;
 
 uint8_t *GetBaseAddress()
 {
-    if (kBaseAddress != nullptr) {
+    if (kBaseAddress != nullptr)
+    {
         return kBaseAddress;
     }
 
@@ -764,13 +787,15 @@ uint8_t *GetBaseAddress()
 
 int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const struct sockaddr *to, int tolen)
 {
-    if (s == last_chat_sendto_socket) {
+    if (s == last_chat_sendto_socket)
+    {
         last_chat_server_sequence = *((uint16_t *)&buf[1]);
         //printf("** last_chat_server_sequence = %X\n", last_chat_server_sequence);
     }
     //  DumpPacket(buf, len, true);
 
-    if (buf == nullptr || len < 8) {
+    if (buf == nullptr || len < 8)
+    {
         return original_sendto(s, buf, len, flags, to, tolen);
     }
 
@@ -808,7 +833,8 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
         DumpPacket(buf, len, true);
     }
 
-    if (buf[0] != 0x01 && buf[0] != 0x07) {
+    if (buf[0] != 0x01 && buf[0] != 0x07)
+    {
         return original_sendto(s, buf, len, flags, to, tolen);
     }
 
@@ -820,22 +846,27 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
         auto seedNameLength = *(uint32_t *)&buf[13];
         auto seedName = std::string((const char *)&buf[17], (std::size_t)seedNameLength);
 
-        if (seedName == "CRC_102") {
+        if (seedName == "CRC_102")
+        {
             printf("SEND checksum [%s] Seed = %08X | TO=%08llX | s=%08llX\n", seedName.c_str(), seed, (uint64_t)to, s);
             checksumSeed_send = seed;
         }
-        else if (seedName == "CVC_100") {
+        else if (seedName == "CVC_100")
+        {
             printf("RECV checksum [%s] Seed = %08X | TO=%08llX | s=%08llX\n", seedName.c_str(), seed, (uint64_t)to, s);
 
-            if (!found_first_cvc100) {
+            if (!found_first_cvc100)
+            {
                 found_first_cvc100 = true;
                 checksumSeed_first_cvc100 = seed;
             }
-            else {
+            else
+            {
                 checksumSeed_recv = seed;
             }
         }
-        else {
+        else
+        {
             printf("UNKNOWN checksum [%s] Seed = %08X\n", seedName.c_str(), seed);
         }
     }
@@ -993,13 +1024,15 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
             bool enabled = false;
             FILE *inFile = nullptr;
             fopen_s(&inFile, "u:\\sanhook_config_rez.txt", "rb");
-            if (inFile != nullptr) {
+            if (inFile != nullptr)
+            {
                 enabled = fgetc(inFile);
 
                 auto bytesRead = fread_s(newClusterId, sizeof(newClusterId), sizeof(newClusterId[0]), 16, inFile);
                 fclose(inFile);
 
-                if (bytesRead == 16 && enabled) {
+                if (bytesRead == 16 && enabled)
+                {
                     memcpy(clusterId, newClusterId, 16);
                 }
             }
@@ -1065,29 +1098,34 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
             FILE *inFile = nullptr;
 
             fopen_s(&inFile, "u:\\sanhook_config_im.txt", "rb");
-            if (inFile != nullptr) {
+            if (inFile != nullptr)
+            {
                 enabled = fgetc(inFile);
 
                 auto bytesRead = fread_s(personaId, sizeof(personaId), sizeof(personaId[0]), 16, inFile);
-                if (bytesRead == 16) {
+                if (bytesRead == 16)
+                {
                     memcpy(personaIdFromBytes, personaId, 16);
                 }
 
                 bytesRead = fread_s(personaId, sizeof(personaId), sizeof(personaId[0]), 16, inFile);
-                if (bytesRead == 16) {
+                if (bytesRead == 16)
+                {
                     memcpy(personaIdToBytes, personaId, 16);
                 }
                 fclose(inFile);
             }
             ///////////////////////
 
-            if (enabled) {
+            if (enabled)
+            {
                 memcpy(personaIdFromBytes, &buf[16], 16);
                 memcpy(personaIdToBytes, &buf[32], 16);
             }
 
             static bool aa = false;
-            if (aa) {
+            if (aa)
+            {
                 static unsigned char otherAccount[16] = {
                     0x02, 0x46, 0x98, 0x5E, 0xB8, 0xE5, 0x48, 0xC7, 0xD7, 0xAC, 0x86, 0x2B,
                     0xA4, 0x83, 0xBE, 0x8D
@@ -1096,7 +1134,8 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
             }
 
             static bool bb = false;
-            if (bb) {
+            if (bb)
+            {
                 static unsigned char otherPersona[16] = {
                     0x90, 0x4C, 0x58, 0x02, 0x2B, 0xAD, 0x3A, 0x1C, 0xF9, 0x43, 0x97, 0x5A,
                     0xA3, 0x0D, 0x04, 0xA6
@@ -1146,11 +1185,13 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
             );
         }
         // 07 9A 01 2D FD 6E E5 EC 25 00 00 00 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 C6 CE
-        else if (0 && messageId == ClientRegionMessages::ClientRegionCommandMessage) {
+        else if (0 && messageId == ClientRegionMessages::ClientRegionCommandMessage)
+        {
             auto textLength = *((uint32_t *)&buf[8]);
             auto text = std::string((const char *)&buf[12], (std::size_t)textLength);
 
-            if (text == "test123") {
+            if (text == "test123")
+            {
                 // auto result = original_sendto(s, buf, len, flags, to, tolen);
                 auto result = SpecialChat("Intercepted: " + text, last_chat_server_sequence + 1, s, flags, to, tolen, checksumSeed_first_cvc100);
                 ++last_chat_server_sequence;
@@ -1220,19 +1261,22 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
             FILE *inFile = nullptr;
 
             fopen_s(&inFile, "u:\\sanhook_config.txt", "rb");
-            if (inFile != nullptr) {
+            if (inFile != nullptr)
+            {
                 enabled = fgetc(inFile);
 
                 auto bytesRead = fread_s(personaId, sizeof(personaId), sizeof(personaId[0]), 16, inFile);
                 fclose(inFile);
 
-                if (bytesRead == 16) {
+                if (bytesRead == 16)
+                {
                     memcpy(otherPersona, personaId, 16);
                 }
             }
             ///////////////////////
 
-            if (enabled) {
+            if (enabled)
+            {
                 memcpy(personaIdBytes, otherPersona, sizeof(otherPersona) / sizeof(otherPersona[0]));
             }
         }
@@ -1300,14 +1344,16 @@ unsigned long long ReturnPoint_ProcessPacketRecv = 0;
 void RewriteCode(void *targetAddress, uint8_t *newCode, std::size_t newCodeLength)
 {
     DWORD oldProtection = 0;
-    if (!VirtualProtect(targetAddress, newCodeLength, PAGE_EXECUTE_READWRITE, &oldProtection)) {
+    if (!VirtualProtect(targetAddress, newCodeLength, PAGE_EXECUTE_READWRITE, &oldProtection))
+    {
         printf("Failed to VirtualProtect address...\n");
     }
 
     printf("Writing %lld bytes to %llX...\n", newCodeLength, (uint64_t)targetAddress);
     auto result = memcpy(targetAddress, newCode, newCodeLength);
 
-    if (!VirtualProtect(targetAddress, newCodeLength, oldProtection, &oldProtection)) {
+    if (!VirtualProtect(targetAddress, newCodeLength, oldProtection, &oldProtection))
+    {
         printf("Failed to restore VirtualProtect protection...\n");
     }
 }
@@ -1322,10 +1368,12 @@ void OnChatMessageToClient(PacketReader &reader)
     auto username = std::string();
 
     auto usernameFromSessionId = sessionIdToNameMap.find(fromSessionId);
-    if (usernameFromSessionId == sessionIdToNameMap.end()) {
+    if (usernameFromSessionId == sessionIdToNameMap.end())
+    {
         username = "UNKNOWN";
     }
-    else {
+    else
+    {
         username = usernameFromSessionId->second;
     }
 
@@ -2052,18 +2100,18 @@ void OnBehaviorInternalState(PacketReader &reader)
     auto frame = reader.ReadUint64();
 
     auto overridesLength = reader.ReadUint32();
-   /* auto overridesData = reader.ReadBytes(overridesLength);
+    /* auto overridesData = reader.ReadBytes(overridesLength);
 
-    auto numSlotStates = reader.ReadUint32();
-    for (size_t i = 0; i < numSlotStates; i++)
-    {
-        auto slotState = reader.ReadUint8();
-    }
+     auto numSlotStates = reader.ReadUint32();
+     for (size_t i = 0; i < numSlotStates; i++)
+     {
+         auto slotState = reader.ReadUint8();
+     }
 
-    auto stateDataLength = reader.ReadUint32();
-    auto stateData = reader.ReadBytes(stateDataLength);
+     auto stateDataLength = reader.ReadUint32();
+     auto stateData = reader.ReadBytes(stateDataLength);
 
-    auto isPlaying = reader.ReadUint8();*/
+     auto isPlaying = reader.ReadUint8();*/
 
     printf("AnimationComponentMessages::BehaviorInternalState:\n  componentId = %llu\n  frame = %llu\n  overridesLength = %u\n",
         componentId,
@@ -2194,10 +2242,12 @@ void OnWarpCharacter(PacketReader &reader)
 }
 
 
-void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
+void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
+{
     // printf("ProcessPacketRecv: MessageId = %llX | Length = %lld | packet = %llX\n", messageId, length, (uint64_t)packet);
 
-    try {
+    try
+    {
         PacketReader reader;
         reader.Add(0, packet, length);
 
@@ -2293,44 +2343,50 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AgentControllerMessages::PlayAnimation) // 0x009385A0    // 1581210
         {
-             OnPlayAnimation(reader);
+            OnPlayAnimation(reader);
         }
-        
-
-
-
-
-
-
 
         // Animation stuff
         else if (messageId == AnimationComponentMessages::FloatVariable)  // 15809C0
         {
-            On(reader);
+            auto internalId = reader.ReadUint16();
+            auto value = reader.ReadFloat();
         }
         else if (messageId == AnimationComponentMessages::FloatNodeVariable)  // 1580A30
         {
-            On(reader);
+            auto nodeId = reader.ReadUint16();
+            auto value = reader.ReadFloat();
         }
         else if (messageId == AnimationComponentMessages::FloatRangeNodeVariable)  // 1580AA0
         {
-            On(reader);
+            auto nodeId = reader.ReadUint16();
+            auto startValue = reader.ReadFloat();
+            auto endValue = reader.ReadFloat();
         }
         else if (messageId == AnimationComponentMessages::VectorVariable)  // 1580B10
         {
-            On(reader);
+            auto internalId = reader.ReadUint16();
+            auto value_x = reader.ReadFloat();
+            auto value_y = reader.ReadFloat();
+            auto value_z = reader.ReadFloat();
         }
         else if (messageId == AnimationComponentMessages::QuaternionVariable)  // 1580B80
         {
-            On(reader);
+            auto internalId = reader.ReadUint16();
+            auto value_x = reader.ReadFloat();
+            auto value_y = reader.ReadFloat();
+            auto value_z = reader.ReadFloat();
+            auto value_w = reader.ReadFloat();
         }
         else if (messageId == AnimationComponentMessages::Int8Variable)  // 1580BF0
         {
-            On(reader);
+            auto internalId = reader.ReadUint16();
+            auto value = reader.ReadUint8();
         }
         else if (messageId == AnimationComponentMessages::BoolVariable)  // 1580C60
         {
-            On(reader);
+            auto internalId = reader.ReadUint16();
+            auto value = reader.ReadUint8();
         }
         else if (messageId == AnimationComponentMessages::CharacterTransform) // 1580CD0
         {
@@ -2342,11 +2398,11 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AnimationComponentMessages::CharacterAnimationDestroyed)  // 1580DB0
         {
-            On(reader);
+            auto componentId = reader.ReadUint64();
         }
         else if (messageId == AnimationComponentMessages::AnimationOverride)  // 1580F70
         {
-            On(reader);
+            auto slotIndex = reader.ReadUint8();
         }
         else if (messageId == AnimationComponentMessages::BehaviorInternalState) // 0xCE9B5148  // 1580FE0
         {
@@ -2354,11 +2410,14 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AnimationComponentMessages::CharacterBehaviorInternalState)  // 1581050
         {
-            On(reader);
+            // No payload?
         }
         else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 0x217192BE  // 15810C0
         {
-            //OnBehaviorStateUpdate(reader);
+            auto frame = reader.ReadUint64();
+            auto componentId = reader.ReadUint64();
+            auto groundComponentId = reader.ReadUint64();
+            //auto position = reader.ReadBits(0x48);
         }
         else if (messageId == AnimationComponentMessages::BehaviorInitializationData) // 0x7846436E // 1581130
         {
@@ -2366,11 +2425,25 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AnimationComponentMessages::CharacterSetPosition)  // 15811A0
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto componentId = reader.ReadUint64();
+            auto groundComponentId = reader.ReadUint64();
+            //auto position = reader.ReadBits(0x48);
         }
         else if (messageId == AnimationComponentMessages::PlayAnimation)  // 1581210
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto componentId = reader.ReadUint64();
+            auto resourceId = reader.ReadUUID();
+
+            auto playbackSpeed = reader.ReadBits(0x10);
+            //v10 = _mm_cvtpd_ps((__m128d)COERCE_UNSIGNED_INT64((double)((signed int)v16 - 0x7FFF) * 0.00003051850947599719));
+            //v10.m128_f32[0] = v10.m128_f32[0] * 10.0;
+            //*(__m128 *)(v5 + 48) = _mm_shuffle_ps(v10, v10, 0);
+
+            auto skeletonType = reader.ReadBits(2);
+            auto animationType = reader.ReadBits(3);
+            auto playbackMode = reader.ReadBits(3);
         }
         else if (messageId == SimulationMessages::InitialTimestamp)  // 15733C0 
         {
@@ -2382,7 +2455,8 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == SimulationMessages::SetWorldGravityMagnitude)  // 15734A0
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto magnitude = reader.ReadFloat();
         }
         else if (messageId == SimulationMessages::ActiveRigidBodyUpdate)  // 1573510
         {
@@ -2394,11 +2468,14 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == SimulationMessages::RigidBodyPropertyChanged)  // 15735F0
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto componentId = reader.ReadUint64();
+            auto propertyData = reader.ReadBytes(16);
+            //auto propertyType = reader.ReadBits(5);
         }
         else if (messageId == SimulationMessages::RigidBodyDestroyed)  // 1573660
         {
-            On(reader);
+            auto componentId = reader.ReadUint64();
         }
 
 
@@ -2413,27 +2490,41 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AudioMessages::PlayStream)  // 15B6690
         {
-            On(reader);
+            auto streamChannel = reader.ReadUint8();
+            auto createPlayHandleId = reader.ReadUint64();
+            auto componentId = reader.ReadUint64();
+            auto position_x = reader.ReadFloat();
+            auto position_y = reader.ReadFloat();
+            auto position_z = reader.ReadFloat();
+            auto loudness = reader.ReadFloat();
+            auto pitch = reader.ReadFloat();
+            auto flags = reader.ReadUint8();
         }
         else if (messageId == AudioMessages::StopBroadcastingSound)  // 15B6700
         {
-            On(reader);
+            auto playHandleId = reader.ReadUint64();
         }
         else if (messageId == AudioMessages::SetAudioStream)  // 15B68C0
         {
-            On(reader);
+            auto url = reader.ReadString();
+            auto rebroadcast = reader.ReadUint8();
         }
         else if (messageId == AudioMessages::SetMediaSource)  // 15B6930
         {
-            On(reader);
+            auto url = reader.ReadString();
+            auto mediaWidth = reader.ReadUint32();
+            auto mediaHeight = reader.ReadUint32();
+            auto rebroadcast = reader.ReadUint8();
         }
         else if (messageId == AudioMessages::PerformMediaAction)  // 15B69A0
         {
-            On(reader);
+            auto mediaAction = reader.ReadUint32();
+            auto rebroadcast = reader.ReadUint8();
         }
         else if (messageId == AudioMessages::StopSound)  // 15B6A10
         {
-            On(reader);
+            auto playHandleId = reader.ReadUint64();
+            auto immediate = reader.ReadUint8();
         }
         else if (messageId == AudioMessages::SetLoudness) // 0x20EDD0C4  // 15B6A80
         {
@@ -2449,7 +2540,10 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         // Agent controller stuff? dono
         else if (messageId == AgentControllerMessages::ControlPoint)  // 170F790
         {
-            On(reader);
+            auto position = reader.ReadBits(0x30);
+            auto orientation = reader.ReadBits(0x28);
+            auto enabled = reader.ReadBits(1);
+            auto controlPointType = reader.ReadBits(4);
         }
         else if (messageId == AgentControllerMessages::WarpCharacter) // 170F800
         {
@@ -2457,7 +2551,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AgentControllerMessages::RequestWarpCharacter)  // 170F870
         {
-            On(reader);
+            // No palyload
         }
         else if (messageId == AgentControllerMessages::CharacterControlPointInput)  // 170F8E0
         {
@@ -2477,39 +2571,59 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AgentControllerMessages::AgentPlayanimation)  // 170FAA0
         {
-            On(reader);
+            auto agentControllerId = reader.ReadUint32();
         }
         else if (messageId == AgentControllerMessages::RequestAgentPlayAnimation)  // 170FB10
         {
-            On(reader);
+            // No palyload
         }
         else if (messageId == AgentControllerMessages::RequestBehaviorStateUpdate)  // 170FB80
         {
-            On(reader);
+            // No palyload
         }
         else if (messageId == AgentControllerMessages::AttachToCharacterNode)  // 170FBF0
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto componentId = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
+            auto attachmentOffsetPosition = reader.ReadVectorF(3);
+            auto attachmentOffsetOrientation = reader.ReadVectorF(4);
+            auto nodeType = reader.ReadUint8();
+            auto ownershipWatermark = reader.ReadUint8();
+            auto broadcastToSelf = reader.ReadUint8();
         }
         else if (messageId == AgentControllerMessages::DetachFromCharacterNode)  // 170FC60
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto componentId = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
+            auto bodyPosition = reader.ReadVectorF(3);
+            auto botyOrientation = reader.ReadVectorF(4);
+            auto bodyVelocity = reader.ReadVectorF(3);
+            auto bodyAngularVelocity = reader.ReadVectorF(3);
+            auto nodeType = reader.ReadUint8();
         }
         else if (messageId == AgentControllerMessages::RequestDetachFromCharacterNode)  // 170FCD0
         {
-            On(reader);
+            // No palyload
         }
         else if (messageId == AgentControllerMessages::SetCharacterNodePhysics)  // 170FD40
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
+            auto nodeType = reader.ReadUint8();
+            auto collisionsEnabled = reader.ReadUint8();
+            auto broadcastToSelf = reader.ReadUint8();
         }
         else if (messageId == AgentControllerMessages::WarpCharacterNode)  // 170FDB0
         {
-            On(reader);
+            auto agentControllerId = reader.ReadUint32();
+            auto nodeType = reader.ReadUint32(); /// why is this node type 4bytes?
         }
         else if (messageId == AgentControllerMessages::CharacterIKBone)  // 170FE20
         {
-            On(reader);
+            auto boneIndex = reader.ReadBits(6);
+            auto localOrientation = reader.ReadBits(0x28);
         }
         else if (messageId == AgentControllerMessages::CharacterIKPose)  // 170FE90
         {
@@ -2517,7 +2631,8 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AgentControllerMessages::CharacterIKBoneDelta)  // 1710040
         {
-            On(reader);
+            auto boneIndex = reader.ReadBits(6);
+            auto localOrientation = reader.ReadBits(0x19);
         }
         else if (messageId == AgentControllerMessages::CharacterIKPoseDelta)  // 17100B0
         {
@@ -2525,7 +2640,13 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AgentControllerMessages::ObjectInteraction)  // 1710260
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto agentControllerId = reader.ReadUint32();
+            auto objectId = reader.ReadUint32();
+            auto targetedPosition = reader.ReadVectorF(3);
+            auto targetedNormal = reader.ReadVectorF(3);
+            auto origin = reader.ReadVectorF(3);
+            auto controlPointType = reader.ReadBits(4);
         }
         else if (messageId == AgentControllerMessages::ObjectInteractionUpdate)  // 17102D0
         {
@@ -2533,11 +2654,18 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AgentControllerMessages::ObjectInteractionPromptUpdate)  // 1710340
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto clusterId = reader.ReadUint32();
+            auto objectId = reader.ReadUint32();
+            auto prompt = reader.ReadString();
         }
         else if (messageId == AgentControllerMessages::ObjectInteractionCreate)  // 17103B0
         {
-            On(reader);
+            auto frame = reader.ReadUint64();
+            auto clusterId = reader.ReadUint32();
+            auto objectId = reader.ReadUint32();
+            auto prompt = reader.ReadString();
+            auto enabled = reader.ReadUint8();
         }
         else if (messageId == AgentControllerMessages::RequestSitOnObject)  // 1710420
         {
@@ -2729,7 +2857,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == ClientKafkaMessages::PrivateChatStatusLoaded) // 17A2B10
         {
-        //printf("PrivateChatStatusLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
+            //printf("PrivateChatStatusLoaded - Offset = %llX\n", *((uint64_t*)&packet[4]));
         }
         else if (messageId == ClientKafkaMessages::ScriptRegionConsoleLoaded) // 17A2CD0
         {
@@ -2777,25 +2905,13 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
 
 
-        // TBD
-// TBD
-// TBD
-// TBD
-// TBD
+
 
         /*
-        
-        else if (messageId ==ClientVoiceMessages::LocalAudioData)  // 0x0D50D087 // 
+
+        else if (messageId ==ClientVoiceMessages::LocalAudioData)  // 0x0D50D087 //
         {
             OnLocalAudioData(reader);
-        }
-        else if (messageId == AgentControllerMessages::ObjectInteractionPromptUpdate)  // 0x1651CD68 // 
-        {
-            OnObjectInteractionPromptUpdate(reader);
-        }
-        else if (SimulationMessages::RigidBodyPropertyChanged) // 45FAAEBC
-        {
-            OnRigidBodyPropertyChanged(reader);
         }
 
         */
@@ -2810,7 +2926,8 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
 
         reader.Reset();
     }
-    catch (std::exception ex) {
+    catch (std::exception ex)
+    {
         printf("!!! Caught exception -> %s\n", ex.what());
     }
 }
@@ -2842,7 +2959,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
         auto base = GetBaseAddress();
 
-        if (true) {
+        if (true)
+        {
             // Search for "Illegally formatted message received. You probably failed to bind a callback for this message. Message was: %s (id: 0x%x)\n"'
             //
             // mov rdx, qword ptr ds : [rdi + 8] | RDX = packet ?

@@ -140,6 +140,13 @@ public:
         return result;
     }
 
+    uint64_t ReadUint64()
+    {
+        auto result = ReadGeneric<uint64_t>();
+        return result;
+    }
+
+
     uint8_t ReadUint8()
     {
         auto result = ReadGeneric<uint8_t>();
@@ -173,11 +180,6 @@ public:
     int32_t ReadInt32()
     {
         auto result = ReadGeneric<int32_t>();
-        return result;
-    }
-    uint64_t ReadUint64()
-    {
-        auto result = ReadGeneric<uint64_t>();
         return result;
     }
 
