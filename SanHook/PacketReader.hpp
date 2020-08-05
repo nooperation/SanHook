@@ -195,9 +195,22 @@ public:
         return result;
     }
 
+    std::vector<float> ReadVectorF(uint32_t dimensions)
+    {
+        std::vector<float> result(dimensions);
+
+        for (size_t i = 0; i < dimensions; i++)
+        {
+            auto val = ReadFloat();
+            result.push_back(val);
+        }
+
+        return result;
+    }
+
     std::vector<uint8_t> ReadBits(uint32_t numBits)
     {
-        throw std::exception("NO");
+        return std::vector<uint8_t>();
     }
 
     std::vector<uint8_t> ReadBytes(uint32_t numBytes)
