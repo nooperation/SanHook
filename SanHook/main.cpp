@@ -9,15 +9,15 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-static int (WINAPI* original_recvfrom)(SOCKET s, char* buf, int len, int flags, struct sockaddr* from, int* fromlen) = recvfrom;
-static int (WINAPI* original_sendto)(SOCKET s, const char* buf, int len, int flags, const struct sockaddr* to, int tolen) = sendto;
-int (WINAPI* original_recv)(SOCKET s, char* buf, int len, int flags) = recv;
-int (WINAPI* original_send)(SOCKET s, const char* buf, int len, int flags) = send;
+static int (WINAPI *original_recvfrom)(SOCKET s, char *buf, int len, int flags, struct sockaddr *from, int *fromlen) = recvfrom;
+static int (WINAPI *original_sendto)(SOCKET s, const char *buf, int len, int flags, const struct sockaddr *to, int tolen) = sendto;
+int (WINAPI *original_recv)(SOCKET s, char *buf, int len, int flags) = recv;
+int (WINAPI *original_send)(SOCKET s, const char *buf, int len, int flags) = send;
 
 uint16_t last_chat_server_sequence = 0;
 
-void DumpPacket(const char* buff, int len, bool is_sending);
-std::string GetAddressFromAddr(const sockaddr* addr);
+void DumpPacket(const char *buff, int len, bool is_sending);
+std::string GetAddressFromAddr(const sockaddr *addr);
 
 #include "bitReader.hpp"
 #include "Messages.h"
@@ -29,7 +29,7 @@ std::string GetAddressFromAddr(const sockaddr* addr);
 #include <map>
 std::map<uint32_t, std::string> sessionIdToNameMap = std::map<uint32_t, std::string>();
 
-uint16_t Sansar_ShortCRC(uint8_t* packet, int64_t packetLength, uint64_t initialChecksum)
+uint16_t Sansar_ShortCRC(uint8_t *packet, int64_t packetLength, uint64_t initialChecksum)
 {
     auto packetIter = packet;
     auto checksum = ~((uint32_t)initialChecksum);
@@ -37,28 +37,28 @@ uint16_t Sansar_ShortCRC(uint8_t* packet, int64_t packetLength, uint64_t initial
     auto num_8byte_chunks = (uint64_t)(packetLength / 8);
     for (uint64_t i = 0; i < num_8byte_chunks; ++i)
     {
-        checksum = (uint32_t)_mm_crc32_u64(checksum, *(uint64_t*)packetIter);
+        checksum = (uint32_t)_mm_crc32_u64(checksum, *(uint64_t *)packetIter);
         packetIter += 8;
     }
 
     auto remainingBytes = packetLength & 7;
     if (remainingBytes >= 4)
     {
-        checksum = _mm_crc32_u32(checksum, *(uint32_t*)packetIter);
+        checksum = _mm_crc32_u32(checksum, *(uint32_t *)packetIter);
         packetIter += 4;
         remainingBytes -= 4;
     }
 
     if (remainingBytes >= 2)
     {
-        checksum = _mm_crc32_u16(checksum, *(uint16_t*)packetIter);
+        checksum = _mm_crc32_u16(checksum, *(uint16_t *)packetIter);
         packetIter += 2;
         remainingBytes -= 2;
     }
 
     if (remainingBytes > 0)
     {
-        checksum = _mm_crc32_u8(checksum, *(uint8_t*)packetIter);
+        checksum = _mm_crc32_u8(checksum, *(uint8_t *)packetIter);
     }
 
     checksum = ~checksum;
@@ -71,7 +71,7 @@ uint32_t checksumSeed_recv = 0;
 bool found_first_cvc100 = false;
 uint32_t checksumSeed_first_cvc100 = 0;
 
-const struct sockaddr* last_chat_sendto = nullptr;
+const struct sockaddr *last_chat_sendto = nullptr;
 uint8_t last_chat_sendto_raw[128] = {};
 
 int last_chat_sendto_length = 0;
@@ -81,14 +81,14 @@ int last_chat_sequence = 0;
 int last_sent_sequence = 0;
 SOCKET last_chat_sendto_socket = 0;
 
-void SendPacket(const char* buff, int len)
+void SendPacket(const char *buff, int len)
 {
 
 }
 
 std::mutex send_mutex;
 
-int Chat(const std::string& newMessage, int sequence, SOCKET s, int flags, const struct sockaddr* to, int tolen) {
+int Chat(const std::string &newMessage, int sequence, SOCKET s, int flags, const struct sockaddr *to, int tolen) {
     uint8_t payloadLength = 0;
 
     auto buffer_length = (uint32_t)(18 + newMessage.length());
@@ -97,17 +97,17 @@ int Chat(const std::string& newMessage, int sequence, SOCKET s, int flags, const
 
     buffer[0] = 0x07;
 
-    *((uint16_t*)&buffer[1]) = sequence;
+    *((uint16_t *)&buffer[1]) = sequence;
     buffer[3] = buffer_length - 6;
-    *((uint32_t*)&buffer[4]) = 0xDDDEC199;
-    *((uint32_t*)&buffer[8]) = 0;
-    *((uint32_t*)&buffer[12]) = (uint32_t)newMessage.length();
+    *((uint32_t *)&buffer[4]) = 0xDDDEC199;
+    *((uint32_t *)&buffer[8]) = 0;
+    *((uint32_t *)&buffer[12]) = (uint32_t)newMessage.length();
 
     memcpy(&buffer[16], newMessage.c_str(), (uint32_t)newMessage.length());
 
-    auto checksum = Sansar_ShortCRC((uint8_t*)buffer, buffer_length - 2, checksumSeed_send);
+    auto checksum = Sansar_ShortCRC((uint8_t *)buffer, buffer_length - 2, checksumSeed_send);
 
-    *((uint16_t*)&buffer[16 + newMessage.length()]) = checksum;
+    *((uint16_t *)&buffer[16 + newMessage.length()]) = checksum;
 
     auto result = original_sendto(s, buffer, buffer_length, flags, to, tolen);
 
@@ -119,7 +119,7 @@ int Chat(const std::string& newMessage, int sequence, SOCKET s, int flags, const
     return result;
 }
 
-int SpecialChat(const std::string& newMessage, uint16_t sequence, SOCKET s, int flags, const struct sockaddr* to, int tolen, uint64_t seed) {
+int SpecialChat(const std::string &newMessage, uint16_t sequence, SOCKET s, int flags, const struct sockaddr *to, int tolen, uint64_t seed) {
     auto text_length = (uint32_t)newMessage.size();
 
     auto buffer_length = 90 + text_length;
@@ -129,23 +129,23 @@ int SpecialChat(const std::string& newMessage, uint16_t sequence, SOCKET s, int 
     memset(buffer, 0, buffer_length);
 
     buffer[0] = 0x07;
-    *((uint16_t*)&buffer[1]) = sequence;
+    *((uint16_t *)&buffer[1]) = sequence;
     buffer[3] = buffer_length - 13;
-    *((uint32_t*)&buffer[4]) = 0x304D3746;
-    *((uint64_t*)&buffer[8]) = 0x1c3aad2b02584c90;
-    *((uint64_t*)&buffer[16]) = 0xa6040da35a9743f9;
+    *((uint32_t *)&buffer[4]) = 0x304D3746;
+    *((uint64_t *)&buffer[8]) = 0x1c3aad2b02584c90;
+    *((uint64_t *)&buffer[16]) = 0xa6040da35a9743f9;
 
     //*((uint64_t*)&buffer[24]) = 0;
     //*((uint64_t*)&buffer[32]) = 0;
     //*((uint64_t*)&buffer[40]) = 0;
 
-    *((uint32_t*)&buffer[48]) = text_length;
+    *((uint32_t *)&buffer[48]) = text_length;
     memcpy(&buffer[52], newMessage.c_str(), text_length);
 
     // ID of telemetry data?
-    *((uint16_t*)&buffer[buffer_length - 13]) = 0xFF;
-    *((uint16_t*)&buffer[buffer_length - 12]) = 8;
-    *((uint32_t*)&buffer[buffer_length - 10]) = 0x4AC30FE7;
+    *((uint16_t *)&buffer[buffer_length - 13]) = 0xFF;
+    *((uint16_t *)&buffer[buffer_length - 12]) = 8;
+    *((uint32_t *)&buffer[buffer_length - 10]) = 0x4AC30FE7;
 
     //*((uint16_t*)&buffer[buffer_length-7]) = 0xc;
 
@@ -157,19 +157,19 @@ int SpecialChat(const std::string& newMessage, uint16_t sequence, SOCKET s, int 
     *((uint8_t*)&buffer[52 + text_length + 24]) = 0;
     */
 
-    auto checksum = Sansar_ShortCRC((uint8_t*)buffer, buffer_length - 2, seed);
-    *((uint16_t*)&buffer[buffer_length - 2]) = checksum;
+    auto checksum = Sansar_ShortCRC((uint8_t *)buffer, buffer_length - 2, seed);
+    *((uint16_t *)&buffer[buffer_length - 2]) = checksum;
 
     printf("------------\n");
     DumpPacket(buffer, buffer_length, true);
     printf("------------\n");
 
     printf("INTERCEPTION SEND ON: (seq %X) Socket: %08llX | sendto: %08llX | tolen: %d\n", last_chat_server_sequence, last_chat_sendto_socket, (uint64_t)last_chat_sendto, last_chat_sendto_length);
-    printf("INTERCEPTION: GetAddressFromAddr -> %s\n", GetAddressFromAddr((const sockaddr*)&last_chat_sendto_raw).c_str());
+    printf("INTERCEPTION: GetAddressFromAddr -> %s\n", GetAddressFromAddr((const sockaddr *)&last_chat_sendto_raw).c_str());
     // auto result = original_sendto(last_chat_sendto_socket, buffer, buffer_length, last_chat_sendto_flags, last_chat_sendto, last_chat_sendto_length);
 
 
-    auto result = original_sendto(last_chat_sendto_socket, buffer, buffer_length, last_chat_sendto_flags, (const sockaddr*)&last_chat_sendto_raw, last_chat_sendto_length);
+    auto result = original_sendto(last_chat_sendto_socket, buffer, buffer_length, last_chat_sendto_flags, (const sockaddr *)&last_chat_sendto_raw, last_chat_sendto_length);
 
 
     printf("Result = %d\n", result);
@@ -180,7 +180,7 @@ int SpecialChat(const std::string& newMessage, uint16_t sequence, SOCKET s, int 
     return result;
 }
 
-int SendAcceptFriend(uint8_t* newUuid, int sequence, SOCKET s, int flags, const struct sockaddr* to, int tolen) {
+int SendAcceptFriend(uint8_t *newUuid, int sequence, SOCKET s, int flags, const struct sockaddr *to, int tolen) {
 
     printf("SendAcceptFriend...");
 
@@ -253,17 +253,17 @@ int SendAcceptFriend(uint8_t* newUuid, int sequence, SOCKET s, int flags, const 
 
 
 
-    *((uint16_t*)&rawData[1]) = sequence;
+    *((uint16_t *)&rawData[1]) = sequence;
 
     //memcpy(&rawData[8], newUuid, 16);
 
 
-    auto checksum = Sansar_ShortCRC((uint8_t*)rawData, sizeof(rawData) - 2, checksumSeed_first_cvc100);
-    *((uint16_t*)&rawData[sizeof(rawData) - 2]) = checksum;
+    auto checksum = Sansar_ShortCRC((uint8_t *)rawData, sizeof(rawData) - 2, checksumSeed_first_cvc100);
+    *((uint16_t *)&rawData[sizeof(rawData) - 2]) = checksum;
 
     printf("*****************\n");
-    DumpPacket((const char*)&rawData[0], sizeof(rawData), true);
-    auto result = original_sendto(s, (const char*)&rawData[0], sizeof(rawData), flags, to, tolen);
+    DumpPacket((const char *)&rawData[0], sizeof(rawData), true);
+    auto result = original_sendto(s, (const char *)&rawData[0], sizeof(rawData), flags, to, tolen);
 
     printf("Result = %d\n", result);
     if (result == -1) {
@@ -273,7 +273,7 @@ int SendAcceptFriend(uint8_t* newUuid, int sequence, SOCKET s, int flags, const 
     return result;
 }
 
-void DumpPacket(const char* buff, int len, bool is_sending)
+void DumpPacket(const char *buff, int len, bool is_sending)
 {
     static const char kHexLookup[] = {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
@@ -368,7 +368,7 @@ std::string ToUUID(std::string id)
 }
 
 #include <map>
-std::string GetAddressFromAddr(const sockaddr* addr)
+std::string GetAddressFromAddr(const sockaddr *addr)
 {
     if (!addr) {
         return "NULL";
@@ -385,13 +385,13 @@ std::string GetAddressFromAddr(const sockaddr* addr)
 
     if (addr->sa_family == AF_INET)
     {
-        auto s = (sockaddr_in*)addr;
+        auto s = (sockaddr_in *)addr;
         port = ntohs(s->sin_port);
         inet_ntop(AF_INET, &s->sin_addr, address, sizeof(address));
     }
     else
     {
-        auto s = (sockaddr_in6*)addr;
+        auto s = (sockaddr_in6 *)addr;
         port = ntohs(s->sin6_port);
         inet_ntop(AF_INET6, &s->sin6_addr, address, sizeof(address));
     }
@@ -414,15 +414,15 @@ std::string GetAddressFromSocket(SOCKET s)
     sockaddr_storage addr = {};
     socklen_t namelen = sizeof(addr);
 
-    auto result = getpeername(s, (sockaddr*)&addr, &namelen);
+    auto result = getpeername(s, (sockaddr *)&addr, &namelen);
 
-    auto name = GetAddressFromAddr((const sockaddr*)&addr);
+    auto name = GetAddressFromAddr((const sockaddr *)&addr);
     addr_lookup[s] = name;
     return name;
 }
 
 
-uint32_t ReadThreeByteInt(const char* buf)
+uint32_t ReadThreeByteInt(const char *buf)
 {
     uint32_t w = (char)buf[2] < 0 ? 0xff000000 : 0;
     uint32_t x = (uint8_t)buf[2] << 16;
@@ -434,15 +434,15 @@ uint32_t ReadThreeByteInt(const char* buf)
     return result;
 }
 
-void WriteThreeByteInt(int32_t value, char* buff) {
-    ((uint8_t*)buff)[2] = (uint8_t)((value >> 16) & 0xFF);
-    ((uint8_t*)buff)[1] = (uint8_t)((value >> 8) & 0xFF);
-    ((uint8_t*)buff)[0] = (uint8_t)((value) & 0xFF);
+void WriteThreeByteInt(int32_t value, char *buff) {
+    ((uint8_t *)buff)[2] = (uint8_t)((value >> 16) & 0xFF);
+    ((uint8_t *)buff)[1] = (uint8_t)((value >> 8) & 0xFF);
+    ((uint8_t *)buff)[0] = (uint8_t)((value) & 0xFF);
 }
 
 #include <vector>
 
-void OnUserLoginReply(PacketReader& reader)
+void OnUserLoginReply(PacketReader &reader)
 {
     printf("ClientRegionMessages::UserLoginReply\n");
 
@@ -459,7 +459,7 @@ void OnUserLoginReply(PacketReader& reader)
     }
 
     printf("LoginReply:\n Success: %d\n SessionId: %d\n RegionServerVersion: %s\n Privileges: \n", success, sessionId, regionServerVersion.c_str());
-    for (const auto& item : privileges)
+    for (const auto &item : privileges)
     {
         printf("   %s\n", item.c_str());
     }
@@ -471,7 +471,7 @@ void OnUserLoginReply(PacketReader& reader)
 
 std::regex patternAvatarType("avatarAssetId = \"([^\"]+)\"[^a]+avatarInventoryId = \"([^\"]+)\"");
 
-void OnAddUser(PacketReader& reader)
+void OnAddUser(PacketReader &reader)
 {
     printf("ClientRegionMessages::AddUser\n");
 
@@ -511,7 +511,7 @@ void OnAddUser(PacketReader& reader)
     auto now = std::chrono::system_clock::now();
     auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
-    FILE* outFile = nullptr;
+    FILE *outFile = nullptr;
     fopen_s(&outFile, userdumpPath.string().c_str(), "a");
     if (needToAddHeader) {
         fprintf(outFile, "timestamp,username,handle,personaIdSwapped,avatarAssetIdSwapped,personaId,avatarAssetId,avatarInventoryId\n");
@@ -541,7 +541,7 @@ void OnAddUser(PacketReader& reader)
 }
 
 
-void OnRemoveUser(PacketReader& reader)
+void OnRemoveUser(PacketReader &reader)
 {
     auto sessionId = reader.ReadUint32();
 
@@ -565,7 +565,7 @@ std::mutex recvLock;
 std::map<SOCKET, PacketReader> readers;
 std::map<SOCKET, uint16_t> lastProcessedSequence;
 
-int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sockaddr* from, int* fromlen)
+int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sockaddr *from, int *fromlen)
 {
     auto result = original_recvfrom(s, buff, len, flags, from, fromlen);
     if (result == SOCKET_ERROR)
@@ -577,8 +577,8 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sock
         return result;
     }
 
-    auto packetType = *((uint8_t*)&buff[0]);
-    auto sequence = *((uint16_t*)&buff[1]);
+    auto packetType = *((uint8_t *)&buff[0]);
+    auto sequence = *((uint16_t *)&buff[1]);
 
     if (packetType != 0x07) {
         return result;
@@ -586,7 +586,7 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sock
 
     // std::unique_lock<std::mutex> lck(recvLock);
 
-    PacketReader& reader = readers[s];
+    PacketReader &reader = readers[s];
     lastProcessedSequence[s] = reader.getPreviousSequence();
 
     if (sequence <= lastProcessedSequence[s]) {
@@ -630,7 +630,7 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sock
 
 
     // Copy the packet to the PacketReader buffer (excluding 3-byte header and 2-byte checksum footer)
-    reader.Add(sequence, (const uint8_t*)(buff + 3), result - 5);
+    reader.Add(sequence, (const uint8_t *)(buff + 3), result - 5);
 
     try {
         // Attempt to process packets (if we're done waiting for more data)
@@ -708,7 +708,7 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sock
 
         reader.Reset();
     }
-    catch (std::exception&)
+    catch (std::exception &)
     {
         printf("Shit hit the fan. Clearning reader on socket %lld.\n", s);
         reader.Reset();
@@ -723,9 +723,9 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char* buff, int len, int flags, struct sock
 
 #include <windows.h>
 #include <tlhelp32.h>
-uint8_t* kBaseAddress = nullptr;
+uint8_t *kBaseAddress = nullptr;
 
-uint8_t* GetBaseAddress()
+uint8_t *GetBaseAddress()
 {
     if (kBaseAddress != nullptr) {
         return kBaseAddress;
@@ -749,7 +749,7 @@ uint8_t* GetBaseAddress()
         {
             if (module_entry.th32ProcessID == process_id)
             {
-                kBaseAddress = (uint8_t*)module_entry.modBaseAddr;
+                kBaseAddress = (uint8_t *)module_entry.modBaseAddr;
                 CloseHandle(hSnap);
 
                 return kBaseAddress;
@@ -762,10 +762,10 @@ uint8_t* GetBaseAddress()
 }
 
 
-int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const struct sockaddr* to, int tolen)
+int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const struct sockaddr *to, int tolen)
 {
     if (s == last_chat_sendto_socket) {
-        last_chat_server_sequence = *((uint16_t*)&buf[1]);
+        last_chat_server_sequence = *((uint16_t *)&buf[1]);
         //printf("** last_chat_server_sequence = %X\n", last_chat_server_sequence);
     }
     //  DumpPacket(buf, len, true);
@@ -776,8 +776,8 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
 
     // (1:ID) (2:sequence) (1:payload length) (N: payload) (2: checksum)
 
-    last_sent_sequence = *((uint16_t*)&buf[1]);
-    auto messageId = *((uint32_t*)&buf[4]);
+    last_sent_sequence = *((uint16_t *)&buf[1]);
+    auto messageId = *((uint32_t *)&buf[4]);
 
 
     if (messageId == ClientKafkaMessages::Login)
@@ -789,7 +789,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
     else if (messageId == ClientRegionMessages::UserLogin)
     {
         // ClientRegionMessages::UserLogin ->  07 | 03 00 | 08 | 0A 80 02 39 | 71 06 F7 77 | E4 8B
-        auto secret = *((uint32_t*)&buf[8]);
+        auto secret = *((uint32_t *)&buf[8]);
         printf("ClientRegionMessages::UserLogin (secret = %u | %X)\n", secret, secret);
     }
     else if (messageId == ClientRegionMessages::SetAgentController)
@@ -816,9 +816,9 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
     //printf("Hooked sendto [%s] -> %d\n", GetAddressFromAddr(to).c_str(), result);
     if (buf[0] == 0x01)
     {
-        auto seed = *(uint32_t*)&buf[5];
-        auto seedNameLength = *(uint32_t*)&buf[13];
-        auto seedName = std::string((const char*)&buf[17], (std::size_t)seedNameLength);
+        auto seed = *(uint32_t *)&buf[5];
+        auto seedNameLength = *(uint32_t *)&buf[13];
+        auto seedName = std::string((const char *)&buf[17], (std::size_t)seedNameLength);
 
         if (seedName == "CRC_102") {
             printf("SEND checksum [%s] Seed = %08X | TO=%08llX | s=%08llX\n", seedName.c_str(), seed, (uint64_t)to, s);
@@ -849,11 +849,11 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
         // Useless kafka login... or is it?
         if (0 && messageId == 0x9D813000)
         {
-            auto unknownA = *((uint16_t*)&buf[8]);
-            auto accountIdBytes = ((uint8_t*)&buf[10]);
-            auto personaIdBytes = ((uint8_t*)&buf[26]);
-            auto secret = *((uint32_t*)&buf[42]);
-            auto Unknown = *((uint64_t*)&buf[46]);
+            auto unknownA = *((uint16_t *)&buf[8]);
+            auto accountIdBytes = ((uint8_t *)&buf[10]);
+            auto personaIdBytes = ((uint8_t *)&buf[26]);
+            auto secret = *((uint32_t *)&buf[42]);
+            auto Unknown = *((uint64_t *)&buf[46]);
 
             //auto checksum = *((uint16_t*)&buf[len - 2]);
 
@@ -909,8 +909,8 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             memcpy(personaIdBytes, otherPersona, sizeof(otherPersona) / sizeof(otherPersona[0]));
 
 
-            auto myChecksum = Sansar_ShortCRC((uint8_t*)buf, len - 2, checksumSeed_recv); // yes this is the correct checksum to use here despite its name...
-            *((uint16_t*)&buf[len - 2]) = myChecksum;
+            auto myChecksum = Sansar_ShortCRC((uint8_t *)buf, len - 2, checksumSeed_recv); // yes this is the correct checksum to use here despite its name...
+            *((uint16_t *)&buf[len - 2]) = myChecksum;
         }
     }
     else if (buf[0] == 0x07)
@@ -921,18 +921,18 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             //  Id   Seq     MsgId            Frame                     AgentId       ResourceId                            AttachmentNode   SpawnPosition(78bit)|height?(32bit)|SpawnOrientation(43bit)         Checksum
             // [07] [91 01] [31 0D 85 21] 2C [C6 6D 00 00 00 00 00 00] [05 00 00 00] [37 7F 61 06 51 D3 9B EF 5F B0 FB 67 89 AD EE 79] [FF] [EB AE 00 F2 3A 02 48 2A A0 C0 FE BF FF F7 FE 51] [77 96]
 
-            auto frame = *((uint64_t*)&buf[8]);
-            auto agentControllerId = *((uint32_t*)&buf[16]);
-            auto clusterId = ((uint8_t*)&buf[20]);
-            auto attachmentNode = *((uint8_t*)&buf[36]); // 9
+            auto frame = *((uint64_t *)&buf[8]);
+            auto agentControllerId = *((uint32_t *)&buf[16]);
+            auto clusterId = ((uint8_t *)&buf[20]);
+            auto attachmentNode = *((uint8_t *)&buf[36]); // 9
 
-            BitReader br((uint8_t*)&buf[37], 10);
+            BitReader br((uint8_t *)&buf[37], 10);
             auto positionX = br.ReadFloat(26, false);
             auto positionY = br.ReadFloat(26, false);
             auto positionZ = br.ReadFloat(26, true);
 
             auto camrez_enabled = false;
-            FILE* inFileCamRez = nullptr;
+            FILE *inFileCamRez = nullptr;
             fopen_s(&inFileCamRez, "u:\\sanhook_config_camrez.txt", "rb");
             if (inFileCamRez != nullptr)
             {
@@ -952,9 +952,9 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
                 //const static auto kCameraPositionOffset = 0x4AA91C0;
                 const static auto kCameraPositionOffset = 0x4AA91C0;
 
-                positionX = *((float*)(base + kCameraPositionOffset + 0));
-                positionY = *((float*)(base + kCameraPositionOffset + 4));
-                positionZ = *((float*)(base + kCameraPositionOffset + 8));
+                positionX = *((float *)(base + kCameraPositionOffset + 0));
+                positionY = *((float *)(base + kCameraPositionOffset + 4));
+                positionZ = *((float *)(base + kCameraPositionOffset + 8));
 
                 br.Reset();
                 br.WriteFloat(positionX, 26, false);
@@ -991,7 +991,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
 
             uint8_t newClusterId[16] = {};
             bool enabled = false;
-            FILE* inFile = nullptr;
+            FILE *inFile = nullptr;
             fopen_s(&inFile, "u:\\sanhook_config_rez.txt", "rb");
             if (inFile != nullptr) {
                 enabled = fgetc(inFile);
@@ -1004,21 +1004,21 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
                 }
             }
 
-            auto myChecksum = Sansar_ShortCRC((uint8_t*)buf, len - 2, checksumSeed_send);
-            *((uint16_t*)&buf[len - 2]) = myChecksum;
+            auto myChecksum = Sansar_ShortCRC((uint8_t *)buf, len - 2, checksumSeed_send);
+            *((uint16_t *)&buf[len - 2]) = myChecksum;
             ///////////////////////
         }
         // instant message
         if (0 && messageId == ClientKafkaMessages::PrivateChat)
         {
-            auto unknownA = *((uint64_t*)&buf[8]);
-            auto personaIdFromBytes = ((uint8_t*)&buf[16]);
-            auto personaIdToBytes = ((uint8_t*)&buf[32]);
+            auto unknownA = *((uint64_t *)&buf[8]);
+            auto personaIdFromBytes = ((uint8_t *)&buf[16]);
+            auto personaIdToBytes = ((uint8_t *)&buf[32]);
 
-            auto textLength = *((uint32_t*)&buf[48]);
-            auto text = std::string((const char*)&buf[52], (std::size_t)textLength);
+            auto textLength = *((uint32_t *)&buf[48]);
+            auto text = std::string((const char *)&buf[52], (std::size_t)textLength);
 
-            auto unknownB = *((uint64_t*)&buf[52 + textLength]);
+            auto unknownB = *((uint64_t *)&buf[52 + textLength]);
 
             //printf("From = %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n",
             //    personaIdFromBytes[7],
@@ -1062,7 +1062,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             uint8_t personaId[16] = {};
             bool enabled = false;
 
-            FILE* inFile = nullptr;
+            FILE *inFile = nullptr;
 
             fopen_s(&inFile, "u:\\sanhook_config_im.txt", "rb");
             if (inFile != nullptr) {
@@ -1110,15 +1110,15 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
         }
         if (0 && messageId == AgentControllerMessages::AgentPlayanimation)
         {
-            auto unknownB = *((uint32_t*)&buf[8]);
-            auto Time = *((uint64_t*)&buf[12]);
-            auto unknownD = *((uint32_t*)&buf[16]);
-            auto unknownE = *((uint32_t*)&buf[24]);
+            auto unknownB = *((uint32_t *)&buf[8]);
+            auto Time = *((uint64_t *)&buf[12]);
+            auto unknownD = *((uint32_t *)&buf[16]);
+            auto unknownE = *((uint32_t *)&buf[24]);
 
-            auto ResourceIdBytes = ((uint8_t*)&buf[28]);
+            auto ResourceIdBytes = ((uint8_t *)&buf[28]);
 
-            auto unknownF = *((uint16_t*)&buf[44]);
-            auto unknownG = *((uint8_t*)&buf[46]);
+            auto unknownF = *((uint16_t *)&buf[44]);
+            auto unknownG = *((uint8_t *)&buf[46]);
 
             printf("PlayEmote:\n    ResourceID = %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n    UnknownB = %d\n    Time = %llu\n    UnknownD = %d\n    UnknownE = %d\n    UnknownF = %d\n    UnknownG = %d\n",
                 ResourceIdBytes[7],
@@ -1147,8 +1147,8 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
         }
         // 07 9A 01 2D FD 6E E5 EC 25 00 00 00 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 C6 CE
         else if (0 && messageId == ClientRegionMessages::ClientRegionCommandMessage) {
-            auto textLength = *((uint32_t*)&buf[8]);
-            auto text = std::string((const char*)&buf[12], (std::size_t)textLength);
+            auto textLength = *((uint32_t *)&buf[8]);
+            auto text = std::string((const char *)&buf[12], (std::size_t)textLength);
 
             if (text == "test123") {
                 // auto result = original_sendto(s, buf, len, flags, to, tolen);
@@ -1167,18 +1167,18 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             last_chat_sendto_socket = s;
             last_chat_sequence = last_sent_sequence;
 
-            auto payload = (uint8_t*)&buf[8];
-            auto personaIdBytes = (uint8_t*)&payload[0];
-            auto unknownB = *((uint64_t*)&payload[16]);
-            auto unknownC = *((uint64_t*)&payload[24]);
-            auto unknownD = *((uint64_t*)&payload[32]);
-            auto textLength = *((uint32_t*)&payload[40]);
-            auto text = std::string((const char*)&payload[44], (std::size_t)textLength);
-            auto unknownF = *((uint64_t*)&payload[44 + textLength]);
-            auto unknownG = *((uint64_t*)&payload[44 + textLength + 8]);
-            auto unknownH = *((uint64_t*)&payload[44 + textLength + 16]);
-            auto unknownI = *((uint64_t*)&payload[44 + textLength + 24]);
-            auto textLen2 = *((uint32_t*)&payload[44 + textLength + 32]);
+            auto payload = (uint8_t *)&buf[8];
+            auto personaIdBytes = (uint8_t *)&payload[0];
+            auto unknownB = *((uint64_t *)&payload[16]);
+            auto unknownC = *((uint64_t *)&payload[24]);
+            auto unknownD = *((uint64_t *)&payload[32]);
+            auto textLength = *((uint32_t *)&payload[40]);
+            auto text = std::string((const char *)&payload[44], (std::size_t)textLength);
+            auto unknownF = *((uint64_t *)&payload[44 + textLength]);
+            auto unknownG = *((uint64_t *)&payload[44 + textLength + 8]);
+            auto unknownH = *((uint64_t *)&payload[44 + textLength + 16]);
+            auto unknownI = *((uint64_t *)&payload[44 + textLength + 24]);
+            auto textLen2 = *((uint32_t *)&payload[44 + textLength + 32]);
 
             /*
             printf("SpecialChat:\n    PersonaID = %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X\n    unknownB = %llu\n    UnknownC = %llu\n    unknownD = %llu\n    unknownF = %llu\n    unknownG = %llu\n    unknownH = %llu\n    unknownI = %llu\n    CHAT = %s | ",
@@ -1217,7 +1217,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             uint8_t personaId[16] = {};
             bool enabled = false;
 
-            FILE* inFile = nullptr;
+            FILE *inFile = nullptr;
 
             fopen_s(&inFile, "u:\\sanhook_config.txt", "rb");
             if (inFile != nullptr) {
@@ -1243,17 +1243,17 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
             last_chat_sendto_flags = flags;
             last_chat_sendto_socket = s;
 
-            auto payload = (uint8_t*)&buf[8];
+            auto payload = (uint8_t *)&buf[8];
 
-            auto unknownB = *((uint32_t*)&payload[0]);
-            auto textLength = *((uint32_t*)&payload[4]);
+            auto unknownB = *((uint32_t *)&payload[0]);
+            auto textLength = *((uint32_t *)&payload[4]);
 
             memset(&payload[8], '*', textLength);
 
-            auto text = std::string((const char*)&payload[8], (std::size_t)textLength);
+            auto text = std::string((const char *)&payload[8], (std::size_t)textLength);
 
-            auto checksum = *((uint16_t*)&buf[len - 2]);
-            auto myChecksum = Sansar_ShortCRC((uint8_t*)buf, len - 2, checksumSeed_send);
+            auto checksum = *((uint16_t *)&buf[len - 2]);
+            auto myChecksum = Sansar_ShortCRC((uint8_t *)buf, len - 2, checksumSeed_send);
 
             //printf("Chat: [%d] %s\n", unknownB, text.c_str());
         }
@@ -1269,7 +1269,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char* buf, int len, int flags, const st
 }
 
 
-int WINAPI Hooked_Recv(SOCKET s, char* buf, int len, int flags)
+int WINAPI Hooked_Recv(SOCKET s, char *buf, int len, int flags)
 {
     auto result = original_recv(s, buf, len, flags);
     if (result != SOCKET_ERROR)
@@ -1282,7 +1282,7 @@ int WINAPI Hooked_Recv(SOCKET s, char* buf, int len, int flags)
 }
 
 
-int WINAPI Hooked_Send(SOCKET s, const char* buf, int len, int flags)
+int WINAPI Hooked_Send(SOCKET s, const char *buf, int len, int flags)
 {
     auto result = original_send(s, buf, len, flags);
     if (result != SOCKET_ERROR)
@@ -1297,7 +1297,7 @@ int WINAPI Hooked_Send(SOCKET s, const char* buf, int len, int flags)
 #include "Magic.h"
 unsigned long long ReturnPoint_ProcessPacketRecv = 0;
 
-void RewriteCode(void* targetAddress, uint8_t* newCode, std::size_t newCodeLength)
+void RewriteCode(void *targetAddress, uint8_t *newCode, std::size_t newCodeLength)
 {
     DWORD oldProtection = 0;
     if (!VirtualProtect(targetAddress, newCodeLength, PAGE_EXECUTE_READWRITE, &oldProtection)) {
@@ -1313,7 +1313,7 @@ void RewriteCode(void* targetAddress, uint8_t* newCode, std::size_t newCodeLengt
 }
 
 
-void OnChatMessageToClient(PacketReader& reader)
+void OnChatMessageToClient(PacketReader &reader)
 {
     auto fromSessionId = reader.ReadUint32();
     auto toSessionId = reader.ReadUint32();
@@ -1333,7 +1333,7 @@ void OnChatMessageToClient(PacketReader& reader)
 }
 
 
-void OnClientVoiceLoginReply(PacketReader& reader)
+void OnClientVoiceLoginReply(PacketReader &reader)
 {
     auto success = reader.ReadUint8();
     auto message = reader.ReadString();
@@ -1341,7 +1341,7 @@ void OnClientVoiceLoginReply(PacketReader& reader)
     printf("OnClientVoiceLoginReply: Success=%d: %s\n", success, message.c_str());
 }
 
-void OnLocalAudioStreamState(PacketReader& reader)
+void OnLocalAudioStreamState(PacketReader &reader)
 {
     auto instance = reader.ReadString();
     auto agentControllerId = reader.ReadUint32();
@@ -1356,7 +1356,8 @@ void OnLocalAudioStreamState(PacketReader& reader)
     );
 }
 
-void OnScriptConsoleLog(PacketReader& reader)
+
+void OnScriptConsoleLog(PacketReader &reader)
 {
     auto logLevel = reader.ReadUint32();
     auto tag = reader.ReadString();
@@ -1383,7 +1384,7 @@ void OnScriptConsoleLog(PacketReader& reader)
     );
 }
 
-void OnCharacterControllerInput(PacketReader& reader)
+void OnCharacterControllerInput(PacketReader &reader)
 {
     auto frame = reader.ReadUint64();
     auto agentControllerId = reader.ReadUint32();
@@ -1409,7 +1410,7 @@ void OnCharacterControllerInput(PacketReader& reader)
     */
 }
 
-void OnClientKafkaMessageLoginReply(PacketReader& reader)
+void OnClientKafkaMessageLoginReply(PacketReader &reader)
 {
     auto success = reader.ReadUint8();
     auto message = reader.ReadString();
@@ -1417,7 +1418,7 @@ void OnClientKafkaMessageLoginReply(PacketReader& reader)
     printf("ClientKafkaMessages::LoginReply: Success = %u (Message = '%s')\n", success, message.c_str());
 }
 
-void OnClientKafkaMessagePresenceUpdate(PacketReader& reader)
+void OnClientKafkaMessagePresenceUpdate(PacketReader &reader)
 {
     auto personaId = reader.ReadUUID();
     auto present = reader.ReadUint8();
@@ -1434,7 +1435,7 @@ void OnClientKafkaMessagePresenceUpdate(PacketReader& reader)
     );
 }
 
-void OnClientKafkaMessageRelationshipTable(PacketReader& reader)
+void OnClientKafkaMessageRelationshipTable(PacketReader &reader)
 {
     auto other = reader.ReadUUID();
     auto fromSelf = reader.ReadUint8();
@@ -1449,7 +1450,7 @@ void OnClientKafkaMessageRelationshipTable(PacketReader& reader)
     );
 }
 
-void OnInventoryItemUpdate(PacketReader& reader)
+void OnInventoryItemUpdate(PacketReader &reader)
 {
     auto id = reader.ReadString();
     auto licensee_label = reader.ReadString();
@@ -1484,7 +1485,7 @@ void OnInventoryItemUpdate(PacketReader& reader)
 
 
 
-void OnEditServerAddUser(PacketReader& reader)
+void OnEditServerAddUser(PacketReader &reader)
 {
     auto sessionId = reader.ReadUint32();
     auto userName = reader.ReadString();
@@ -1497,7 +1498,7 @@ void OnEditServerAddUser(PacketReader& reader)
     );
 }
 
-void OnEditServerUserLoginReply(PacketReader& reader)
+void OnEditServerUserLoginReply(PacketReader &reader)
 {
     auto success = reader.ReadUint8();
     auto sessionId = reader.ReadUint32();
@@ -1510,7 +1511,7 @@ void OnEditServerUserLoginReply(PacketReader& reader)
     );
 }
 
-void OnEditServerWorkspaceReadyReply(PacketReader& reader)
+void OnEditServerWorkspaceReadyReply(PacketReader &reader)
 {
     auto workspaceId = reader.ReadUint32();
 
@@ -1519,7 +1520,7 @@ void OnEditServerWorkspaceReadyReply(PacketReader& reader)
     );
 }
 
-void OnCharacterTransform(PacketReader& reader)
+void OnCharacterTransform(PacketReader &reader)
 {
     auto componentId = reader.ReadUint64();
     auto serverFrame = reader.ReadUint64();
@@ -1534,7 +1535,7 @@ void OnCharacterTransform(PacketReader& reader)
     );
 }
 
-void OnCharacterTransformPersistent(PacketReader& reader)
+void OnCharacterTransformPersistent(PacketReader &reader)
 {
     auto componentId = reader.ReadUint64();
     auto serverFrame = reader.ReadUint64();
@@ -1550,7 +1551,7 @@ void OnCharacterTransformPersistent(PacketReader& reader)
 }
 
 
-void OnCreateWorld(PacketReader& reader)
+void OnCreateWorld(PacketReader &reader)
 {
     auto worldDefinition = reader.ReadUUID();
     auto startingClusterId = reader.ReadUint32();
@@ -1564,7 +1565,7 @@ void OnCreateWorld(PacketReader& reader)
 }
 
 
-void OnInitiateCluster(PacketReader& reader)
+void OnInitiateCluster(PacketReader &reader)
 {
     auto clusterId = reader.ReadUint32();
     auto frame = reader.ReadUint64();
@@ -1580,7 +1581,7 @@ void OnInitiateCluster(PacketReader& reader)
 }
 
 
-void OnLoadClusterDefinition(PacketReader& reader)
+void OnLoadClusterDefinition(PacketReader &reader)
 {
     auto resourceId = reader.ReadUUID();
     auto clusterId = reader.ReadUint32();
@@ -1592,7 +1593,7 @@ void OnLoadClusterDefinition(PacketReader& reader)
 }
 
 
-void OnCreateClusterViaDefinition(PacketReader& reader)
+void OnCreateClusterViaDefinition(PacketReader &reader)
 {
     auto clusterId = reader.ReadUint32();
     auto startingObjectId = reader.ReadUint32();
@@ -1619,7 +1620,7 @@ void OnCreateClusterViaDefinition(PacketReader& reader)
 }
 
 
-void OnSetAgentController(PacketReader& reader)
+void OnSetAgentController(PacketReader &reader)
 {
     auto agentControllerId = reader.ReadUint32();
     auto frame = reader.ReadUint64();
@@ -1631,7 +1632,7 @@ void OnSetAgentController(PacketReader& reader)
 }
 
 
-void OnCreateAgentController(PacketReader& reader)
+void OnCreateAgentController(PacketReader &reader)
 {
     auto sessionId = reader.ReadUint32();
     auto clusterId = reader.ReadUint32();
@@ -1661,7 +1662,7 @@ void OnCreateAgentController(PacketReader& reader)
 }
 
 
-void OnInitialTimestamp(PacketReader& reader)
+void OnInitialTimestamp(PacketReader &reader)
 {
     auto nanoseconds = reader.ReadUint64();
     auto frame = reader.ReadUint64();
@@ -1670,7 +1671,7 @@ void OnInitialTimestamp(PacketReader& reader)
 }
 
 
-void OnTimestamp(PacketReader& reader)
+void OnTimestamp(PacketReader &reader)
 {
     auto nanoseconds = reader.ReadUint64();
     auto frame = reader.ReadUint64();
@@ -1678,7 +1679,7 @@ void OnTimestamp(PacketReader& reader)
     printf("OnTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
 }
 
-void OnKafkaRegionChat(PacketReader& reader) 
+void OnKafkaRegionChat(PacketReader &reader)
 {
     auto fromPersonaId = reader.ReadUUID();
     auto toPersonaId = reader.ReadUUID();
@@ -1711,7 +1712,7 @@ void OnKafkaRegionChat(PacketReader& reader)
     );
 }
 
-void OnPrivateChat(PacketReader& reader)
+void OnPrivateChat(PacketReader &reader)
 {
     auto offset = reader.ReadUint64();
     auto fromPersonaId = reader.ReadUUID();
@@ -1736,7 +1737,7 @@ void OnPrivateChat(PacketReader& reader)
     );
 }
 
-void OnPrivateChatUpdate(PacketReader& reader)
+void OnPrivateChatUpdate(PacketReader &reader)
 {
     auto offset = reader.ReadUint64();
     auto status = reader.ReadUint32();
@@ -1748,7 +1749,7 @@ void OnPrivateChatUpdate(PacketReader& reader)
 }
 
 
-void OnLoadSound(PacketReader& reader)
+void OnLoadSound(PacketReader &reader)
 {
     auto resourceId = reader.ReadUUID();
 
@@ -1758,7 +1759,7 @@ void OnLoadSound(PacketReader& reader)
 }
 
 
-void OnPlaySound(PacketReader& reader)
+void OnPlaySound(PacketReader &reader)
 {
     auto resourceId = reader.ReadUUID();
     auto createPlayHandleId = reader.ReadUint64();
@@ -1785,7 +1786,7 @@ void OnPlaySound(PacketReader& reader)
     );
 }
 
-void OnRigidBodyDeactivated(PacketReader& reader)
+void OnRigidBodyDeactivated(PacketReader &reader)
 {
     auto componentId = reader.ReadUint64();
     auto frame = reader.ReadUint64();
@@ -1801,7 +1802,7 @@ void OnRigidBodyDeactivated(PacketReader& reader)
 }
 
 
-void OnBehaviorInitializationData(PacketReader& reader)
+void OnBehaviorInitializationData(PacketReader &reader)
 {
     auto behaviorStateUpdatesLength = reader.ReadUint32();
     auto animationUpdatesLength = reader.ReadUint32();
@@ -1812,7 +1813,7 @@ void OnBehaviorInitializationData(PacketReader& reader)
     );
 }
 
-void OnObjectInteractionUpdate(PacketReader& reader)
+void OnObjectInteractionUpdate(PacketReader &reader)
 {
     auto frame = reader.ReadUint64();
     auto clusterId = reader.ReadUint32();
@@ -1827,7 +1828,7 @@ void OnObjectInteractionUpdate(PacketReader& reader)
     );
 }
 
-void OnLightStateChanged(PacketReader& reader)
+void OnLightStateChanged(PacketReader &reader)
 {
     auto componentId = reader.ReadUint64();
     auto frame = reader.ReadUint64();
@@ -1852,7 +1853,7 @@ void OnLightStateChanged(PacketReader& reader)
     );
 }
 
-void OnActiveRigidBodyUpdate(PacketReader& reader)
+void OnActiveRigidBodyUpdate(PacketReader &reader)
 {
     auto componentId = reader.ReadUint64();
     auto frame = reader.ReadUint64();
@@ -1874,8 +1875,327 @@ void OnActiveRigidBodyUpdate(PacketReader& reader)
 }
 
 
-void ProcessPacketRecv(uint64_t messageId, uint8_t* packet, uint64_t length) {
-    //printf("ProcessPacketRecv: MessageId = %llX | Length = %lld | packet = %llX\n", messageId, length, (uint64_t)packet);
+void OnMoveEntity(PacketReader &reader)
+{
+    auto startFrame = reader.ReadUint64();
+    auto componentId = reader.ReadUint64();
+    auto startPosition_x = reader.ReadFloat();
+    auto startPosition_y = reader.ReadFloat();
+    auto startPosition_z = reader.ReadFloat();
+    auto targetPosition_x = reader.ReadFloat();
+    auto targetPosition_y = reader.ReadFloat();
+    auto targetPosition_z = reader.ReadFloat();
+    auto time = reader.ReadUint32();
+    //auto startOrientation = reader.ReadBits(46);
+    //auto targetOrientation = reader.ReadBits(46);
+    //auto positionInterpMode = reader.ReadBits(4);
+    //auto rotationInterpMode = reader.ReadBits(4);
+
+    printf("GameWorldMessages::MoveEntity:\n  startFrame = %llu\n  componentId = %llu\n startPosition = <%f, %f, %f>\n  targetPosition = <%f, %f, %f>\n  time = %u\n",
+        startFrame,
+        componentId,
+        startPosition_x, startPosition_y, startPosition_z,
+        targetPosition_x, targetPosition_y, targetPosition_z,
+        time
+    );
+}
+
+void OnCreateSpeechGraphicsPlayer(PacketReader &reader)
+{
+    auto agentControllerId = reader.ReadUint32();
+
+    auto numElements = reader.ReadUint32();
+    auto sinkConfigData = reader.ReadBytes(numElements);
+
+    printf("OnCreateSpeechGraphicsPlayer:\n  sinkConfigData = Array[%u]\n",
+        numElements
+    );
+}
+
+void OnPlayAnimation(PacketReader &reader)
+{
+    auto frame = reader.ReadUint64();
+    auto componentId = reader.ReadUint64();
+    auto resourceId = reader.ReadUUID();
+    auto playbackSpeed = reader.ReadBits(16);
+    auto skeletonType = reader.ReadBits(2);
+    auto animationType = reader.ReadBits(3);
+    auto playbackMode = reader.ReadBits(3);
+
+    printf("AgentControllerMessages::PlayAnimation:\n  frame = %llu\n  componentId = %llu\n  resourceId = %s\n",
+        frame,
+        componentId,
+        resourceId.c_str()
+    );
+}
+
+void OnCharacterIKPoseDelta(PacketReader &reader)
+{
+    auto agentControllerId = reader.ReadUint32();
+    auto frame = reader.ReadUint64();
+
+    auto boneRotationsLength = reader.ReadUint32();
+    //for (size_t i = 0; i < boneRotationsLength; i++)
+    //{
+    //    auto boneIndex = reader.ReadBits(6);
+    //    auto localOrientation = reader.ReadBits(25);
+    //}
+
+    //auto rootBoneTranslationDelta = reader.ReadBits(27);
+
+    printf("AgentControllerMessages::CharacterIKPoseDelta:\n  agentControllerId = %u\n  frame = %llu\n  boneRotationsLength = Array[%u]\n  rootBoneTranslationDelta = Array[27]\n",
+        agentControllerId,
+        frame,
+        boneRotationsLength
+    );
+}
+
+
+void OnCharacterIKPose(PacketReader &reader)
+{
+    // TODO: Nope, not handling this one
+
+    auto agentControllerId = reader.ReadUint32();
+    auto frame = reader.ReadUint64();
+    auto boneRotationsLength = reader.ReadUint32();
+
+    /*
+    for (size_t i = 0; i < boneRotationsLength; i++)
+    {
+        auto boneIndex = reader.ReadBits(6);
+        auto localOrientation = reader.ReadBits(40);
+    }
+
+    auto rootBoneTranslation = reader.ReadBits(42);
+    */
+
+    printf("AgentControllerMessages::CharacterIKPose:\n  agentControllerId = %u\n  frame = %llu\n",
+        agentControllerId,
+        frame
+    );
+}
+
+void OnCharacterControlPointInputReliable(PacketReader &reader)
+{
+    // Todo: no payload?
+    printf("AgentControllerMessages::CharacterControlPointInputReliable\n");
+}
+
+void OnCharacterControllerInputReliable(PacketReader &reader)
+{
+    // Todo: no payload?
+    printf("AgentControllerMessages::CharacterControllerInputReliable\n");
+}
+
+void OnDestroyAgentController(PacketReader &reader)
+{
+    auto frame = reader.ReadUint64();
+    auto agentControllerId = reader.ReadUint32();
+
+    printf("WorldStateMessages::DestroyAgentController:\n  frame = %llu\n  agentControllerId = %u\n",
+        frame,
+        agentControllerId
+    );
+}
+
+void OnCharacterControlPointInput(PacketReader &reader)
+{
+    auto frame = reader.ReadUint64();
+    auto agentControllerId = reader.ReadUint32();
+
+    auto controlPointsLength = reader.ReadUint32();
+
+    //auto leftIndexTrigger = reader.ReadBits(8);
+    //auto rightIndexTrigger = reader.ReadBits(8);
+    //auto leftGripTrigger = reader.ReadBits(8);
+    //auto rightGripTrigger = reader.ReadBits(8);
+    //auto leftTouches = reader.ReadBits(7);
+    //auto rightTouches = reader.ReadBits(7);
+    //auto indexTriggerControlsHand = reader.ReadBits(1);
+    //auto leftHandIsHolding = reader.ReadBits(1);
+    //auto rightHandIsHolding = reader.ReadBits(1);
+
+    printf("AgentControllerMessages::CharacterControlPointInput:\n  frame = %llu\n  agentControllerId = %u\n",
+        frame,
+        agentControllerId
+    );
+}
+
+void OnSetLoudness(PacketReader &reader)
+{
+    auto playHandleId = reader.ReadUint32();
+    auto loudness = reader.ReadFloat();
+
+    printf("AudioMessages::SetLoudness:\n  playHandleId = %u\n  loudness = %f\n",
+        playHandleId,
+        loudness
+    );
+}
+
+void OnSetPitch(PacketReader &reader)
+{
+    auto playHandleId = reader.ReadUint32();
+    auto pitch = reader.ReadFloat();
+
+    printf("AudioMessages::SetPitch:\n  playHandleId = %u\n  pitch = %f\n",
+        playHandleId,
+        pitch
+    );
+}
+
+
+void OnBehaviorInternalState(PacketReader &reader)
+{
+    // TODO: Nope, not handling this one
+
+    auto componentId = reader.ReadUint64();
+    auto frame = reader.ReadUint64();
+
+    auto overridesLength = reader.ReadUint32();
+   /* auto overridesData = reader.ReadBytes(overridesLength);
+
+    auto numSlotStates = reader.ReadUint32();
+    for (size_t i = 0; i < numSlotStates; i++)
+    {
+        auto slotState = reader.ReadUint8();
+    }
+
+    auto stateDataLength = reader.ReadUint32();
+    auto stateData = reader.ReadBytes(stateDataLength);
+
+    auto isPlaying = reader.ReadUint8();*/
+
+    printf("AnimationComponentMessages::BehaviorInternalState:\n  componentId = %llu\n  frame = %llu\n  overridesLength = %u\n",
+        componentId,
+        frame,
+        overridesLength
+    );
+}
+
+
+void OnBehaviorStateUpdate(PacketReader &reader)
+{
+    auto frame = reader.ReadUint64();
+    auto componentId = reader.ReadUint64();
+    auto exceptAgentControllerId = reader.ReadUint32();
+
+    printf("AnimationComponentMessages::BehaviorStateUpdate:\n  frame = %llu\n  componentId = %llu\n  exceptAgentControllerId = %u\n",
+        frame,
+        componentId,
+        exceptAgentControllerId
+    );
+
+    return;
+    /*
+    // Nah not going to touch this one...
+
+    auto floatsLength = 0;
+    for (size_t i = 0; i < floatsLength; i++)
+    {
+        auto internalId = reader.ReadUint16();
+        auto value = reader.ReadFloat();
+    }
+
+    auto vectorsLength = 0;
+    for (size_t i = 0; i < vectorsLength; i++)
+    {
+        auto internalId = reader.ReadUint16();
+        auto value_x = reader.ReadFloat();
+        auto value_y = reader.ReadFloat();
+        auto value_z = reader.ReadFloat();
+    }
+
+    auto quaternionsLength = reader.ReadUint32();
+    for (size_t i = 0; i < quaternionsLength; i++)
+    {
+        auto internalId = reader.ReadUint16();
+        auto value_x = reader.ReadFloat();
+        auto value_y = reader.ReadFloat();
+        auto value_z = reader.ReadFloat();
+        auto value_w = reader.ReadFloat();
+    }
+
+    auto int8sLength = reader.ReadUint32();
+    for (size_t i = 0; i < int8sLength; i++)
+    {
+        auto internalId = reader.ReadUint16();
+        auto value = reader.ReadUint8();
+    }
+
+    auto boolsLength = reader.ReadUint32();
+    for (size_t i = 0; i < boolsLength; i++)
+    {
+        auto internalId = reader.ReadUint16();
+        auto value = reader.ReadUint8();
+    }
+
+    auto internalEventIds = reader.ReadUint32();
+    for (size_t i = 0; i < internalEventIds; i++)
+    {
+        // tbd
+        auto internalId = reader.ReadUint16();
+        auto value = reader.ReadUint8();
+    }
+
+    auto animationAction = reader.ReadUint8();
+
+    auto nodeLocalTimesLength = reader.ReadUint32();
+    for (size_t i = 0; i < nodeLocalTimesLength; i++)
+    {
+        auto nodeId = reader.ReadUint16();
+        auto value = reader.ReadUint32();
+    }
+
+    auto nodeCropValuesLength = reader.ReadUint32();
+    for (size_t i = 0; i < nodeCropValuesLength; i++)
+    {
+        auto nodeId = reader.ReadUint16();
+        auto startValue = reader.ReadFloat();
+        auto endValue = reader.ReadFloat();
+    }
+
+    */
+}
+
+void OnDestroyCluster(PacketReader &reader)
+{
+    auto frame = reader.ReadUint64();
+    auto clusterId = reader.ReadUint32();
+
+    printf("WorldStateMessages::DestroyCluster\n  frame = %llu\n  clusterId = %u\n",
+        frame,
+        clusterId
+    );
+}
+
+void OnWarpCharacter(PacketReader &reader)
+{
+    auto frame = reader.ReadUint64();
+    auto agentControllerId = reader.ReadUint32();
+    auto position_x = reader.ReadFloat();
+    auto position_y = reader.ReadFloat();
+    auto position_z = reader.ReadFloat();
+    auto rotation_x = reader.ReadFloat();
+    auto rotation_y = reader.ReadFloat();
+    auto rotation_z = reader.ReadFloat();
+    auto rotation_w = reader.ReadFloat();
+
+    printf("AgentControllerMessages::WarpCharacter:\n  frame = %llu\n  agentControllerId = %u\n  position = <%f, %f, %f>\n  rotation = <%f, %f, %f, %f>\n",
+        frame,
+        agentControllerId,
+        position_x,
+        position_y,
+        position_z,
+        rotation_x,
+        rotation_y,
+        rotation_z,
+        rotation_w
+    );
+}
+
+
+void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
+    // printf("ProcessPacketRecv: MessageId = %llX | Length = %lld | packet = %llX\n", messageId, length, (uint64_t)packet);
 
     try {
         PacketReader reader;
@@ -2024,19 +2344,19 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t* packet, uint64_t length) {
         }
         else if (messageId == AudioMessages::LoadSound)  // 0x412484C4 // 15B6490
         {
-            OnLoadSound(reader);
+            // OnLoadSound(reader);
         }
         else if (messageId == AudioMessages::PlaySound)  // 0x8FC77316 // 15B6620
         {
-            //OnPlaySound(reader);
+            OnPlaySound(reader);
         }
         else if (messageId == AnimationComponentMessages::BehaviorInitializationData) // 0x7846436E // 1581130
         {
-           // OnBehaviorInitializationData(reader);
+            // OnBehaviorInitializationData(reader);
         }
         else if (messageId == SimulationMessages::RigidBodyDeactivated) // 0x0D938F45 // 1573580
         {
-            //OnRigidBodyDeactivated(reader);
+            // OnRigidBodyDeactivated(reader);
         }
         else if (messageId == AgentControllerMessages::ObjectInteractionUpdate) // 0x17B7D18A // 17102D0
         {
@@ -2044,47 +2364,99 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t* packet, uint64_t length) {
         }
         else if (messageId == RenderMessages::LightStateChanged) // 0x6951DAEC // 1611170
         {
-           // OnLightStateChanged(reader); 
+            // OnLightStateChanged(reader); 
         }
         else if (messageId == SimulationMessages::ActiveRigidBodyUpdate)  // 0x864418DA // 1573510
         {
-            //OnActiveRigidBodyUpdate(reader);
+            // OnActiveRigidBodyUpdate(reader);
+        }
+        else if (messageId == AgentControllerMessages::CreateSpeechGraphicsPlayer) // 0x158B2580  // 17106C0
+        {
+            //OnCreateSpeechGraphicsPlayer(reader);
+        }
+        else if (messageId == WorldStateMessages::DestroyAgentController) // 0x16406FB7  // 1BB6300
+        {
+            OnDestroyAgentController(reader);
+        }
+        else if (messageId == AudioMessages::SetLoudness) // 0x20EDD0C4  // 15B6A80
+        {
+            //OnSetLoudness(reader);
+        }
+        else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 0x217192BE  // 15810C0
+        {
+            //OnBehaviorStateUpdate(reader);
+        }
+        else if (messageId == WorldStateMessages::DestroyCluster) // 0x2926D248  // 1BB5E30
+        {
+            //OnDestroyCluster(reader);
+        }
+        else if (messageId == AgentControllerMessages::WarpCharacter) // 0x75C0AC6B  // 170F800
+        {
+            //OnWarpCharacter(reader);
+        }
+        else if (messageId == AudioMessages::SetPitch) // 0x7BB86A5B  // 15B6AF0
+        {
+            //OnSetPitch(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterIKPoseDelta) // 0x893A18BE  // 17100B0
+        {
+            //OnCharacterIKPoseDelta(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterIKPose) // 0xE945D8B8  // 170FE90
+        {
+            //OnCharacterIKPose(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControlPointInputReliable) // 0x8FB6F456  // 170F950
+        {
+            //OnCharacterControlPointInputReliable(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControllerInputReliable) // 0xA7D6EFD1  // 170FA30
+        {
+            //OnCharacterControllerInputReliable(reader);
+        }
+        else if (messageId == AnimationComponentMessages::BehaviorInternalState) // 0xCE9B5148  // 1580FE0
+        {
+            //OnBehaviorInternalState(reader);
+        }
+        else if (messageId == GameWorldMessages::MoveEntity) // 0xEFC20B7F  // 16E9E30
+        {
+            //OnMoveEntity(reader);
+        }
+        else if (messageId == ClientVoiceMessages::LocalAudioStreamState) // 0xF2FB6AD0  // 1DF9E00
+        {
+            OnLocalAudioStreamState(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControlPointInput) // 0xFCA3EF20  // 170F8E0
+        {
+             //OnCharacterControlPointInput(reader);
+        }
+        else if (messageId == AgentControllerMessages::PlayAnimation) // 0x009385A0    // 1581210
+        {
+             OnPlayAnimation(reader);
         }
 
+        // TBD
+// TBD
+// TBD
+// TBD
+// TBD
 
         /*
-        else if (messageId == AgentControllerMessages::ObjectInteractionPromptUpdate)  // 0x1651CD68
+        
+        else if (messageId ==ClientVoiceMessages::LocalAudioData)  // 0x0D50D087 // 
+        {
+            OnLocalAudioData(reader);
+        }
+        else if (messageId == AgentControllerMessages::ObjectInteractionPromptUpdate)  // 0x1651CD68 // 
         {
             OnObjectInteractionPromptUpdate(reader);
-        }
-        
-        else if (messageId == GameWorldMessages::MoveEntity) // 0xEFC20B7F 
-        {
-            OnMoveEntity(reader);
         }
 
         */
 
-        // 0x158B2580  // 
-        // 0x16406FB7  // 
-        // 0x20EDD0C4  // 15B6A80
-        // 0x217192BE  // 
-        // 0x2926D248  // 
-        // 0x75C0AC6B  // 
-        // 0x7BB86A5B  // 
-        // 0x893A18BE  // 
-        // 0x8FB6F456  // 
-        // 0x9385A0    // 
-        // 0xA7D6EFD1  // 
-        // 0xCE9B5148  // 
-        // 0xD50D087   //
-        // 0xE945D8B8  // 
-        // 0xEFC20B7F  // 
-        // 0xF2FB6AD0  // 
-        // 0xFCA3EF20  // 
         else
         {
-           // printf("ProcessPacketRecv: Unhandled message %llX\n", messageId);
+            printf("ProcessPacketRecv: Unhandled message %llX\n", messageId);
         }
 
 
@@ -2109,7 +2481,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
     {
     case DLL_PROCESS_ATTACH:
     {
-        FILE* pFile = nullptr;
+        FILE *pFile = nullptr;
         AllocConsole();
         freopen_s(&pFile, "CONOUT$", "w", stdout);
 
@@ -2146,7 +2518,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                 0x90, 0x90, 0x90, 0x90
             };
 
-            *((uint64_t*)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
+            *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
             RewriteCode(base + 0x14DAB1A, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
@@ -2160,7 +2532,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         DetourUpdateThread(GetCurrentThread());
         // DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
        //  DetourAttach(&(PVOID &)original_recv, Hooked_Recv); // need to hard hook into ssl functions or post-decrypted recv handler...
-        DetourAttach(&(PVOID&)original_sendto, Hooked_Sendto);
+        DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
         // DetourAttach(&(PVOID &)original_send, Hooked_Send);
 
         DetourTransactionCommit();

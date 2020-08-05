@@ -162,8 +162,22 @@ public:
 
 class ClientVoiceMessages {
 public:
+    static const uint32_t Login = 0x59AC5555;
     static const uint32_t LoginReply = 0xA6972017;
-    static const uint32_t LocalAudioStreamState = 0xF2FB6AD0; /// uhhh double check these two
+    static const uint32_t AudioData = 0x5A978A32;
+    static const uint32_t SpeechGraphicsData = 0xD9306963;
+    static const uint32_t LocalAudioData = 0x0D50D087;
+    static const uint32_t LocalAudioStreamState = 0xF2FB6AD0;
+    static const uint32_t LocalAudioPosition = 0x1798BA9C;
+    static const uint32_t LocalAudioMute = 0x56800096;
+    static const uint32_t LocalSetRegionBroadcasted = 0x573EE089;
+    static const uint32_t LocalSetMuteAll = 0x90DA7ED3;
+    static const uint32_t GroupAudioData = 0x47C4FFDF;
+    static const uint32_t LocalTextData = 0xC91B2D1C;
+    static const uint32_t MasterInstance = 0x88C28A79;
+    static const uint32_t VoiceModerationCommand = 0x3F7171FB;
+    static const uint32_t VoiceModerationCommandResponse = 0x742CE528;
+    static const uint32_t VoiceNotification = 0x3A168D81;
 };
 
 class ClientRegionMessages {
