@@ -135,8 +135,8 @@ public:
     static const uint32_t ScriptConsoleLog = 0x00B0E15E;
     static const uint32_t LongLivedNotification = 0x46C5FDF3;
     static const uint32_t LongLivedNotificationDelete = 0x59CF6950;
-    static const uint32_t LongLivedNotificationLoaded = 0x3494608D;
-    static const uint32_t shortLivedNotification = 0xAD589C6F;
+    static const uint32_t LongLivedNotificationsLoaded = 0x3494608D;
+    static const uint32_t ShortLivedNotification = 0xAD589C6F;
     static const uint32_t Login = 0x0C0C9D81;
     static const uint32_t LoginReply = 0xA685E82B;
     static const uint32_t EnterRegion = 0x08445006;
@@ -148,9 +148,9 @@ public:
     static const uint32_t FriendRequest = 0xA356B3ED;
     static const uint32_t FriendRequestStatus = 0x14FFCD37;
     static const uint32_t FriendResponse = 0xE24EBDD3;
-    static const uint32_t FriendresponseStatus = 0x22565685;
+    static const uint32_t FriendResponseStatus = 0x22565685;
     static const uint32_t FriendTable = 0x203CC0A8;
-    static const uint32_t RelationshipOperational = 0x650939F7;
+    static const uint32_t RelationshipOperation = 0x650939F7;
     static const uint32_t RelationshipTable = 0x078DCC26;
     static const uint32_t InventoryItemCapabilities = 0xA2190F5D;
     static const uint32_t InventoryItemRevision = 0xE3466906;
