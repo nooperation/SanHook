@@ -2211,10 +2211,6 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             OnAddUser(reader);
         }
-        else if (messageId == AgentControllerMessages::CharacterControllerInput)
-        {
-            // OnCharacterControllerInput(reader);
-        }
         else if (messageId == ClientRegionMessages::ChatMessageToClient)
         {
             OnChatMessageToClient(reader);
@@ -2259,14 +2255,6 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             OnCreateAgentController(reader);
         }
-        else if (messageId == SimulationMessages::InitialTimestamp) // 0xD094FEA // 1543730 // OK
-        {
-            OnInitialTimestamp(reader);
-        }
-        else if (messageId == SimulationMessages::Timestamp) //0x1E9B31CE // 15437A0 // OK
-        {
-            //OnTimestamp(reader);
-        }
         else if (messageId == ClientKafkaMessages::InventoryItemUpdate)
         {
             OnInventoryItemUpdate(reader);
@@ -2307,14 +2295,6 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             OnPrivateChatUpdate(reader);
         }
-        else if (messageId == AudioMessages::LoadSound)  // 0x412484C4 // 15B6490
-        {
-            // OnLoadSound(reader);
-        }
-        else if (messageId == AudioMessages::PlaySound)  // 0x8FC77316 // 15B6620
-        {
-            OnPlaySound(reader);
-        }
         else if (messageId == AnimationComponentMessages::BehaviorInitializationData) // 0x7846436E // 1581130
         {
             // OnBehaviorInitializationData(reader);
@@ -2343,10 +2323,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             OnDestroyAgentController(reader);
         }
-        else if (messageId == AudioMessages::SetLoudness) // 0x20EDD0C4  // 15B6A80
-        {
-            //OnSetLoudness(reader);
-        }
+
         else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 0x217192BE  // 15810C0
         {
             //OnBehaviorStateUpdate(reader);
@@ -2354,14 +2331,6 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         else if (messageId == WorldStateMessages::DestroyCluster) // 0x2926D248  // 1BB5E30
         {
             //OnDestroyCluster(reader);
-        }
-        else if (messageId == AgentControllerMessages::WarpCharacter) // 0x75C0AC6B  // 170F800
-        {
-            //OnWarpCharacter(reader);
-        }
-        else if (messageId == AudioMessages::SetPitch) // 0x7BB86A5B  // 15B6AF0
-        {
-            //OnSetPitch(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterIKPoseDelta) // 0x893A18BE  // 17100B0
         {
@@ -2375,17 +2344,9 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             //OnCharacterControlPointInputReliable(reader);
         }
-        else if (messageId == AgentControllerMessages::CharacterControllerInputReliable) // 0xA7D6EFD1  // 170FA30
-        {
-            //OnCharacterControllerInputReliable(reader);
-        }
         else if (messageId == AnimationComponentMessages::BehaviorInternalState) // 0xCE9B5148  // 1580FE0
         {
             //OnBehaviorInternalState(reader);
-        }
-        else if (messageId == GameWorldMessages::MoveEntity) // 0xEFC20B7F  // 16E9E30
-        {
-            //OnMoveEntity(reader);
         }
         else if (messageId == ClientVoiceMessages::LocalAudioStreamState) // 0xF2FB6AD0  // 1DF9E00
         {
@@ -2400,8 +2361,331 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
              OnPlayAnimation(reader);
         }
         
-        
-        
+
+        // Animation stuff
+        else if (messageId == AnimationComponentMessages::FloatVariable)  // 15809C0
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::FloatNodeVariable)  // 1580A30
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::FloatRangeNodeVariable)  // 1580AA0
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::VectorVariable)  // 1580B10
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::QuaternionVariable)  // 1580B80
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::Int8Variable)  // 1580BF0
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::BoolVariable)  // 1580C60
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::CharacterTransform)  // 1580CD0
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::CharacterTransformPersistent)  // 1580D40
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::CharacterAnimationDestroyed)  // 1580DB0
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::AnimationOverride)  // 1580F70
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::BehaviorInternalState)  // 1580FE0
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::CharacterBehaviorInternalState)  // 1581050
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 15810C0
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::BehaviorInitializationData)  // 1581130
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::CharacterSetPosition)  // 15811A0
+        {
+            On(reader);
+        }
+        else if (messageId == AnimationComponentMessages::PlayAnimation)  // 1581210
+        {
+            On(reader);
+        }
+        else if (messageId == SimulationMessages::InitialTimestamp)  // 15733C0 
+        {
+            OnInitialTimestamp(reader);
+        }
+        else if (messageId == SimulationMessages::Timestamp) // 1573430 
+        {
+            //OnTimestamp(reader);
+        }
+        else if (messageId == SimulationMessages::SetWorldGravityMagnitude)  // 15734A0
+        {
+            On(reader);
+        }
+        else if (messageId == SimulationMessages::ActiveRigidBodyUpdate)  // 1573510
+        {
+            On(reader);
+        }
+        else if (messageId == SimulationMessages::RigidBodyDeactivated)  // 1573580
+        {
+            On(reader);
+        }
+        else if (messageId == SimulationMessages::RigidBodyPropertyChanged)  // 15735F0
+        {
+            On(reader);
+        }
+        else if (messageId == SimulationMessages::RigidBodyDestroyed)  // 1573660
+        {
+            On(reader);
+        }
+
+
+        // Audio stuff
+        else if (messageId == AudioMessages::LoadSound)  // 0x412484C4 // 15B6490
+        {
+            // OnLoadSound(reader);
+        }
+        else if (messageId == AudioMessages::PlaySound)  // 0x8FC77316 // 15B6620
+        {
+            OnPlaySound(reader);
+        }
+        else if (messageId == AudioMessages::PlayStream)  // 15B6690
+        {
+            On(reader);
+        }
+        else if (messageId == AudioMessages::StopBroadcastingSound)  // 15B6700
+        {
+            On(reader);
+        }
+        else if (messageId == AudioMessages::SetAudioStream)  // 15B68C0
+        {
+            On(reader);
+        }
+        else if (messageId == AudioMessages::SetMediaSource)  // 15B6930
+        {
+            On(reader);
+        }
+        else if (messageId == AudioMessages::PerformMediaAction)  // 15B69A0
+        {
+            On(reader);
+        }
+        else if (messageId == AudioMessages::StopSound)  // 15B6A10
+        {
+            On(reader);
+        }
+        else if (messageId == AudioMessages::SetLoudness) // 0x20EDD0C4  // 15B6A80
+        {
+            //OnSetLoudness(reader);
+        }
+        else if (messageId == AudioMessages::SetPitch) // 0x7BB86A5B  // 15B6AF0
+        {
+            //OnSetPitch(reader);
+        }
+
+
+
+        // Agent controller stuff? dono
+        else if (messageId == AgentControllerMessages::ControlPoint)  // 170F790
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::WarpCharacter) // 170F800
+        {
+            //OnWarpCharacter(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestWarpCharacter)  // 170F870
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControlPointInput)  // 170F8E0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControlPointInputReliable)  // 170F950
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControllerInput) // 170F9C0
+        {
+            // OnCharacterControllerInput(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControllerInputReliable) // 170FA30
+        {
+            // OnCharacterControllerInputReliable(reader);
+        }
+        else if (messageId == AgentControllerMessages::AgentPlayanimation)  // 170FAA0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestAgentPlayAnimation)  // 170FB10
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestBehaviorStateUpdate)  // 170FB80
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::AttachToCharacterNode)  // 170FBF0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::DetachFromCharacterNode)  // 170FC60
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestDetachFromCharacterNode)  // 170FCD0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::SetCharacterNodePhysics)  // 170FD40
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::WarpCharacterNode)  // 170FDB0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterIKBone)  // 170FE20
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterIKPose)  // 170FE90
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterIKBoneDelta)  // 1710040
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterIKPoseDelta)  // 17100B0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::ObjectInteraction)  // 1710260
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::ObjectInteractionUpdate)  // 17102D0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::ObjectInteractionPromptUpdate)  // 1710340
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::ObjectInteractionCreate)  // 17103B0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestSitOnObject)  // 1710420
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::SitOnObject)  // 1710490
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::ExitSit)  // 1710500
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::SetAgentFiltersBody)  // 1710570
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestSetAgentFiltersBody)  // 17105E0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::SetCharacterUserProperty)  // 1710650
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::CreateSpeechGraphicsPlayer)  // 17106C0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestSpawnItem)  // 1710730
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestDeleteLatestSpawn)  // 17107A0
+        {
+            On(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestDeleteAllSpawns)  // 1710810
+        {
+            On(reader);
+        }
+        else if (messageId == GameWorldMessages::Timestamp)  // 16E9DC0
+        {
+            On(reader);
+        }
+        else if (messageId == GameWorldMessages::MoveEntity) // 0xEFC20B7F  // 16E9E30
+        {
+            //OnMoveEntity(reader);
+        }
+        else if (messageId == GameWorldMessages::ChangeMaterialVectorParam)  // 16E9EA0
+        {
+            On(reader);
+        }
+        else if (messageId == GameWorldMessages::ChangeMaterialFloatParam)  // 16E9F10
+        {
+            On(reader);
+        }
+        else if (messageId == GameWorldMessages::ChangeMaterial)  // 16E9F80
+        {
+            On(reader);
+        }
+        else if (messageId == GameWorldMessages::StaticMeshFlagsChanged)  // 16E9FF0
+        {
+            On(reader);
+        }
+        else if (messageId == GameWorldMessages::StaticMeshScaleChanged)  // 16EA060
+        {
+            On(reader);
+        }
+        else if (messageId == GameWorldMessages::RiggedMeshFlagsChange)  // 16EA0D0
+        {
+            On(reader);
+        }
+        else if (messageId == GameWorldMessages::RiggedMeshScaleChanged)  // 16EA140
+        {
+            On(reader);
+        }
+        else if (messageId == GameWorldMessages::ScriptCameraMessage)  // 16EA1B0
+        {
+            On(reader);
+        }
+        else if (messageId == GameWorldMessages::UpdateRuntimeInventorySettings)  // 16EA220
+        {
+            On(reader);
+        }
+
+
+
+        // KAFKA STUFF
         else if (messageId == ClientKafkaMessages::Login) // 0C0C9D81 // 17A1290 ?
         {
             OnKafkaLogin(reader);
@@ -2550,14 +2834,6 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             OnKafkaShortLivedNotification(reader);
         }
-
-        else if (messageId == ClientKafkaMessages::) // 
-        {
-            OnKafka(reader);
-        }
-
-
-
         
 
 

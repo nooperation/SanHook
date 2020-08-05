@@ -86,12 +86,15 @@ public:
     // static const uint32_t = 0x;
     static const uint32_t StaticMeshFlagsChanged = 0xAE522F17;
     static const uint32_t StaticMeshScaleChanged = 0xCA6CCC08;
-    static const uint32_t RiggedMeshFlagsChange = 0x3F020C77;
     static const uint32_t Timestamp = 0xD22C9D73;
     static const uint32_t MoveEntity = 0xEFC20B7F;
     static const uint32_t ChangeMaterialVectorParam = 0x403D5704;
     static const uint32_t ChangeMaterialFloatParam = 0x4F20B073;
     static const uint32_t ChangeMaterial = 0x45C605B8;
+    static const uint32_t RiggedMeshFlagsChange = 0x3F020C77;
+    static const uint32_t RiggedMeshScaleChanged = 0xEA2934E8;
+    static const uint32_t ScriptCameraMessage = 0x60C955C0;
+    static const uint32_t UpdateRuntimeInventorySettings = 0x371D99C1;
 };
 
 class WorldStateMessages {
