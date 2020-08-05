@@ -2223,14 +2223,6 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             OnUserLoginReply(reader);
         }
-        else if (messageId == AnimationComponentMessages::CharacterTransform) // 0xAB2F1EB1 // 1551160 // Okay-ish
-        {
-            //OnCharacterTransform(reader);
-        }
-        else if (messageId == AnimationComponentMessages::CharacterTransformPersistent) // 0x970F93D4 // 15511D0 // Okay-ish
-        {
-            //OnCharacterTransformPersistent(reader);
-        }
         else if (messageId == WorldStateMessages::CreateWorld) // 0x685B436C // 1B7FB00 // OK
         {
             OnCreateWorld(reader);
@@ -2254,10 +2246,6 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         else if (messageId == WorldStateMessages::CreateAgentController) // 1BB6290
         {
             OnCreateAgentController(reader);
-        }
-        else if (messageId == ClientKafkaMessages::InventoryItemUpdate)
-        {
-            OnInventoryItemUpdate(reader);
         }
         else if (messageId == EditServerMessages::AddUser) // 50155562 // 1984E40 // ok
         {
@@ -2287,80 +2275,33 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             OnKafkaRegionChat(reader);
         }
-        else if (messageId == ClientKafkaMessages::PrivateChat)
-        {
-            OnPrivateChat(reader);
-        }
-        else if (messageId == ClientKafkaMessages::PrivateChatStatus)
-        {
-            OnPrivateChatUpdate(reader);
-        }
-        else if (messageId == AnimationComponentMessages::BehaviorInitializationData) // 0x7846436E // 1581130
-        {
-            // OnBehaviorInitializationData(reader);
-        }
-        else if (messageId == SimulationMessages::RigidBodyDeactivated) // 0x0D938F45 // 1573580
-        {
-            // OnRigidBodyDeactivated(reader);
-        }
-        else if (messageId == AgentControllerMessages::ObjectInteractionUpdate) // 0x17B7D18A // 17102D0
-        {
-            OnObjectInteractionUpdate(reader);
-        }
         else if (messageId == RenderMessages::LightStateChanged) // 0x6951DAEC // 1611170
         {
             // OnLightStateChanged(reader); 
-        }
-        else if (messageId == SimulationMessages::ActiveRigidBodyUpdate)  // 0x864418DA // 1573510
-        {
-            // OnActiveRigidBodyUpdate(reader);
-        }
-        else if (messageId == AgentControllerMessages::CreateSpeechGraphicsPlayer) // 0x158B2580  // 17106C0
-        {
-            //OnCreateSpeechGraphicsPlayer(reader);
         }
         else if (messageId == WorldStateMessages::DestroyAgentController) // 0x16406FB7  // 1BB6300
         {
             OnDestroyAgentController(reader);
         }
-
-        else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 0x217192BE  // 15810C0
-        {
-            //OnBehaviorStateUpdate(reader);
-        }
         else if (messageId == WorldStateMessages::DestroyCluster) // 0x2926D248  // 1BB5E30
         {
             //OnDestroyCluster(reader);
         }
-        else if (messageId == AgentControllerMessages::CharacterIKPoseDelta) // 0x893A18BE  // 17100B0
-        {
-            //OnCharacterIKPoseDelta(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterIKPose) // 0xE945D8B8  // 170FE90
-        {
-            //OnCharacterIKPose(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterControlPointInputReliable) // 0x8FB6F456  // 170F950
-        {
-            //OnCharacterControlPointInputReliable(reader);
-        }
-        else if (messageId == AnimationComponentMessages::BehaviorInternalState) // 0xCE9B5148  // 1580FE0
-        {
-            //OnBehaviorInternalState(reader);
-        }
         else if (messageId == ClientVoiceMessages::LocalAudioStreamState) // 0xF2FB6AD0  // 1DF9E00
         {
             OnLocalAudioStreamState(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterControlPointInput) // 0xFCA3EF20  // 170F8E0
-        {
-             //OnCharacterControlPointInput(reader);
         }
         else if (messageId == AgentControllerMessages::PlayAnimation) // 0x009385A0    // 1581210
         {
              OnPlayAnimation(reader);
         }
         
+
+
+
+
+
+
 
         // Animation stuff
         else if (messageId == AnimationComponentMessages::FloatVariable)  // 15809C0
@@ -2391,13 +2332,13 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             On(reader);
         }
-        else if (messageId == AnimationComponentMessages::CharacterTransform)  // 1580CD0
+        else if (messageId == AnimationComponentMessages::CharacterTransform) // 1580CD0
         {
-            On(reader);
+            //OnCharacterTransform(reader);
         }
-        else if (messageId == AnimationComponentMessages::CharacterTransformPersistent)  // 1580D40
+        else if (messageId == AnimationComponentMessages::CharacterTransformPersistent) // 1580D40
         {
-            On(reader);
+            //OnCharacterTransformPersistent(reader);
         }
         else if (messageId == AnimationComponentMessages::CharacterAnimationDestroyed)  // 1580DB0
         {
@@ -2407,21 +2348,21 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             On(reader);
         }
-        else if (messageId == AnimationComponentMessages::BehaviorInternalState)  // 1580FE0
+        else if (messageId == AnimationComponentMessages::BehaviorInternalState) // 0xCE9B5148  // 1580FE0
         {
-            On(reader);
+            //OnBehaviorInternalState(reader);
         }
         else if (messageId == AnimationComponentMessages::CharacterBehaviorInternalState)  // 1581050
         {
             On(reader);
         }
-        else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 15810C0
+        else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 0x217192BE  // 15810C0
         {
-            On(reader);
+            //OnBehaviorStateUpdate(reader);
         }
-        else if (messageId == AnimationComponentMessages::BehaviorInitializationData)  // 1581130
+        else if (messageId == AnimationComponentMessages::BehaviorInitializationData) // 0x7846436E // 1581130
         {
-            On(reader);
+            // OnBehaviorInitializationData(reader);
         }
         else if (messageId == AnimationComponentMessages::CharacterSetPosition)  // 15811A0
         {
@@ -2445,11 +2386,11 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == SimulationMessages::ActiveRigidBodyUpdate)  // 1573510
         {
-            On(reader);
+            // OnActiveRigidBodyUpdate(reader);
         }
         else if (messageId == SimulationMessages::RigidBodyDeactivated)  // 1573580
         {
-            On(reader);
+            // OnRigidBodyDeactivated(reader);
         }
         else if (messageId == SimulationMessages::RigidBodyPropertyChanged)  // 15735F0
         {
@@ -2520,11 +2461,11 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AgentControllerMessages::CharacterControlPointInput)  // 170F8E0
         {
-            On(reader);
+            //OnCharacterControlPointInput(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterControlPointInputReliable)  // 170F950
         {
-            On(reader);
+            //OnCharacterControlPointInputReliable(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterControllerInput) // 170F9C0
         {
@@ -2572,7 +2513,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AgentControllerMessages::CharacterIKPose)  // 170FE90
         {
-            On(reader);
+            //OnCharacterIKPose(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterIKBoneDelta)  // 1710040
         {
@@ -2580,7 +2521,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AgentControllerMessages::CharacterIKPoseDelta)  // 17100B0
         {
-            On(reader);
+            //OnCharacterIKPoseDelta(reader);
         }
         else if (messageId == AgentControllerMessages::ObjectInteraction)  // 1710260
         {
@@ -2588,7 +2529,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == AgentControllerMessages::ObjectInteractionUpdate)  // 17102D0
         {
-            On(reader);
+            OnObjectInteractionUpdate(reader);
         }
         else if (messageId == AgentControllerMessages::ObjectInteractionPromptUpdate)  // 1710340
         {
@@ -2622,9 +2563,9 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             On(reader);
         }
-        else if (messageId == AgentControllerMessages::CreateSpeechGraphicsPlayer)  // 17106C0
+        else if (messageId == AgentControllerMessages::CreateSpeechGraphicsPlayer) // 0x158B2580  // 17106C0
         {
-            On(reader);
+            //OnCreateSpeechGraphicsPlayer(reader);
         }
         else if (messageId == AgentControllerMessages::RequestSpawnItem)  // 1710730
         {
@@ -2704,11 +2645,11 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == ClientKafkaMessages::PrivateChat) // // 17A1740 ? 
         {
-            OnKafkaPrivateChat(reader);
+            OnPrivateChat(reader);
         }
         else if (messageId == ClientKafkaMessages::PrivateChatStatus) // // 17A17B0 ? 
         {
-            OnKafkaPrivateChatStatus(reader);
+            OnPrivateChatUpdate(reader);
         }
         else if (messageId == ClientKafkaMessages::PresenceUpdate)
         {
@@ -2752,7 +2693,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         }
         else if (messageId == ClientKafkaMessages::InventoryItemUpdate) // 17A1DF0
         {
-            OnKafkaInventoryItemUpdate(reader);
+            OnInventoryItemUpdate(reader);
         }
         else if (messageId == ClientKafkaMessages::InventoryItemDelete) // 17A1E60
         {
@@ -2834,7 +2775,6 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length) {
         {
             OnKafkaShortLivedNotification(reader);
         }
-        
 
 
         // TBD
