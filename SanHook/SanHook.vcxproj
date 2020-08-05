@@ -157,10 +157,16 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AgentController.h" />
+    <ClInclude Include="AnimationComponent.h" />
     <ClInclude Include="bitReader.hpp" />
+    <ClInclude Include="ClientKafka.h" />
+    <ClInclude Include="GameWorld.h" />
     <ClInclude Include="Magic.h" />
+    <ClInclude Include="main.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="PacketReader.hpp" />
+    <ClInclude Include="Utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Magic.asm">

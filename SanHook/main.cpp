@@ -16,54 +16,23 @@ int (WINAPI *original_send)(SOCKET s, const char *buf, int len, int flags) = sen
 
 uint16_t last_chat_server_sequence = 0;
 
-void DumpPacket(const char *buff, int len, bool is_sending);
 std::string GetAddressFromAddr(const sockaddr *addr);
 
 #include "bitReader.hpp"
 #include "Messages.h"
 #include "PacketReader.hpp"
 
+#include "ClientKafka.h"
+#include "AnimationComponent.h"
+#include "GameWorld.h"
+#include "AgentController.h"
+#include "Utils.hpp"
+
 #include <thread>
-#include <intrin.h>
 
 #include <map>
 std::map<uint32_t, std::string> sessionIdToNameMap = std::map<uint32_t, std::string>();
 
-uint16_t Sansar_ShortCRC(uint8_t *packet, int64_t packetLength, uint64_t initialChecksum)
-{
-    auto packetIter = packet;
-    auto checksum = ~((uint32_t)initialChecksum);
-
-    auto num_8byte_chunks = (uint64_t)(packetLength / 8);
-    for (uint64_t i = 0; i < num_8byte_chunks; ++i)
-    {
-        checksum = (uint32_t)_mm_crc32_u64(checksum, *(uint64_t *)packetIter);
-        packetIter += 8;
-    }
-
-    auto remainingBytes = packetLength & 7;
-    if (remainingBytes >= 4)
-    {
-        checksum = _mm_crc32_u32(checksum, *(uint32_t *)packetIter);
-        packetIter += 4;
-        remainingBytes -= 4;
-    }
-
-    if (remainingBytes >= 2)
-    {
-        checksum = _mm_crc32_u16(checksum, *(uint16_t *)packetIter);
-        packetIter += 2;
-        remainingBytes -= 2;
-    }
-
-    if (remainingBytes > 0)
-    {
-        checksum = _mm_crc32_u8(checksum, *(uint8_t *)packetIter);
-    }
-
-    checksum = ~checksum;
-    return (uint16_t)checksum;
-}
 
 uint32_t checksumSeed_send = 0;
 uint32_t checksumSeed_recv = 0;
@@ -106,7 +75,7 @@ int Chat(const std::string &newMessage, int sequence, SOCKET s, int flags, const
 
     memcpy(&buffer[16], newMessage.c_str(), (uint32_t)newMessage.length());
 
-    auto checksum = Sansar_ShortCRC((uint8_t *)buffer, buffer_length - 2, checksumSeed_send);
+    auto checksum = Utils::ShortCRC((uint8_t *)buffer, buffer_length - 2, checksumSeed_send);
 
     *((uint16_t *)&buffer[16 + newMessage.length()]) = checksum;
 
@@ -160,11 +129,11 @@ int SpecialChat(const std::string &newMessage, uint16_t sequence, SOCKET s, int 
     *((uint8_t*)&buffer[52 + text_length + 24]) = 0;
     */
 
-    auto checksum = Sansar_ShortCRC((uint8_t *)buffer, buffer_length - 2, seed);
+    auto checksum = Utils::ShortCRC((uint8_t *)buffer, buffer_length - 2, seed);
     *((uint16_t *)&buffer[buffer_length - 2]) = checksum;
 
     printf("------------\n");
-    DumpPacket(buffer, buffer_length, true);
+    Utils::DumpPacket(buffer, buffer_length, true);
     printf("------------\n");
 
     printf("INTERCEPTION SEND ON: (seq %X) Socket: %08llX | sendto: %08llX | tolen: %d\n", last_chat_server_sequence, last_chat_sendto_socket, (uint64_t)last_chat_sendto, last_chat_sendto_length);
@@ -263,11 +232,11 @@ int SendAcceptFriend(uint8_t *newUuid, int sequence, SOCKET s, int flags, const 
     //memcpy(&rawData[8], newUuid, 16);
 
 
-    auto checksum = Sansar_ShortCRC((uint8_t *)rawData, sizeof(rawData) - 2, checksumSeed_first_cvc100);
+    auto checksum = Utils::ShortCRC((uint8_t *)rawData, sizeof(rawData) - 2, checksumSeed_first_cvc100);
     *((uint16_t *)&rawData[sizeof(rawData) - 2]) = checksum;
 
     printf("*****************\n");
-    DumpPacket((const char *)&rawData[0], sizeof(rawData), true);
+    Utils::DumpPacket((const char *)&rawData[0], sizeof(rawData), true);
     auto result = original_sendto(s, (const char *)&rawData[0], sizeof(rawData), flags, to, tolen);
 
     printf("Result = %d\n", result);
@@ -275,102 +244,6 @@ int SendAcceptFriend(uint8_t *newUuid, int sequence, SOCKET s, int flags, const 
     {
         printf("Last error = %d\n", WSAGetLastError());
     }
-
-    return result;
-}
-
-void DumpPacket(const char *buff, int len, bool is_sending)
-{
-    static const char kHexLookup[] = {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-    };
-
-    char output_buffer[65536 * 3 + 1] = {};
-    std::size_t output_index = 0;
-
-    for (int i = 0; i < len; ++i)
-    {
-        auto low = ((uint8_t)buff[i] & 0xF0) >> 4;
-        auto high = (uint8_t)buff[i] & 0x0F;
-
-        output_buffer[output_index++] = kHexLookup[low];
-        output_buffer[output_index++] = kHexLookup[high];
-        output_buffer[output_index++] = ' ';
-    }
-
-    if (!output_buffer)
-    {
-        printf("Bad output buffer\n");
-    }
-    else
-    {
-        if (is_sending)
-        {
-            printf("--> [%d] %s\n", len, output_buffer);
-        }
-        else
-        {
-            printf("<-- [%d] %s\n", len, output_buffer);
-        }
-    }
-}
-
-std::string ClusterButt(std::string uuidBytes)
-{
-    char buffer[32];
-    uint32_t i = 0;
-
-    buffer[i++] = uuidBytes[14];
-    buffer[i++] = uuidBytes[15];
-    buffer[i++] = uuidBytes[12];
-    buffer[i++] = uuidBytes[13];
-    buffer[i++] = uuidBytes[10];
-    buffer[i++] = uuidBytes[11];
-    buffer[i++] = uuidBytes[8];
-    buffer[i++] = uuidBytes[9];
-    buffer[i++] = uuidBytes[6];
-    buffer[i++] = uuidBytes[7];
-    buffer[i++] = uuidBytes[4];
-    buffer[i++] = uuidBytes[5];
-    buffer[i++] = uuidBytes[2];
-    buffer[i++] = uuidBytes[3];
-    buffer[i++] = uuidBytes[0];
-    buffer[i++] = uuidBytes[1];
-    buffer[i++] = uuidBytes[30];
-    buffer[i++] = uuidBytes[31];
-    buffer[i++] = uuidBytes[28];
-    buffer[i++] = uuidBytes[29];
-    buffer[i++] = uuidBytes[26];
-    buffer[i++] = uuidBytes[27];
-    buffer[i++] = uuidBytes[24];
-    buffer[i++] = uuidBytes[25];
-    buffer[i++] = uuidBytes[22];
-    buffer[i++] = uuidBytes[23];
-    buffer[i++] = uuidBytes[20];
-    buffer[i++] = uuidBytes[21];
-    buffer[i++] = uuidBytes[18];
-    buffer[i++] = uuidBytes[19];
-    buffer[i++] = uuidBytes[16];
-    buffer[i++] = uuidBytes[17];
-
-    auto newString = std::string(buffer, sizeof(buffer) / sizeof(buffer[0]));
-
-    return newString;
-}
-
-std::string ToUUID(std::string id)
-{
-    std::string result = "";
-
-    result.append(id, 0, 8);
-    result.append("-");
-    result.append(id, 8, 4);
-    result.append("-");
-    result.append(id, 12, 4);
-    result.append("-");
-    result.append(id, 16, 4);
-    result.append("-");
-    result.append(id, 20, 12);
 
     return result;
 }
@@ -491,8 +364,8 @@ void OnAddUser(PacketReader &reader)
     auto avatarType = reader.ReadString();
     auto personaId = reader.ReadUUID();
 
-    auto personaIdButts = ClusterButt(personaId);
-    auto personaIdFormatted = ToUUID(personaId);
+    auto personaIdButts = Utils::ClusterButt(personaId);
+    auto personaIdFormatted = Utils::ToUUID(personaId);
 
     sessionIdToNameMap[sessionId] = userName;
 
@@ -511,7 +384,7 @@ void OnAddUser(PacketReader &reader)
         avatarInventoryId = match[2].str();
     }
 
-    auto avatarAssetIdSwapped = ClusterButt(avatarAssetId);
+    auto avatarAssetIdSwapped = Utils::ClusterButt(avatarAssetId);
 
     std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\userdump.csv";
 
@@ -615,7 +488,7 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sock
 
     //printf("[%d] Sequence = %d | Len = %d\n", s, sequence, len);
 
-    //DumpPacket(buff, result, false);
+    //Utils::DumpPacket(buff, result, false);
 
 
     // |Type (1)|Sequence (2)|<packet>[1..N]|Checksum
@@ -792,7 +665,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
         last_chat_server_sequence = *((uint16_t *)&buf[1]);
         //printf("** last_chat_server_sequence = %X\n", last_chat_server_sequence);
     }
-    //  DumpPacket(buf, len, true);
+    //  Utils::DumpPacket(buf, len, true);
 
     if (buf == nullptr || len < 8)
     {
@@ -809,7 +682,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
     {
         // where is this sent..?
         printf("ClientKafkaMessage::Login ->\n");
-        DumpPacket(buf, len, true);
+        Utils::DumpPacket(buf, len, true);
     }
     else if (messageId == ClientRegionMessages::UserLogin)
     {
@@ -820,17 +693,17 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
     else if (messageId == ClientRegionMessages::SetAgentController)
     {
         printf("ClientRegionMessages::SetAgentController --> \n");
-        DumpPacket(buf, len, true);
+        Utils::DumpPacket(buf, len, true);
     }
     else if (messageId == ClientRegionMessages::SubscribeCommand)
     {
         printf("ClientRegionMessages::SubscribeCommand --> \n");
-        DumpPacket(buf, len, true);
+        Utils::DumpPacket(buf, len, true);
     }
     else if (messageId == ClientRegionMessages::RequestDropPortal)
     {
         printf("ClientRegionMessages::RequestDropPortal --> \n");
-        DumpPacket(buf, len, true);
+        Utils::DumpPacket(buf, len, true);
     }
 
     if (buf[0] != 0x01 && buf[0] != 0x07)
@@ -940,7 +813,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
             memcpy(personaIdBytes, otherPersona, sizeof(otherPersona) / sizeof(otherPersona[0]));
 
 
-            auto myChecksum = Sansar_ShortCRC((uint8_t *)buf, len - 2, checksumSeed_recv); // yes this is the correct checksum to use here despite its name...
+            auto myChecksum = Utils::ShortCRC((uint8_t *)buf, len - 2, checksumSeed_recv); // yes this is the correct checksum to use here despite its name...
             *((uint16_t *)&buf[len - 2]) = myChecksum;
         }
     }
@@ -1017,7 +890,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
                 clusterId[8]
             );
             printf("agentControllerId=%d attachmentNode=%d | Pos=<%f, %f, %f>\n", agentControllerId, attachmentNode, positionX, positionY, positionZ);
-            //DumpPacket(buf, len, true);
+            //Utils::DumpPacket(buf, len, true);
             //////////////////////////////
 
             uint8_t newClusterId[16] = {};
@@ -1037,7 +910,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
                 }
             }
 
-            auto myChecksum = Sansar_ShortCRC((uint8_t *)buf, len - 2, checksumSeed_send);
+            auto myChecksum = Utils::ShortCRC((uint8_t *)buf, len - 2, checksumSeed_send);
             *((uint16_t *)&buf[len - 2]) = myChecksum;
             ///////////////////////
         }
@@ -1144,7 +1017,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
                 memcpy(personaIdToBytes, otherPersona, sizeof(otherPersona) / sizeof(otherPersona[0]));
             }
 
-            //auto myChecksum = Sansar_ShortCRC((uint8_t*)buf, len - 2, checksumSeed_recv); // yes this is the correct checksum to use here despite its name...
+            //auto myChecksum = Utils::ShortCRC((uint8_t*)buf, len - 2, checksumSeed_recv); // yes this is the correct checksum to use here despite its name...
             //*((uint16_t*)&buf[len - 2]) = myChecksum;
         }
         if (0 && messageId == AgentControllerMessages::AgentPlayanimation)
@@ -1297,7 +1170,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
             auto text = std::string((const char *)&payload[8], (std::size_t)textLength);
 
             auto checksum = *((uint16_t *)&buf[len - 2]);
-            auto myChecksum = Sansar_ShortCRC((uint8_t *)buf, len - 2, checksumSeed_send);
+            auto myChecksum = Utils::ShortCRC((uint8_t *)buf, len - 2, checksumSeed_send);
 
             //printf("Chat: [%d] %s\n", unknownB, text.c_str());
         }
@@ -1306,7 +1179,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
     //printf("Socket: %08X | sendto: %08X | tolen: %d\n", s, to, tolen);
     //printf("^^: GetAddressFromAddr -> %s\n", GetAddressFromAddr(to).c_str());
 
-   //  DumpPacket(buf, len, true);
+   //  Utils::DumpPacket(buf, len, true);
 
     auto result = original_sendto(s, buf, len, flags, to, tolen);
     return result;
@@ -1319,7 +1192,7 @@ int WINAPI Hooked_Recv(SOCKET s, char *buf, int len, int flags)
     if (result != SOCKET_ERROR)
     {
         printf("hooked recv [%s] -> %d\n", GetAddressFromSocket(s).c_str(), result);
-        //DumpPacket(buf, result, false);
+        //Utils::DumpPacket(buf, result, false);
     }
 
     return result;
@@ -1332,7 +1205,7 @@ int WINAPI Hooked_Send(SOCKET s, const char *buf, int len, int flags)
     if (result != SOCKET_ERROR)
     {
         printf("Hooked send [%s] -> %d\n", GetAddressFromSocket(s).c_str(), result);
-        DumpPacket(buf, len, true);
+        Utils::DumpPacket(buf, len, true);
     }
 
     return result;
@@ -1405,134 +1278,6 @@ void OnLocalAudioStreamState(PacketReader &reader)
 }
 
 
-void OnScriptConsoleLog(PacketReader &reader)
-{
-    auto logLevel = reader.ReadUint32();
-    auto tag = reader.ReadString();
-    auto message = reader.ReadString();
-    auto timestamp = reader.ReadUint64();
-    auto scriptId = reader.ReadUint32();
-    auto scriptClassName = reader.ReadString();
-    auto worldId = reader.ReadString();
-    auto instanceId = reader.ReadString();
-    auto ownerPersonaId = reader.ReadUUID();
-    auto offset = reader.ReadUint64();
-
-    printf("OnScriptConsoleLog: logLevel = %u\n  tag = %s\n  message = %s\n  timestamp = %llu\n  scriptId = %u\n  scriptClassName = %s\n  worldId = %s\n  instanceId = %s\n  ownerPersonaId = %s\n  offset = %llu\n",
-        logLevel,
-        tag.c_str(),
-        message.c_str(),
-        timestamp,
-        scriptId,
-        scriptClassName.c_str(),
-        worldId.c_str(),
-        instanceId.c_str(),
-        ownerPersonaId.c_str(),
-        offset
-    );
-}
-
-void OnCharacterControllerInput(PacketReader &reader)
-{
-    auto frame = reader.ReadUint64();
-    auto agentControllerId = reader.ReadUint32();
-    auto jumpState = reader.ReadUint8();
-    auto jumpBtnPressed = reader.ReadUint8();
-
-    printf("OnCharacterControllerInput: Frame = %llu | Agent = %u | jumpState = %u | jump = %u\n",
-        frame,
-        agentControllerId,
-        jumpState,
-        jumpBtnPressed
-    );
-    /*
-    auto moveRight = ;
-    auto moveForward = ;
-    auto cameraYaw = ;
-    auto cameraPitch = ;
-    auto cameraYaw = ;
-    auto cameraYaw = ;
-    auto cameraYaw = ;
-    auto cameraYaw = ;
-    ... TBD, weird packed float stuff again
-    */
-}
-
-void OnClientKafkaMessageLoginReply(PacketReader &reader)
-{
-    auto success = reader.ReadUint8();
-    auto message = reader.ReadString();
-
-    printf("ClientKafkaMessages::LoginReply: Success = %u (Message = '%s')\n", success, message.c_str());
-}
-
-void OnClientKafkaMessagePresenceUpdate(PacketReader &reader)
-{
-    auto personaId = reader.ReadUUID();
-    auto present = reader.ReadUint8();
-    auto sessionId = reader.ReadUUID();
-    auto state = reader.ReadString();
-    auto sansarUri = reader.ReadString();
-
-    printf("ClientKafkaMessages::PresenceUpdate:\n  personaId = %s\n  present = %u\n  sessionId = %s\n  state = %s\n  sansarUri = %s\n",
-        personaId.c_str(),
-        present,
-        sessionId.c_str(),
-        state.c_str(),
-        sansarUri.c_str()
-    );
-}
-
-void OnClientKafkaMessageRelationshipTable(PacketReader &reader)
-{
-    auto other = reader.ReadUUID();
-    auto fromSelf = reader.ReadUint8();
-    auto fromOther = reader.ReadUint8();
-    auto status = reader.ReadUint32();
-
-    printf("ClientKafkaMessages::RelationshipTable: other = %s, fromSelf = %u, fromOther = %u, status = %u\n",
-        other.c_str(),
-        fromSelf,
-        fromOther,
-        status
-    );
-}
-
-void OnInventoryItemUpdate(PacketReader &reader)
-{
-    auto id = reader.ReadString();
-    auto licensee_label = reader.ReadString();
-    auto licensor_label = reader.ReadString();
-    auto compat_version = reader.ReadString();
-    auto licensor_pid = reader.ReadString();
-    auto creationTime = reader.ReadString();
-    auto modificationTime = reader.ReadString();
-
-    auto origin = reader.ReadUint32();
-    auto originReference = reader.ReadString();
-    auto revisionsLength = reader.ReadUint32();
-
-    auto offset = reader.ReadUint64();
-    auto state = reader.ReadUint8();
-
-    printf("ClientKafkaMessages::InventoryItemUpdate:\n  id = %s\n  licensee_label = %s\n  licensor_label = %s\n  compat_version = %s\n  licensor_pid = %s\n  creationTime = %s\n  modificationTime = %s\n  origin = %u\n  originReference = %s\n  revisionsLength = %u\n  offset = %llu\n  state = %u\n",
-        id.c_str(),
-        licensee_label.c_str(),
-        licensor_label.c_str(),
-        compat_version.c_str(),
-        licensor_pid.c_str(),
-        creationTime.c_str(),
-        modificationTime.c_str(),
-        origin,
-        originReference.c_str(),
-        revisionsLength,
-        offset,
-        state
-    );
-}
-
-
-
 void OnEditServerAddUser(PacketReader &reader)
 {
     auto sessionId = reader.ReadUint32();
@@ -1565,36 +1310,6 @@ void OnEditServerWorkspaceReadyReply(PacketReader &reader)
 
     printf("EditServerMessages::WorkspaceReadyReply\n  workspaceId = %u\n",
         workspaceId
-    );
-}
-
-void OnCharacterTransform(PacketReader &reader)
-{
-    auto componentId = reader.ReadUint64();
-    auto serverFrame = reader.ReadUint64();
-    auto groundComponentId = reader.ReadUint64();
-    // auto position = ; // Weird packed float stuff again
-    // auto orientationQuat = ; // Weird packed float stuff again
-
-    printf("OnCharacterTransform:\n  componentId = %llu\n  serverFrame = %llu\n  groundComponentId = %llu\n",
-        componentId,
-        serverFrame,
-        groundComponentId
-    );
-}
-
-void OnCharacterTransformPersistent(PacketReader &reader)
-{
-    auto componentId = reader.ReadUint64();
-    auto serverFrame = reader.ReadUint64();
-    auto groundComponentId = reader.ReadUint64();
-    // auto position = ; // Weird packed float stuff again
-    // auto orientationQuat = ; // Weird packed float stuff again
-
-    printf("OnCharacterTransformPersistent:\n  componentId = %llu\n  serverFrame = %llu\n  groundComponentId = %llu\n",
-        componentId,
-        serverFrame,
-        groundComponentId
     );
 }
 
@@ -1727,74 +1442,6 @@ void OnTimestamp(PacketReader &reader)
     printf("OnTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
 }
 
-void OnKafkaRegionChat(PacketReader &reader)
-{
-    auto fromPersonaId = reader.ReadUUID();
-    auto toPersonaId = reader.ReadUUID();
-    auto instanceAddress = reader.ReadString();
-    auto agentControllerId = reader.ReadUint32();
-    auto message = reader.ReadString();
-    auto timestamp = reader.ReadUint64();
-    auto typing = reader.ReadUint8();
-    auto offset = reader.ReadUint64();
-    auto highwaterMarkOffset = reader.ReadUint64();
-
-    auto fromPersonaIdButts = ClusterButt(fromPersonaId);
-    auto fromPersonaIdFormatted = ToUUID(fromPersonaId);
-
-    auto toPersonaIdButts = ClusterButt(toPersonaId);
-    auto toPersonaIdFormatted = ToUUID(toPersonaId);
-
-    printf("ClientKafkaMessages::RegionChat:\n  From = %s [%s]\n  To = %s [%s]\n  instanceAddress = %s\n  agentControllerId = %d\n  message = %s\n  timestamp = %llu\n  typing = %u\n  offset = %llu\n  highwaterMarkOffset = %llu\n",
-        fromPersonaIdFormatted.c_str(),
-        fromPersonaIdButts.c_str(),
-        toPersonaIdFormatted.c_str(),
-        toPersonaIdButts.c_str(),
-        instanceAddress.c_str(),
-        agentControllerId,
-        message.c_str(),
-        timestamp,
-        typing,
-        offset,
-        highwaterMarkOffset
-    );
-}
-
-void OnPrivateChat(PacketReader &reader)
-{
-    auto offset = reader.ReadUint64();
-    auto fromPersonaId = reader.ReadUUID();
-    auto toPersonaId = reader.ReadUUID();
-    auto message = reader.ReadString();
-    auto timestamp = reader.ReadUint64();
-
-    auto fromPersonaIdButts = ClusterButt(fromPersonaId);
-    auto fromPersonaIdFormatted = ToUUID(fromPersonaId);
-
-    auto toPersonaIdButts = ClusterButt(toPersonaId);
-    auto toPersonaIdFormatted = ToUUID(toPersonaId);
-
-    printf("ClientKafkaMessages::OnPrivateChat:\n  From = %s [%s]\n  To = %s [%s]\n   message = %s\n  timestamp = %llu\n  offset = %llu\n",
-        fromPersonaIdFormatted.c_str(),
-        fromPersonaIdButts.c_str(),
-        toPersonaIdFormatted.c_str(),
-        toPersonaIdButts.c_str(),
-        message.c_str(),
-        timestamp,
-        offset
-    );
-}
-
-void OnPrivateChatUpdate(PacketReader &reader)
-{
-    auto offset = reader.ReadUint64();
-    auto status = reader.ReadUint32();
-
-    printf("ClientKafkaMessages::OnPrivateChatUpdateStatus:\n  offset = %llu\n  status = %u\n",
-        offset,
-        status
-    );
-}
 
 
 void OnLoadSound(PacketReader &reader)
@@ -1850,32 +1497,6 @@ void OnRigidBodyDeactivated(PacketReader &reader)
 }
 
 
-void OnBehaviorInitializationData(PacketReader &reader)
-{
-    auto behaviorStateUpdatesLength = reader.ReadUint32();
-    auto animationUpdatesLength = reader.ReadUint32();
-
-    printf("AnimationComponentMessages::BehaviorInitializationData:\n  behaviorStateUpdatesLength = %u\n  animationUpdatesLength = %u\n",
-        behaviorStateUpdatesLength,
-        animationUpdatesLength
-    );
-}
-
-void OnObjectInteractionUpdate(PacketReader &reader)
-{
-    auto frame = reader.ReadUint64();
-    auto clusterId = reader.ReadUint32();
-    auto objectId = reader.ReadUint32();
-    auto enabled = reader.ReadUint8();
-
-    printf("AnimationComponentMessages::BehaviorInitializationData:\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  enabled = %u\n",
-        frame,
-        clusterId,
-        objectId,
-        enabled
-    );
-}
-
 void OnLightStateChanged(PacketReader &reader)
 {
     auto componentId = reader.ReadUint64();
@@ -1923,147 +1544,12 @@ void OnActiveRigidBodyUpdate(PacketReader &reader)
 }
 
 
-void OnMoveEntity(PacketReader &reader)
-{
-    auto startFrame = reader.ReadUint64();
-    auto componentId = reader.ReadUint64();
-    auto startPosition_x = reader.ReadFloat();
-    auto startPosition_y = reader.ReadFloat();
-    auto startPosition_z = reader.ReadFloat();
-    auto targetPosition_x = reader.ReadFloat();
-    auto targetPosition_y = reader.ReadFloat();
-    auto targetPosition_z = reader.ReadFloat();
-    auto time = reader.ReadUint32();
-    //auto startOrientation = reader.ReadBits(46);
-    //auto targetOrientation = reader.ReadBits(46);
-    //auto positionInterpMode = reader.ReadBits(4);
-    //auto rotationInterpMode = reader.ReadBits(4);
-
-    printf("GameWorldMessages::MoveEntity:\n  startFrame = %llu\n  componentId = %llu\n startPosition = <%f, %f, %f>\n  targetPosition = <%f, %f, %f>\n  time = %u\n",
-        startFrame,
-        componentId,
-        startPosition_x, startPosition_y, startPosition_z,
-        targetPosition_x, targetPosition_y, targetPosition_z,
-        time
-    );
-}
-
-void OnCreateSpeechGraphicsPlayer(PacketReader &reader)
-{
-    auto agentControllerId = reader.ReadUint32();
-
-    auto numElements = reader.ReadUint32();
-    auto sinkConfigData = reader.ReadBytes(numElements);
-
-    printf("OnCreateSpeechGraphicsPlayer:\n  sinkConfigData = Array[%u]\n",
-        numElements
-    );
-}
-
-void OnPlayAnimation(PacketReader &reader)
-{
-    auto frame = reader.ReadUint64();
-    auto componentId = reader.ReadUint64();
-    auto resourceId = reader.ReadUUID();
-    auto playbackSpeed = reader.ReadBits(16);
-    auto skeletonType = reader.ReadBits(2);
-    auto animationType = reader.ReadBits(3);
-    auto playbackMode = reader.ReadBits(3);
-
-    printf("AgentControllerMessages::PlayAnimation:\n  frame = %llu\n  componentId = %llu\n  resourceId = %s\n",
-        frame,
-        componentId,
-        resourceId.c_str()
-    );
-}
-
-void OnCharacterIKPoseDelta(PacketReader &reader)
-{
-    auto agentControllerId = reader.ReadUint32();
-    auto frame = reader.ReadUint64();
-
-    auto boneRotationsLength = reader.ReadUint32();
-    //for (size_t i = 0; i < boneRotationsLength; i++)
-    //{
-    //    auto boneIndex = reader.ReadBits(6);
-    //    auto localOrientation = reader.ReadBits(25);
-    //}
-
-    //auto rootBoneTranslationDelta = reader.ReadBits(27);
-
-    printf("AgentControllerMessages::CharacterIKPoseDelta:\n  agentControllerId = %u\n  frame = %llu\n  boneRotationsLength = Array[%u]\n  rootBoneTranslationDelta = Array[27]\n",
-        agentControllerId,
-        frame,
-        boneRotationsLength
-    );
-}
-
-
-void OnCharacterIKPose(PacketReader &reader)
-{
-    // TODO: Nope, not handling this one
-
-    auto agentControllerId = reader.ReadUint32();
-    auto frame = reader.ReadUint64();
-    auto boneRotationsLength = reader.ReadUint32();
-
-    /*
-    for (size_t i = 0; i < boneRotationsLength; i++)
-    {
-        auto boneIndex = reader.ReadBits(6);
-        auto localOrientation = reader.ReadBits(40);
-    }
-
-    auto rootBoneTranslation = reader.ReadBits(42);
-    */
-
-    printf("AgentControllerMessages::CharacterIKPose:\n  agentControllerId = %u\n  frame = %llu\n",
-        agentControllerId,
-        frame
-    );
-}
-
-void OnCharacterControlPointInputReliable(PacketReader &reader)
-{
-    // Todo: no payload?
-    printf("AgentControllerMessages::CharacterControlPointInputReliable\n");
-}
-
-void OnCharacterControllerInputReliable(PacketReader &reader)
-{
-    // Todo: no payload?
-    printf("AgentControllerMessages::CharacterControllerInputReliable\n");
-}
-
 void OnDestroyAgentController(PacketReader &reader)
 {
     auto frame = reader.ReadUint64();
     auto agentControllerId = reader.ReadUint32();
 
     printf("WorldStateMessages::DestroyAgentController:\n  frame = %llu\n  agentControllerId = %u\n",
-        frame,
-        agentControllerId
-    );
-}
-
-void OnCharacterControlPointInput(PacketReader &reader)
-{
-    auto frame = reader.ReadUint64();
-    auto agentControllerId = reader.ReadUint32();
-
-    auto controlPointsLength = reader.ReadUint32();
-
-    //auto leftIndexTrigger = reader.ReadBits(8);
-    //auto rightIndexTrigger = reader.ReadBits(8);
-    //auto leftGripTrigger = reader.ReadBits(8);
-    //auto rightGripTrigger = reader.ReadBits(8);
-    //auto leftTouches = reader.ReadBits(7);
-    //auto rightTouches = reader.ReadBits(7);
-    //auto indexTriggerControlsHand = reader.ReadBits(1);
-    //auto leftHandIsHolding = reader.ReadBits(1);
-    //auto rightHandIsHolding = reader.ReadBits(1);
-
-    printf("AgentControllerMessages::CharacterControlPointInput:\n  frame = %llu\n  agentControllerId = %u\n",
         frame,
         agentControllerId
     );
@@ -2091,34 +1577,6 @@ void OnSetPitch(PacketReader &reader)
     );
 }
 
-
-void OnBehaviorInternalState(PacketReader &reader)
-{
-    // TODO: Nope, not handling this one
-
-    auto componentId = reader.ReadUint64();
-    auto frame = reader.ReadUint64();
-
-    auto overridesLength = reader.ReadUint32();
-    /* auto overridesData = reader.ReadBytes(overridesLength);
-
-     auto numSlotStates = reader.ReadUint32();
-     for (size_t i = 0; i < numSlotStates; i++)
-     {
-         auto slotState = reader.ReadUint8();
-     }
-
-     auto stateDataLength = reader.ReadUint32();
-     auto stateData = reader.ReadBytes(stateDataLength);
-
-     auto isPlaying = reader.ReadUint8();*/
-
-    printf("AnimationComponentMessages::BehaviorInternalState:\n  componentId = %llu\n  frame = %llu\n  overridesLength = %u\n",
-        componentId,
-        frame,
-        overridesLength
-    );
-}
 
 
 void OnBehaviorStateUpdate(PacketReader &reader)
@@ -2216,31 +1674,6 @@ void OnDestroyCluster(PacketReader &reader)
     );
 }
 
-void OnWarpCharacter(PacketReader &reader)
-{
-    auto frame = reader.ReadUint64();
-    auto agentControllerId = reader.ReadUint32();
-    auto position_x = reader.ReadFloat();
-    auto position_y = reader.ReadFloat();
-    auto position_z = reader.ReadFloat();
-    auto rotation_x = reader.ReadFloat();
-    auto rotation_y = reader.ReadFloat();
-    auto rotation_z = reader.ReadFloat();
-    auto rotation_w = reader.ReadFloat();
-
-    printf("AgentControllerMessages::WarpCharacter:\n  frame = %llu\n  agentControllerId = %u\n  position = <%f, %f, %f>\n  rotation = <%f, %f, %f, %f>\n",
-        frame,
-        agentControllerId,
-        position_x,
-        position_y,
-        position_z,
-        rotation_x,
-        rotation_y,
-        rotation_z,
-        rotation_w
-    );
-}
-
 
 void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 {
@@ -2321,10 +1754,6 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         {
             OnRemoveUser(reader);
         }
-        else if (messageId == ClientKafkaMessages::RegionChat)
-        {
-            OnKafkaRegionChat(reader);
-        }
         else if (messageId == RenderMessages::LightStateChanged) // 0x6951DAEC // 1611170
         {
             // OnLightStateChanged(reader); 
@@ -2341,72 +1770,55 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         {
             OnLocalAudioStreamState(reader);
         }
-        else if (messageId == AgentControllerMessages::PlayAnimation) // 0x009385A0    // 1581210
-        {
-            OnPlayAnimation(reader);
-        }
 
         // Animation stuff
         else if (messageId == AnimationComponentMessages::FloatVariable)  // 15809C0
         {
-            auto internalId = reader.ReadUint16();
-            auto value = reader.ReadFloat();
+            AnimationComponent::OnFloatVariable(reader);
         }
         else if (messageId == AnimationComponentMessages::FloatNodeVariable)  // 1580A30
         {
-            auto nodeId = reader.ReadUint16();
-            auto value = reader.ReadFloat();
+            AnimationComponent::OnFloatNodeVariable(reader);
         }
         else if (messageId == AnimationComponentMessages::FloatRangeNodeVariable)  // 1580AA0
         {
-            auto nodeId = reader.ReadUint16();
-            auto startValue = reader.ReadFloat();
-            auto endValue = reader.ReadFloat();
+            AnimationComponent::OnFloatRangeNodeVariable(reader);
         }
         else if (messageId == AnimationComponentMessages::VectorVariable)  // 1580B10
         {
-            auto internalId = reader.ReadUint16();
-            auto value_x = reader.ReadFloat();
-            auto value_y = reader.ReadFloat();
-            auto value_z = reader.ReadFloat();
+            AnimationComponent::OnVectorVariable(reader);
         }
         else if (messageId == AnimationComponentMessages::QuaternionVariable)  // 1580B80
         {
-            auto internalId = reader.ReadUint16();
-            auto value_x = reader.ReadFloat();
-            auto value_y = reader.ReadFloat();
-            auto value_z = reader.ReadFloat();
-            auto value_w = reader.ReadFloat();
+            AnimationComponent::OnQuaternionVariable(reader);
         }
         else if (messageId == AnimationComponentMessages::Int8Variable)  // 1580BF0
         {
-            auto internalId = reader.ReadUint16();
-            auto value = reader.ReadUint8();
+            AnimationComponent::OnInt8Variable(reader);
         }
         else if (messageId == AnimationComponentMessages::BoolVariable)  // 1580C60
         {
-            auto internalId = reader.ReadUint16();
-            auto value = reader.ReadUint8();
+            AnimationComponent::OnBoolVariable(reader);
         }
         else if (messageId == AnimationComponentMessages::CharacterTransform) // 1580CD0
         {
-            //OnCharacterTransform(reader);
+            // AnimationComponent::OnCharacterTransform(reader);
         }
         else if (messageId == AnimationComponentMessages::CharacterTransformPersistent) // 1580D40
         {
-            //OnCharacterTransformPersistent(reader);
+            // AnimationComponent::OnCharacterTransformPersistent(reader);
         }
         else if (messageId == AnimationComponentMessages::CharacterAnimationDestroyed)  // 1580DB0
         {
-            auto componentId = reader.ReadUint64();
+            AnimationComponent::OnCharacterAnimationDestroyed(reader);
         }
         else if (messageId == AnimationComponentMessages::AnimationOverride)  // 1580F70
         {
-            auto slotIndex = reader.ReadUint8();
+            AnimationComponent::OnAnimationOverride(reader);
         }
         else if (messageId == AnimationComponentMessages::BehaviorInternalState) // 0xCE9B5148  // 1580FE0
         {
-            //OnBehaviorInternalState(reader);
+            //AnimationComponent::OnBehaviorInternalState(reader);
         }
         else if (messageId == AnimationComponentMessages::CharacterBehaviorInternalState)  // 1581050
         {
@@ -2414,42 +1826,19 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 0x217192BE  // 15810C0
         {
-            auto frame = reader.ReadUint64();
-            auto componentId = reader.ReadUint64();
-            auto groundComponentId = reader.ReadUint64();
-            auto position = reader.ReadBits(0x48);
+            AnimationComponent::OnBehaviorStateUpdate(reader);
         }
         else if (messageId == AnimationComponentMessages::BehaviorInitializationData) // 0x7846436E // 1581130
         {
-            // OnBehaviorInitializationData(reader);
+            //AnimationComponent::OnBehaviorInitializationData(reader);
         }
         else if (messageId == AnimationComponentMessages::CharacterSetPosition)  // 15811A0
         {
-            auto frame = reader.ReadUint64();
-            auto componentId = reader.ReadUint64();
-            auto groundComponentId = reader.ReadUint64();
-            auto position = reader.ReadBits(0x48);
+            AnimationComponent::OnCharacterSetPosition(reader);
         }
         else if (messageId == AnimationComponentMessages::PlayAnimation)  // 1581210
         {
-            auto frame = reader.ReadUint64();
-            auto componentId = reader.ReadUint64();
-            auto resourceId = reader.ReadUUID();
-
-            auto playbackSpeed = reader.ReadBits(0x10);
-            //v10 = _mm_cvtpd_ps((__m128d)COERCE_UNSIGNED_INT64((double)((signed int)v16 - 0x7FFF) * 0.00003051850947599719));
-            //v10.m128_f32[0] = v10.m128_f32[0] * 10.0;
-            //*(__m128 *)(v5 + 48) = _mm_shuffle_ps(v10, v10, 0);
-
-            auto skeletonType = reader.ReadBits(2);
-            auto animationType = reader.ReadBits(3);
-            auto playbackMode = reader.ReadBits(3);
-
-            printf("AnimationComponentMessages::PlayAnimation:\n  frame = %llu\n  componentId = %llu\n  resourceId = %s\n",
-                frame,
-                componentId,
-                resourceId.c_str()
-            );
+            AnimationComponent::OnPlayAnimation(reader);
         }
         else if (messageId == SimulationMessages::InitialTimestamp)  // 15733C0 
         {
@@ -2544,707 +1933,344 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 
 
         // Agent controller stuff? dono
+        else if (messageId == AgentControllerMessages::PlayAnimation) // 0x009385A0    // 1581210
+        {
+            AgentController::OnPlayAnimation(reader);
+        }
         else if (messageId == AgentControllerMessages::ControlPoint)  // 170F790
         {
-            auto position = reader.ReadBits(0x30);
-            auto orientation = reader.ReadBits(0x28);
-            auto enabled = reader.ReadBits(1);
-            auto controlPointType = reader.ReadBits(4);
+            AgentController::OnControlPoint(reader);
         }
         else if (messageId == AgentControllerMessages::WarpCharacter) // 170F800
         {
-            //OnWarpCharacter(reader);
+            AgentController::OnWarpCharacter(reader);
         }
         else if (messageId == AgentControllerMessages::RequestWarpCharacter)  // 170F870
         {
-            // No palyload
+            AgentController::OnRequestWarpCharacter();
         }
         else if (messageId == AgentControllerMessages::CharacterControlPointInput)  // 170F8E0
         {
-            //OnCharacterControlPointInput(reader);
+            AgentController::OnCharacterControlPointInput(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterControlPointInputReliable)  // 170F950
         {
-            //OnCharacterControlPointInputReliable(reader);
+            AgentController::OnCharacterControlPointInputReliable(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterControllerInput) // 170F9C0
         {
-            // OnCharacterControllerInput(reader);
+            AgentController::OnCharacterControllerInput(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterControllerInputReliable) // 170FA30
         {
-            // OnCharacterControllerInputReliable(reader);
+            AgentController::OnCharacterControllerInputReliable(reader);
         }
         else if (messageId == AgentControllerMessages::AgentPlayanimation)  // 170FAA0
         {
-            auto agentControllerId = reader.ReadUint32();
+            AgentController::OnAgentPlayanimation(reader);
         }
         else if (messageId == AgentControllerMessages::RequestAgentPlayAnimation)  // 170FB10
         {
-            // No palyload
+            AgentController::OnRequestAgentPlayAnimation();
         }
         else if (messageId == AgentControllerMessages::RequestBehaviorStateUpdate)  // 170FB80
         {
-            // No palyload
+            AgentController::OnRequestBehaviorStateUpdate();
         }
         else if (messageId == AgentControllerMessages::AttachToCharacterNode)  // 170FBF0
         {
-            auto frame = reader.ReadUint64();
-            auto componentId = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-            auto attachmentOffsetPosition = reader.ReadVectorF(3);
-            auto attachmentOffsetOrientation = reader.ReadVectorF(4);
-            auto nodeType = reader.ReadUint8();
-            auto ownershipWatermark = reader.ReadUint8();
-            auto broadcastToSelf = reader.ReadUint8();
+            AgentController::OnAttachToCharacterNode(reader);
         }
         else if (messageId == AgentControllerMessages::DetachFromCharacterNode)  // 170FC60
         {
-            auto frame = reader.ReadUint64();
-            auto componentId = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-            auto bodyPosition = reader.ReadVectorF(3);
-            auto botyOrientation = reader.ReadVectorF(4);
-            auto bodyVelocity = reader.ReadVectorF(3);
-            auto bodyAngularVelocity = reader.ReadVectorF(3);
-            auto nodeType = reader.ReadUint8();
+            AgentController::OnDetachFromCharacterNode(reader);
         }
         else if (messageId == AgentControllerMessages::RequestDetachFromCharacterNode)  // 170FCD0
         {
-            // No palyload
+            AgentController::OnRequestDetachFromCharacterNode();
         }
         else if (messageId == AgentControllerMessages::SetCharacterNodePhysics)  // 170FD40
         {
-            auto frame = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-            auto nodeType = reader.ReadUint8();
-            auto collisionsEnabled = reader.ReadUint8();
-            auto broadcastToSelf = reader.ReadUint8();
+            AgentController::OnSetCharacterNodePhysics(reader);
         }
         else if (messageId == AgentControllerMessages::WarpCharacterNode)  // 170FDB0
         {
-            auto agentControllerId = reader.ReadUint32();
-            auto nodeType = reader.ReadUint32(); /// why is this node type 4bytes?
+            AgentController::OnWarpCharacterNode(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterIKBone)  // 170FE20
         {
-            auto boneIndex = reader.ReadBits(6);
-            auto localOrientation = reader.ReadBits(0x28);
+            AgentController::OnCharacterIKBone(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterIKPose)  // 170FE90
         {
-            //OnCharacterIKPose(reader);
+            AgentController::OnCharacterIKPose(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterIKBoneDelta)  // 1710040
         {
-            auto boneIndex = reader.ReadBits(6);
-            auto localOrientation = reader.ReadBits(0x19);
+            AgentController::OnCharacterIKBoneDelta(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterIKPoseDelta)  // 17100B0
         {
-            //OnCharacterIKPoseDelta(reader);
+            AgentController::OnCharacterIKPoseDelta(reader);
         }
         else if (messageId == AgentControllerMessages::ObjectInteraction)  // 1710260
         {
-            auto frame = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-            auto objectId = reader.ReadUint32();
-            auto targetedPosition = reader.ReadVectorF(3);
-            auto targetedNormal = reader.ReadVectorF(3);
-            auto origin = reader.ReadVectorF(3);
-            auto controlPointType = reader.ReadBits(4);
+            AgentController::OnObjectInteraction(reader);
         }
         else if (messageId == AgentControllerMessages::ObjectInteractionUpdate)  // 17102D0
         {
-            OnObjectInteractionUpdate(reader);
+            AgentController::OnObjectInteractionUpdate(reader);
         }
         else if (messageId == AgentControllerMessages::ObjectInteractionPromptUpdate)  // 1710340
         {
-            auto frame = reader.ReadUint64();
-            auto clusterId = reader.ReadUint32();
-            auto objectId = reader.ReadUint32();
-            auto prompt = reader.ReadString();
-
-            printf("AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n",
-                frame,
-                clusterId,
-                objectId,
-                prompt
-            );
+            AgentController::OnObjectInteractionPromptUpdate(reader);
         }
         else if (messageId == AgentControllerMessages::ObjectInteractionCreate)  // 17103B0
         {
-            auto frame = reader.ReadUint64();
-            auto clusterId = reader.ReadUint32();
-            auto objectId = reader.ReadUint32();
-            auto prompt = reader.ReadString();
-            auto enabled = reader.ReadUint8();
-
-            printf("AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n  enabled = %u\n",
-                frame,
-                clusterId,
-                objectId,
-                prompt,
-                enabled
-            );
+            AgentController::OnObjectInteractionCreate(reader);
         }
         else if (messageId == AgentControllerMessages::RequestSitOnObject)  // 1710420
         {
-            // No palyload
+            AgentController::OnRequestSitOnObject();
         }
         else if (messageId == AgentControllerMessages::SitOnObject)  // 1710490
         {
-            auto frame = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-            auto componentId = reader.ReadUint64();
-            auto ownershipWatermark = reader.ReadUint8();
-            auto skipAnimation = reader.ReadUint8();
-
-            printf("AgentControllerMessages::SitOnObject\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n  ownershipWatermark = %u\n  skipAnimation = %u\n",
-                frame,
-                agentControllerId,
-                componentId,
-                ownershipWatermark,
-                skipAnimation
-            );
+            AgentController::OnSitOnObject(reader);
         }
         else if (messageId == AgentControllerMessages::ExitSit)  // 1710500
         {
-            auto frame = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-            auto componentId = reader.ReadUint64();
-            auto skipAnimation = reader.ReadBits(1);
-            auto skipExitTeleport = reader.ReadBits(1);
-
-            printf("AgentControllerMessages::ExitSit\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n",
-                frame,
-                agentControllerId,
-                componentId
-            );
+            AgentController::OnExitSit(reader);
         }
         else if (messageId == AgentControllerMessages::SetAgentFiltersBody)  // 1710570
         {
-            auto frame = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-            auto componentId = reader.ReadUint64();
-            auto filterBody = reader.ReadUint8();
-
-            printf("AgentControllerMessages::SetAgentFiltersBody\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n  filterBody = %u\n",
-                frame,
-                agentControllerId,
-                componentId,
-                filterBody
-            );
+            AgentController::OnSetAgentFiltersBody(reader);
         }
         else if (messageId == AgentControllerMessages::RequestSetAgentFiltersBody)  // 17105E0
         {
-            // No palyload
+            AgentController::OnRequestSetAgentfiltersBody();
         }
         else if (messageId == AgentControllerMessages::SetCharacterUserProperty)  // 1710650
         {
-            auto frame = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-            auto value = reader.ReadFloat();
-            auto propertyType = reader.ReadUint8();
-
-            printf("AgentControllerMessages::SetCharacterUserProperty\n  frame = %llu\n  agentControllerId = %u\n  value = %f\n  propertyType = %u\n",
-                frame,
-                agentControllerId,
-                value,
-                propertyType
-            );
+            AgentController::OnSetCharacterUserProperty(reader);
         }
         else if (messageId == AgentControllerMessages::CreateSpeechGraphicsPlayer) // 0x158B2580  // 17106C0
         {
-            //OnCreateSpeechGraphicsPlayer(reader);
+            AgentController::OnCreateSpeechGraphicsPlayer(reader);
         }
         else if (messageId == AgentControllerMessages::RequestSpawnItem)  // 1710730
         {
-            auto frame = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-            auto resourceId = reader.ReadUUID();
-            auto attachmentNode = reader.ReadUint8();
-            auto spawnPosition = reader.ReadBits(0x4E);
-            auto spawnOrientation = reader.ReadBits(0x2B);
+            AgentController::OnRequestSpawnItem(reader);
         }
         else if (messageId == AgentControllerMessages::RequestDeleteLatestSpawn)  // 17107A0
         {
-            auto frame = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-
-            printf("AgentControllerMessages::RequestDeleteLatestSpawn\n  frame = %llu\n  agentControllerId = %u\n",
-                frame,
-                agentControllerId
-            );
+            AgentController::OnRequestDeleteLatestSpawn(reader);
         }
         else if (messageId == AgentControllerMessages::RequestDeleteAllSpawns)  // 1710810
         {
-            auto frame = reader.ReadUint64();
-            auto agentControllerId = reader.ReadUint32();
-
-            printf("AgentControllerMessages::RequestDeleteAllSpawns\n  frame = %llu\n  agentControllerId = %u\n",
-                frame,
-                agentControllerId
-            );
+            AgentController::OnRequestDeleteAllSpawns(reader);
         }
+
+
+
+        // GAME WORLD
         else if (messageId == GameWorldMessages::Timestamp)  // 16E9DC0
         {
-            auto nanoseconds = reader.ReadUint64();
-            auto frame = reader.ReadUint64();
+            GameWorld::OnTimestamp(reader);
         }
         else if (messageId == GameWorldMessages::MoveEntity) // 0xEFC20B7F  // 16E9E30
         {
-            //OnMoveEntity(reader);
+            GameWorld::OnMoveEntity(reader);
         }
         else if (messageId == GameWorldMessages::ChangeMaterialVectorParam)  // 16E9EA0
         {
-            auto parameter = reader.ReadUint8();
-            auto start = reader.ReadVectorF(3);
-            auto end = reader.ReadVectorF(3);
+            GameWorld::OnChangeMaterialVectorParam(reader);
         }
         else if (messageId == GameWorldMessages::ChangeMaterialFloatParam)  // 16E9F10
         {
-            auto parameter = reader.ReadUint8();
-            auto start = reader.ReadFloat();
-            auto end = reader.ReadFloat();
+            GameWorld::OnChangeMaterialFloatParam(reader);
         }
         else if (messageId == GameWorldMessages::ChangeMaterial)  // 16E9F80
         {
-            auto startFrame = reader.ReadUint64();
-            auto componentId = reader.ReadUint64();
-            auto materialIndex = reader.ReadUint8();
-            auto time = reader.ReadUint32();
-
-            /*
-            auto interpMode = reader.ReadBits(4); // ???
-
-            auto vectorParametersLength = reader.ReadUint32();
-            for (size_t i = 0; i < vectorParametersLength; i++)
-            {
-                auto parameter = reader.ReadUint8();
-                auto start = reader.ReadVectorF(3);
-                auto end = reader.ReadVectorF(3);
-            }
-
-            auto floatParametersLength = reader.ReadUint32();
-            for (size_t i = 0; i < floatParametersLength; i++)
-            {
-                auto parameter = reader.ReadUint8();
-                auto start = reader.ReadFloat();
-                auto end = reader.ReadFloat();
-            }
-            */
+            GameWorld::OnChangeMaterial(reader);
         }
         else if (messageId == GameWorldMessages::StaticMeshFlagsChanged)  // 16E9FF0
         {
-            auto componentid = reader.ReadUint64();
-            auto frame = reader.ReadUint64();
-            auto flags = reader.ReadUint8();
+            GameWorld::OnStaticMeshFlagsChanged(reader);
         }
         else if (messageId == GameWorldMessages::StaticMeshScaleChanged)  // 16EA060
         {
-            auto componentid = reader.ReadUint64();
-            auto frame = reader.ReadUint64();
-            auto scale = reader.ReadFloat();
+            GameWorld::OnStaticMeshScaleChanged(reader);
         }
         else if (messageId == GameWorldMessages::RiggedMeshFlagsChange)  // 16EA0D0
         {
-            auto componentid = reader.ReadUint64();
-            auto frame = reader.ReadUint64();
-            auto flags = reader.ReadUint8();
+            GameWorld::OnRiggedMeshFlagsChange(reader);
         }
         else if (messageId == GameWorldMessages::RiggedMeshScaleChanged)  // 16EA140
         {
-            auto componentid = reader.ReadUint64();
-            auto frame = reader.ReadUint64();
-            auto scale = reader.ReadFloat();
+            GameWorld::OnRiggedMeshScaleChanged(reader);
         }
         else if (messageId == GameWorldMessages::ScriptCameraMessage)  // 16EA1B0
         {
-            auto componentid = reader.ReadUint64();
-            auto frame = reader.ReadUint64();
-            auto controlMode = reader.ReadBits(4);
+            GameWorld::OnScriptCameraMessage(reader);
         }
         else if (messageId == GameWorldMessages::UpdateRuntimeInventorySettings)  // 16EA220
         {
-            auto spawnSource = reader.ReadUint8();
-            auto spawnLifetimePolicy = reader.ReadUint8();
-            auto totalSpawnLimit = reader.ReadUint16();
-            auto perUserSpawnLimit = reader.ReadUint16();
-            auto spawnTimeout = reader.ReadUint32();
+            GameWorld::OnUpdateRuntimeInventorySettings(reader);
         }
 
 
         // KAFKA STUFF
+        else if (messageId == ClientKafkaMessages::RegionChat)
+        {
+            ClientKafka::OnRegionChat(reader);
+        }
         else if (messageId == ClientKafkaMessages::Login) // 0C0C9D81 // 17A1290 ?
         {
-            auto accountId = reader.ReadUUID();
-            auto personaId = reader.ReadUUID();
-            auto secret = reader.ReadUint32();
-            auto inventoryOffset = reader.ReadUint64();
-
-            printf(" ClientKafkaMessages::Login:\n  accountId = %s\n  personaId = %s\n  secret = %u\n  inventoryOffset = %llu\n",
-                accountId.c_str(),
-                personaId.c_str(),
-                secret,
-                inventoryOffset
-            );
+            ClientKafka::OnLogin(reader);
         }
         else if (messageId == ClientKafkaMessages::LoginReply)
         {
-            OnClientKafkaMessageLoginReply(reader);
+            ClientKafka::OnLoginReply(reader);
         }
         else if (messageId == ClientKafkaMessages::EnterRegion) // // 17A1370 ? 
         {
-            auto regionAddress = reader.ReadString();
-
-            printf("ClientKafkaMessages::EnterRegion '%s'\n", regionAddress.c_str());
+            ClientKafka::OnEnterRegion(reader);
         }
         else if (messageId == ClientKafkaMessages::LeaveRegion) // // 17A1520 ? 
         {
-            auto regionAddress = reader.ReadString();
-
-            printf("ClientKafkaMessages::LeaveRegion '%s'\n", regionAddress.c_str());
+            ClientKafka::OnLeaveRegion(reader);
         }
         else if (messageId == ClientKafkaMessages::PrivateChat) // // 17A1740 ? 
         {
-            OnPrivateChat(reader);
+            ClientKafka::OnPrivateChat(reader);
         }
         else if (messageId == ClientKafkaMessages::PrivateChatStatus) // // 17A17B0 ? 
         {
-            OnPrivateChatUpdate(reader);
+            ClientKafka::OnPrivateChatUpdate(reader);
         }
         else if (messageId == ClientKafkaMessages::PresenceUpdate)
         {
-            OnClientKafkaMessagePresenceUpdate(reader);
+            ClientKafka::OnPresenceUpdate(reader);
         }
         else if (messageId == ClientKafkaMessages::FriendRequest) // // 17A1890 ? 
         {
-            auto offset = reader.ReadUint64();;
-            auto fromPersonaId = reader.ReadUUID();
-            auto toPersonaId = reader.ReadUUID();
-            auto timestamp = reader.ReadString(); // WHAT
-            auto fromSignature = reader.ReadString();
-
-            printf("ClientKafkaMessages::FriendRequest:\n  offset = %llu\n  fromPersonaId = %s\n  toPersonaId = %s\n  timestamp = %s\n  fromSignature = %s\n",
-                offset,
-                fromPersonaId.c_str(),
-                toPersonaId.c_str(),
-                timestamp.c_str(),
-                fromSignature.c_str()
-            );
+            ClientKafka::OnFriendRequest(reader);
         }
         else if (messageId == ClientKafkaMessages::FriendRequestStatus) // // 17A1900 ? 
         {
-            auto offset = reader.ReadUint64();
-            auto status = reader.ReadUint32();
-
-            printf("ClientKafkaMessages::FriendRequestStatus:\n  offset = %llu\n  status = %u\n",
-                offset,
-                status
-            );
+            ClientKafka::OnFriendRequestStatus(reader);
         }
         else if (messageId == ClientKafkaMessages::FriendResponse) // // 17A1970 ? 
         {
-            auto offset = reader.ReadUint64();;
-            auto fromPersonaId = reader.ReadUUID();
-            auto toPersonaId = reader.ReadUUID();
-            auto timestamp = reader.ReadString(); // WHAT
-            auto fromSignature = reader.ReadString();
-            auto response = reader.ReadUint32();
-            auto toSignature = reader.ReadString();
-
-            printf("ClientKafkaMessages::FriendRequest:\n  offset = %llu\n  fromPersonaId = %s\n  toPersonaId = %s\n  timestamp = %s\n  fromSignature = %s\n  response = %u\n  toSignature = %s\n",
-                offset,
-                fromPersonaId.c_str(),
-                toPersonaId.c_str(),
-                timestamp.c_str(),
-                fromSignature.c_str(),
-                response,
-                toSignature.c_str()
-            );
+            ClientKafka::OnFriendResponse(reader);
         }
         else if (messageId == ClientKafkaMessages::FriendResponseStatus) // // 17A19E0 ? 
         {
-            auto offset = reader.ReadUint64();
-            auto status = reader.ReadUint32();
-
-            printf("ClientKafkaMessages::FriendResponseStatus:\n  offset = %llu\n  status = %u\n",
-                offset,
-                status
-            );
+            ClientKafka::OnFriendResponseStatus(reader);
         }
         else if (messageId == ClientKafkaMessages::FriendTable) // // 17A1A50 ? 
         {
-            auto fromPersonaId = reader.ReadUUID();
-            auto toPersonaId = reader.ReadUUID();
-            auto status = reader.ReadUint32();
-
-            printf("ClientKafkaMessages::FriendTable:\n  fromPersonaId = %s\n  toPersonaId = %s\n  status = %u\n",
-                fromPersonaId.c_str(),
-                toPersonaId.c_str(),
-                status
-            );
+            ClientKafka::OnFriendTable(reader);
         }
         else if (messageId == ClientKafkaMessages::RelationshipOperation) // // 17A1AC0 ? 
         {
-            auto other = reader.ReadUUID();
-            auto operation = reader.ReadUint32();
-
-            printf("ClientKafkaMessages::RelationshipOperation:\n  other = %s\n  operation = %u\n",
-                other.c_str(),
-                operation
-            );
+            ClientKafka::OnRelationshipOperation(reader);
         }
         else if (messageId == ClientKafkaMessages::RelationshipTable) // 17A1B30
         {
-            OnClientKafkaMessageRelationshipTable(reader);
+            ClientKafka::OnRelationshipTable(reader);
         }
         else if (messageId == ClientKafkaMessages::InventoryItemCapabilities) // 17A1BA0
         {
-            auto capabilitiesLength = reader.ReadUint32();
-            std::vector<std::string> capabilities(capabilitiesLength);
-            for (size_t i = 0; i < capabilitiesLength; i++)
-            {
-                auto capability = reader.ReadString();
-                capabilities.push_back(capability);
-            }
-
-            printf("ClientKafkaMessages::InventoryItemCapabilities:\n");
-            for(auto &item: capabilities)
-            {
-                printf("  %s\n", item.c_str());
-            }
+            ClientKafka::OnInventoryItemCapabilities(reader);
         }
         else if (messageId == ClientKafkaMessages::InventoryItemRevision) // 17A1D80
         {
-            auto asset_id = reader.ReadString();
-            auto asset_type = reader.ReadString();
-            auto asset_hint = reader.ReadUint32();
-            auto thumbnail_asset_id = reader.ReadString();
-            auto license_asset_id = reader.ReadString();
-
-            auto capabilitiesLength = reader.ReadUint32();
-            auto capabilities = std::vector<std::string>(capabilitiesLength);
-            for (size_t i = 0; i < capabilitiesLength; i++)
-            {
-                auto capability = reader.ReadString();
-                capabilities.push_back(capability);
-            }
-
-            printf("ClientKafkaMessages::InventoryItemRevision:\n  asset_id = %s\n  asset_type = %s\n  asset_hint = %u\n  thumbnail_asset_id = %s\n  license_asset_id = %s\n  capabilities =",
-                asset_id.c_str(),
-                asset_type.c_str(),
-                asset_hint,
-                thumbnail_asset_id.c_str(),
-                license_asset_id.c_str()
-            );
-            for (auto &item : capabilities)
-            {
-                printf("    %s\n", item.c_str());
-            }
+            ClientKafka::OnInventoryItemRevision(reader);
         }
         else if (messageId == ClientKafkaMessages::InventoryItemUpdate) // 17A1DF0
         {
-            OnInventoryItemUpdate(reader);
+            ClientKafka::OnInventoryItemUpdate(reader);
         }
         else if (messageId == ClientKafkaMessages::InventoryItemDelete) // 17A1E60
         {
-            auto id = reader.ReadString();
-            auto offset = reader.ReadUint64();
-
-            printf("ClientKafkaMessages::InventoryItemDelete:\n  id = %s\n  offset = %llu\n",
-                id.c_str(),
-                offset
-            );
+            ClientKafka::OnInventoryItemDelete(reader);
         }
         else if (messageId == ClientKafkaMessages::InventoryLoaded) // 17A1ED0
         {
-            auto offset = reader.ReadUint64();
+            ClientKafka::OnInventoryLoaded(reader);
         }
         else if (messageId == ClientKafkaMessages::FriendRequestLoaded) // 17A2090
         {
-            auto offset = reader.ReadUint64();
+            ClientKafka::OnFriendRequestLoaded(reader);
         }
         else if (messageId == ClientKafkaMessages::FriendResponseLoaded) // 17A2250
         {
-            auto offset = reader.ReadUint64();
+            ClientKafka::OnFriendResponseLoaded(reader);
         }
         else if (messageId == ClientKafkaMessages::PresenceUpdateFanoutLoaded) // 17A2410
         {
-            auto offset = reader.ReadUint64();
+            ClientKafka::OnPresenceUpdateFanoutLoaded(reader);
         }
         else if (messageId == ClientKafkaMessages::FriendTableLoaded) // 17A25D0
         {
-            auto offset = reader.ReadUint64();
+            ClientKafka::OnFriendTableLoaded(reader);
         }
         else if (messageId == ClientKafkaMessages::RelationshipTableLoaded) // 17A2790
         {
-            auto offset = reader.ReadUint64();
+            ClientKafka::OnRelationshipTableLoaded(reader);
         }
         else if (messageId == ClientKafkaMessages::PrivateChatLoaded) // 17A2950
         {
-            auto offset = reader.ReadUint64();
+            ClientKafka::OnPrivateChatLoaded(reader);
         }
         else if (messageId == ClientKafkaMessages::PrivateChatStatusLoaded) // 17A2B10
         {
-            auto offset = reader.ReadUint64();
+            ClientKafka::OnPrivateChatStatusLoaded(reader);
         }
         else if (messageId == ClientKafkaMessages::ScriptRegionConsoleLoaded) // 17A2CD0
         {
-            auto instanceId = reader.ReadString();
-            auto offset = reader.ReadUint64();
-
-            printf("ClientKafkaMessages::ScriptRegionConsoleLoaded:\n  instanceId = %s\n  offset = %llu\n",
-                instanceId.c_str(),
-                offset
-            );
+            ClientKafka::OnScriptRegionConsoleLoaded(reader);
         }
         else if (messageId == ClientKafkaMessages::ClientMetric) // 17A2D40
         {
-            auto jsonString = reader.ReadString();
-
-            printf("ClientKafkaMessages::ClientMetric:\n  instanceId = %s\n",
-                jsonString.c_str()
-            );
+            ClientKafka::OnClientMetric(reader);
         }
         else if (messageId == ClientKafkaMessages::RegionHeartbeatMetric) // 17A2EF0
         {
-            auto ownerPersonaID = reader.ReadUUID();
-            auto averageFrameRate = reader.ReadFloat();
-            auto minFrameRate = reader.ReadFloat();
-            auto maxFrameRate = reader.ReadFloat();
-            auto headcount = reader.ReadUint32();
-            auto grid = reader.ReadString();
-            auto ownerPersonaHandle = reader.ReadString();
-            auto experienceHandle = reader.ReadString();
-            auto instanceId = reader.ReadString();
-            auto buildID = reader.ReadString();
-            auto locationHandle = reader.ReadString();
-            auto sansarURI = reader.ReadString();
-            auto compatVersion = reader.ReadString();
-            auto protoVersion = reader.ReadString();
-            auto accessGroup = reader.ReadString();
-            auto configuration = reader.ReadString();
-            auto worldId = reader.ReadString();
-
-            printf("ClientKafkaMessages::RegionHeartbeatMetric:\n  ownerPersonaID = %s\n  averageFrameRate = %f\n  minFrameRate = %f\n  maxFrameRate = %f\n  headcount = %u\n  ownerPersonaHandle = %s\n  experienceHandle = %s\n  instanceId = %s\n  buildID = %s\n  locationHandle = %s\n  sansarURI = %s\n  compatVersion = %s\n  protoVersion = %s\n  accessGroup = %s\n  configuration = %s\n  worldId = %s\n",
-                ownerPersonaID.c_str(),
-                averageFrameRate,
-                minFrameRate,
-                maxFrameRate,
-                headcount,
-                grid.c_str(),
-                ownerPersonaHandle.c_str(),
-                experienceHandle.c_str(),
-                instanceId.c_str(),
-                buildID.c_str(),
-                locationHandle.c_str(),
-                sansarURI.c_str(),
-                compatVersion.c_str(),
-                protoVersion.c_str(),
-                accessGroup.c_str(),
-                configuration.c_str(),
-                worldId.c_str()
-            );
+            ClientKafka::OnRegionHeartbeatMetric(reader);
         }
         else if (messageId == ClientKafkaMessages::RegionEventMetric) // 17A2F60
         {
-            auto ownerPersonaID = reader.ReadUUID();
-            auto eventName = reader.ReadString();
-            auto headcount = reader.ReadUint32();
-            auto grid = reader.ReadString();
-            auto ownerPersonaHandle = reader.ReadString();
-            auto experienceHandle = reader.ReadString();
-            auto instanceId = reader.ReadString();
-            auto buildID = reader.ReadString();
-            auto locationHandle = reader.ReadString();
-            auto sansarURI = reader.ReadString();
-            auto compatVersion = reader.ReadString();
-            auto protoVersion = reader.ReadString();
-            auto accessGroup = reader.ReadString();
-            auto configuration = reader.ReadString();
-            auto worldId = reader.ReadString();
-
-            printf("ClientKafkaMessages::RegionEventMetric:\n  ownerPersonaID = %s\n  eventName = %s\n  headcount = %u\n  ownerPersonaHandle = %s\n  experienceHandle = %s\n  instanceId = %s\n  buildID = %s\n  locationHandle = %s\n  sansarURI = %s\n  compatVersion = %s\n  protoVersion = %s\n  accessGroup = %s\n  configuration = %s\n  worldId = %s\n",
-                ownerPersonaID.c_str(),
-                eventName.c_str(),
-                headcount,
-                grid.c_str(),
-                ownerPersonaHandle.c_str(),
-                experienceHandle.c_str(),
-                instanceId.c_str(),
-                buildID.c_str(),
-                locationHandle.c_str(),
-                sansarURI.c_str(),
-                compatVersion.c_str(),
-                protoVersion.c_str(),
-                accessGroup.c_str(),
-                configuration.c_str(),
-                worldId.c_str()
-            );
+            ClientKafka::OnRegionEventMetric(reader);
         }
         else if (messageId == ClientKafkaMessages::SubscribeScriptRegionConsole) // 17A2FD0
         {
-            auto instanceId = reader.ReadString();
-            auto offset = reader.ReadUint64();
-
-            printf("ClientKafkaMessages::SubscribeScriptRegionConsole:\n  instanceId = %s\n  offset = %llu\n",
-                instanceId.c_str(),
-                offset
-            );
+            ClientKafka::OnSubscribeScriptRegionConsole(reader);
         }
         else if (messageId == ClientKafkaMessages::UnsubscriptScriptRegionConsole) // 17A3040
         {
-            auto instanceId = reader.ReadString();
-
-            printf("ClientKafkaMessages::UnsubscriptScriptRegionConsole:\n  instanceId = %s\n",
-                instanceId.c_str()
-            );
+            ClientKafka::OnUnsubscribeScriptRegionConsole(reader);
         }
         else if (messageId == ClientKafkaMessages::ScriptConsoleLog) // 17A31F0
         {
-            OnScriptConsoleLog(reader);
+            ClientKafka::OnScriptConsoleLog(reader);
         }
         else if (messageId == ClientKafkaMessages::LongLivedNotification) // 17A3260
         {
-            auto id = reader.ReadUUID();
-            auto type = reader.ReadUint32();
-            auto message = reader.ReadString();
-            auto timestamp = reader.ReadUint64();
-
-            printf("ClientKafkaMessages::LongLivedNotification:\n  id = %s\n  type = %u\n  message = %s\n  timestamp = %llu\n",
-                id.c_str(),
-                type,
-                message.c_str(),
-                timestamp
-            );
+            ClientKafka::OnLongLivedNotification(reader);
         }
         else if (messageId == ClientKafkaMessages::LongLivedNotificationDelete) // 17A32D0 
         {
-            auto id = reader.ReadUUID();
-
-            printf("ClientKafkaMessages::LongLivedNotificationDelete:\n  id = %s\n",
-                id.c_str()
-            );
+            ClientKafka::OnLongLivedNotificationDelete(reader);
         }
         else if (messageId == ClientKafkaMessages::LongLivedNotificationsLoaded) // 17A3460
         {
-            auto offset = reader.ReadUint64();
+            ClientKafka::OnLongLivedNotificationsLoaded(reader);
         }
         else if (messageId == ClientKafkaMessages::ShortLivedNotification) // 17A3620
         {
-            auto id = reader.ReadUUID();
-            auto type = reader.ReadUint32();
-            auto message = reader.ReadString();
-            auto timestamp = reader.ReadUint64();
-
-            printf("ClientKafkaMessages::ShortLivedNotification:\n  id = %s\n  type = %u\n  message = %s\n  timestamp = %llu\n",
-                id.c_str(),
-                type,
-                message.c_str(),
-                timestamp
-            );
+            ClientKafka::OnShortLivedNotification(reader);
         }
 
 
@@ -3272,6 +2298,9 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         printf("!!! Caught exception -> %s\n", ex.what());
     }
 }
+
+
+
 
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
