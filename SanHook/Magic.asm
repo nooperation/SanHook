@@ -42,7 +42,7 @@ EXTERN ProcessPacketRecv:PROC
 
 		sub rsp, 24
 
-		mov RCX, RBX
+		mov RCX, RBX				  ; RBX = messageId
 		call ProcessPacketRecv
 
 		add rsp, 24
