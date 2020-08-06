@@ -167,7 +167,6 @@
     <ClInclude Include="EditServer.h" />
     <ClInclude Include="GameWorld.h" />
     <ClInclude Include="Magic.h" />
-    <ClInclude Include="main.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="PacketReader.hpp" />
     <ClInclude Include="RegionRegion.h" />

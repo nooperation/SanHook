@@ -18,7 +18,7 @@
 class Simulation
 {
 public:
-    static void OnInitialTimestamp(PacketReader &reader)
+    static void OnInitialTimestamp(PacketReader &reader)  // 15733C0 
     {
         auto nanoseconds = reader.ReadUint64();
         auto frame = reader.ReadUint64();
@@ -26,7 +26,7 @@ public:
         printf("OnInitialTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
     }
 
-    static void OnTimestamp(PacketReader &reader)
+    static void OnTimestamp(PacketReader &reader) // 1573430 
     {
         auto nanoseconds = reader.ReadUint64();
         auto frame = reader.ReadUint64();
@@ -34,13 +34,13 @@ public:
         printf("OnTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
     }
 
-    static void OnSetWorldGravityMagnitude(PacketReader &reader)
+    static void OnSetWorldGravityMagnitude(PacketReader &reader) // 15734A0
     {
         auto frame = reader.ReadUint64();
         auto magnitude = reader.ReadFloat();
     }
 
-    static void OnActiveRigidBodyUpdate(PacketReader &reader)
+    static void OnActiveRigidBodyUpdate(PacketReader &reader)  // 1573510
     {
         auto componentId = reader.ReadUint64();
         auto frame = reader.ReadUint64();
@@ -61,7 +61,7 @@ public:
         );
     }
 
-    static void OnRigidBodyDeactivated(PacketReader &reader)
+    static void OnRigidBodyDeactivated(PacketReader &reader) // 1573580
     {
         auto componentId = reader.ReadUint64();
         auto frame = reader.ReadUint64();
@@ -76,7 +76,7 @@ public:
         );
     }
 
-    static void OnRigidBodyPropertyChanged(PacketReader &reader)
+    static void OnRigidBodyPropertyChanged(PacketReader &reader) // 15735F0
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -84,7 +84,7 @@ public:
         //auto propertyType = reader.ReadBits(5);
     }
 
-    static void OnRigidBodyDestroyed(PacketReader &reader)
+    static void OnRigidBodyDestroyed(PacketReader &reader)  // 1573660
     {
         auto componentId = reader.ReadUint64();
     }
