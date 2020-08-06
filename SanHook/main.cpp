@@ -1892,19 +1892,23 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         // RegionRegionMessages
         else if (messageId == RegionRegionMessages::DynamicSubscribe) // 1BB19B0
         {
-            On(reader);
+            // No payload
+            0;
         }
         else if (messageId == RegionRegionMessages::DynamicPlayback) // 1BB1B00
         {
-            On(reader);
+            // No payload
+            0;
         }
         else if (messageId == RegionRegionMessages::MasterFrameSync) // 1BB1C50
         {
-            On(reader);
+            auto masterFrame = reader.ReadUint64();
         }
         else if (messageId == RegionRegionMessages::AgentControllerMapping) // 1BB1E10
         {
-            On(reader);
+            auto agentControllerId = reader.ReadUint32();
+            auto animationComponentId = reader.ReadUint64();
+            auto clusterId = reader.ReadUint32();
         }
 
 
@@ -1916,15 +1920,20 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == WorldStateMessages::DestroyWorld) // 1BB59D0
         {
-            On(reader);
+            auto worldId = reader.ReadUint32();
         }
         else if (messageId == WorldStateMessages::RigidBodyComponentInitialState) // 1BB5B90
         {
-            On(reader);
+            auto relativeComponentId = reader.ReadUint32();
+            auto linearVelocity = reader.ReadVectorF(3);
+            auto angularVelocity = reader.ReadVectorF(3);
         }
         else if (messageId == WorldStateMessages::AnimationComponentInitialState) // 1BB5C00
         {
-            On(reader);
+            auto relativeComponentId = reader.ReadUint32();
+            auto velocity = reader.ReadVectorF(3);
+            auto behaviorStateLength = reader.ReadUint32();
+            auto behaviorState = reader.ReadBytes(behaviorStateLength);
         }
         else if (messageId == WorldStateMessages::LoadClusterDefinition) // 1BB5C70
         {
@@ -1932,7 +1941,9 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == WorldStateMessages::ComponentRelativeTransform) // 1BB5CE0
         {
-            On(reader);
+            auto relativePosition = reader.ReadVectorF(3);
+            auto relativeRotation = reader.ReadVectorF(4);
+            auto componentId = reader.ReadUint64();
         }
         else if (messageId == WorldStateMessages::InitiateCluster) // 1BB5D50
         {
@@ -1948,15 +1959,17 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == WorldStateMessages::DestroyObject) // 1BB5EA0
         {
-            On(reader);
+            auto objectId = reader.ReadUint32();
         }
         else if (messageId == WorldStateMessages::DestroySourceIdSpace) // 1BB6060
         {
-            On(reader);
+            auto sourceIdSpace = reader.ReadUint32();
         }
         else if (messageId == WorldStateMessages::CreateCharacterNode) // 1BB6220
         {
-            On(reader);
+            auto nodeType = reader.ReadUint8();
+            auto controllerNodetype = reader.ReadUint8();
+            auto flags = reader.ReadUint8();
         }
         else if (messageId == WorldStateMessages::CreateAgentController) // 1BB6290
         {
@@ -1972,7 +1985,10 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         // ClientVoice
         else if (messageId == ClientVoiceMessages::Login)  // 1DF9BD0
         {
-            On(reader);
+            auto instance = reader.ReadString();
+            auto secret = reader.ReadUint32();
+            auto personaId = reader.ReadUUID();
+            auto slave = reader.ReadUint8();
         }
         else if (messageId == ClientVoiceMessages::LoginReply)  // 1DF9C40
         {
@@ -1980,15 +1996,19 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == ClientVoiceMessages::AudioData)  // 1DF9CB0
         {
-            On(reader);
+            auto volume = reader.ReadUint16();
+            auto dataLength = reader.ReadArray();
         }
         else if (messageId == ClientVoiceMessages::SpeechGraphicsData)  // 1DF9D20
         {
-            On(reader);
+            auto data = reader.ReadArray();
         }
         else if (messageId == ClientVoiceMessages::LocalAudioData)  // 1DF9D90
         {
-            On(reader);
+            auto sequence = reader.ReadUint64();
+            auto instance = reader.ReadString();
+            auto agentControllerId = reader.ReadUint32();
+            auto broadcast = reader.ReadUint8();
         }
         else if (messageId == ClientVoiceMessages::LocalAudioStreamState)  // 1DF9E00
         {
@@ -1996,43 +2016,52 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == ClientVoiceMessages::LocalAudioPosition)  // 1DF9E70
         {
-            On(reader);
+            auto sequence = reader.ReadUint64();
+            auto instance = reader.ReadString();
+            auto position = reader.ReadVectorF(3);
+            auto agentControllerId = reader.ReadUint32();
         }
         else if (messageId == ClientVoiceMessages::LocalAudioMute)  // 1DF9EE0
         {
-            On(reader);
+            auto agentControllerId = reader.ReadUint32();
+            auto shouldMute = reader.ReadUint8();
         }
         else if (messageId == ClientVoiceMessages::LocalSetRegionBroadcasted)  // 1DF9F50
         {
-            On(reader);
+            auto broadcasted = reader.ReadUint8();
         }
         else if (messageId == ClientVoiceMessages::LocalSetMuteAll)  // 1DFA110
         {
-            On(reader);
+            auto muteAll = reader.ReadUint8();
         }
         else if (messageId == ClientVoiceMessages::GroupAudioData)  // 1DFA2D0
         {
-            On(reader);
+            auto group = reader.ReadString();
+            auto user = reader.ReadString();
         }
         else if (messageId == ClientVoiceMessages::LocalTextData)  // 1DFA340
         {
-            On(reader);
+            auto instance = reader.ReadString();
+            auto agentControllerId = reader.ReadUint32();
+            auto data = reader.ReadString();
         }
         else if (messageId == ClientVoiceMessages::MasterInstance)  // 1DFA3B0
         {
-            On(reader);
+            auto instance = reader.ReadUUID();
         }
         else if (messageId == ClientVoiceMessages::VoiceModerationCommand)  // 1DFA540
         {
-            On(reader);
+            auto commandLine = reader.ReadString();
         }
         else if (messageId == ClientVoiceMessages::VoiceModerationCommandResponse)  // 1DFA6F0
         {
-            On(reader);
+            auto message = reader.ReadString();
+            auto success = reader.ReadUint8();
+
         }
         else if (messageId == ClientVoiceMessages::VoiceNotification)  // 1DFA760
         {
-            On(reader);
+            auto notification = reader.ReadString();
         }
 
 
