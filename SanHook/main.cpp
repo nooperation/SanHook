@@ -1627,6 +1627,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 
         messageId = reader.ReadUint32();
 
+        // ClientRegionMessages
         if (messageId == ClientRegionMessages::UserLoginReply) // 1B9B360
         {
             OnUserLoginReply(reader);
@@ -1821,7 +1822,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
 
 
-
+        // RegionRegionMessages
         else if (messageId == RegionRegionMessages::DynamicSubscribe) // 1BB19B0
         {
             On(reader);
@@ -1841,6 +1842,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 
 
 
+        // WorldStateMessages
         else if (messageId == WorldStateMessages::CreateWorld) // 1BB5960
         {
             OnCreateWorld(reader);
@@ -1900,7 +1902,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 
 
 
-
+        // ClientVoice
         else if (messageId == ClientVoiceMessages::Login)  // 1DF9BD0
         {
             On(reader);
@@ -1968,25 +1970,137 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 
 
 
-
-
-        else if (messageId == EditServerMessages::AddUser) // 50155562 // 1984E40 // ok
+        else if (EditServerMessages::UserLogin) // 19B81B0
         {
-            OnEditServerAddUser(reader);
+            On(reader);
         }
-        else if (messageId == EditServerMessages::UserLoginReply) //E227C3E2 //1984DD0 // ok
+        else if (EditServerMessages::UserLoginReply) // 19B8220
         {
             OnEditServerUserLoginReply(reader);
         }
-        else if (messageId == EditServerMessages::WorkspaceReadyReply) // 7D87DBEA //19857A0 // ok
+        else if (EditServerMessages::AddUser) // 19B8290
+        {
+            OnEditServerAddUser(reader);
+        }
+        else if (EditServerMessages::RemoveUser) // 19B8300
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::OpenWorkspace) // 19B84C0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::CloseWorkspace) // 19B8530
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::EditWorkspaceCommand) // 19B86F0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::SaveWorkspace) // 19B88E0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::SaveWorkspaceReply) // 19B8950
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::BuildWorkspace) // 19B89C0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::UpdateWorkspaceClientbuiltBakeData) // 19B8A30
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::BuildWorkspaceCompileReply) // 19B8AA0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::BuildWorkspaceProgressUpdate) // 19B8B10
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::BuildWorkspaceUploadReply) // 19B8B80
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::WorkspaceReadyReply) // 19B8BF0
         {
             OnEditServerWorkspaceReadyReply(reader);
         }
-        else if (messageId == RenderMessages::LightStateChanged) // 0x6951DAEC // 1611170
+        else if (EditServerMessages::SaveWorkspaceSelectionToInventory) // 19B8DB0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::SaveWorkspaceSelectionToInventoryReply) // 19B8E20
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryCreateItem) // 19B8E90
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryDeleteItem) // 19B8F00
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryChangeItemName) // 19B8F70
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryChangeItemState) // 19B8FE0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryModifyItemThumbnailAssetId) // 19B9050
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryModifyItemCapabilities) // 19B90C0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventorySaveItem) // 19B9130
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryUpdateItemReply) // 19B91A0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryItemUpload) // 19B9210
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryItemUploadReply) // 19B9280
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryCreateListing) // 19B92F0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::InventoryCreateListingReply) // 19B9360
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::BeginEditServerSpawn) // 19B93D0
+        {
+            On(reader);
+        }
+        else if (EditServerMessages::EditServerSpawnReady) // 19B9440
+        {
+            On(reader);
+        }
+
+
+        // RenderMessage stuff
+        else if (messageId == RenderMessages::LightStateChanged) // 1611170
         {
             // OnLightStateChanged(reader); 
         }
-
 
 
 
