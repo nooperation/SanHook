@@ -41,13 +41,13 @@
 
 class EditServer {
 public:
-    static void OnUserLogin(PacketReader &reader)
+    static void OnUserLogin(PacketReader &reader) // 19B81B0
     {
         auto authorization = reader.ReadString();
         auto secret = reader.ReadUint32();
     }
 
-    static void OnUserLoginReply(PacketReader &reader)
+    static void OnUserLoginReply(PacketReader &reader) // 19B8220
     {
         auto success = reader.ReadUint8();
         auto sessionId = reader.ReadUint32();
@@ -60,7 +60,7 @@ public:
         );
     }
 
-    static void OnAddUser(PacketReader &reader)
+    static void OnAddUser(PacketReader &reader) // 19B8290
     {
         auto sessionId = reader.ReadUint32();
         auto userName = reader.ReadString();
@@ -73,35 +73,35 @@ public:
         );
     }
 
-    static void OnRemoveUser(PacketReader &reader)
+    static void OnRemoveUser(PacketReader &reader) // 19B8300
     {
         auto sessionId = reader.ReadUint32();
     }
 
-    static void OnOpenWorkspace(PacketReader &reader)
+    static void OnOpenWorkspace(PacketReader &reader) // 19B84C0
     {
         auto worldSourceInventoryItemId = reader.ReadUUID();
         auto worldSourceResourceId = reader.ReadString();
     }
 
-    static void OnCloseWorkspace(PacketReader &reader)
+    static void OnCloseWorkspace(PacketReader &reader) // 19B8530
     {
         auto workspaceId = reader.ReadUint32();
     }
 
-    static void OnEditWorkspaceCommand(PacketReader &reader)
+    static void OnEditWorkspaceCommand(PacketReader &reader) // 19B86F0
     {
         auto commandData = reader.ReadArray();
     }
 
-    static void OnSaveWorkspace(PacketReader &reader)
+    static void OnSaveWorkspace(PacketReader &reader) // 19B88E0
     {
         auto authorization = reader.ReadString();
         auto sessionData = reader.ReadArray();
         auto sceneName = reader.ReadString();
     }
 
-    static void OnSaveWorkspaceReply(PacketReader &reader)
+    static void OnSaveWorkspaceReply(PacketReader &reader) // 19B8950
     {
         auto success = reader.ReadUint8();
         auto itemInventoryId = reader.ReadString();
@@ -109,20 +109,20 @@ public:
         auto itemName = reader.ReadString();
     }
 
-    static void OnBuildWorkspace(PacketReader &reader)
+    static void OnBuildWorkspace(PacketReader &reader) // 19B89C0
     {
         auto authorization = reader.ReadString();
         auto sceneName = reader.ReadString();
         auto start = reader.ReadUint8();
     }
 
-    static void OnUpdateWorkspaceClientBuiltBakeData(PacketReader &reader)
+    static void OnUpdateWorkspaceClientBuiltBakeData(PacketReader &reader) // 19B8A30
     {
         auto authorization = reader.ReadString();
         auto bakeData = reader.ReadArray();
     }
 
-    static void OnBuildWorkspaceCompileReply(PacketReader &reader)
+    static void OnBuildWorkspaceCompileReply(PacketReader &reader) // 19B8AA0
     {
         auto compileStatus = reader.ReadUint8();
         auto isCanceled = reader.ReadUint8();
@@ -130,19 +130,19 @@ public:
         auto nonErrorMessage = reader.ReadStringList();
     }
 
-    static void OnBuildWorkspaceProgressUpdate(PacketReader &reader)
+    static void OnBuildWorkspaceProgressUpdate(PacketReader &reader) // 19B8B10
     {
         auto stage = reader.ReadUint32();
         auto percent = reader.ReadFloat();
     }
 
-    static void OnBuildWorkspaceuploadReply(PacketReader &reader)
+    static void OnBuildWorkspaceuploadReply(PacketReader &reader) // 19B8B80
     {
         auto success = reader.ReadUint8();
         auto worldDefinitionId = reader.ReadString();
     }
 
-    static void OnWorkspaceReadyReply(PacketReader &reader)
+    static void OnWorkspaceReadyReply(PacketReader &reader) // 19B8BF0
     {
         auto workspaceId = reader.ReadUint32();
 
@@ -151,7 +151,7 @@ public:
         );
     }
 
-    static void OnSaveworkspaceSelectionToInventory(PacketReader &reader)
+    static void OnSaveworkspaceSelectionToInventory(PacketReader &reader) // 19B8DB0
     {
         auto authorization = reader.ReadString();
         auto itemName = reader.ReadString();
@@ -160,7 +160,7 @@ public:
         auto parentInstanceId = reader.ReadUint32();
     }
 
-    static void OnSaveWorkspaceSelectionToInventoryReply(PacketReader &reader)
+    static void OnSaveWorkspaceSelectionToInventoryReply(PacketReader &reader) // 19B8E20
     {
         auto itemName = reader.ReadString();
         auto itemId = reader.ReadUUID();
@@ -169,7 +169,7 @@ public:
         auto statusCode = reader.ReadUint32();
     }
 
-    static void OnInventoryCreateItem(PacketReader &reader)
+    static void OnInventoryCreateItem(PacketReader &reader) // 19B8E90
     {
         auto authorization = reader.ReadString();
         auto createRequestId = reader.ReadUUID();
@@ -184,14 +184,14 @@ public:
         auto assetState = reader.ReadUint8();
     }
 
-    static void OnInventoryDeleteItem(PacketReader &reader)
+    static void OnInventoryDeleteItem(PacketReader &reader) // 19B8F00
     {
         auto authorization = reader.ReadString();
         auto deleteRequestId = reader.ReadUUID();
         auto itemToDeleteId = reader.ReadUUID();
     }
 
-    static void OnInventoryChangeItemName(PacketReader &reader)
+    static void OnInventoryChangeItemName(PacketReader &reader) // 19B8F70
     {
         auto authorization = reader.ReadString();
         auto changeNameRequestId = reader.ReadUUID();
@@ -199,7 +199,7 @@ public:
         auto newName = reader.ReadString();
     }
 
-    static void OnInventoryChangeItemState(PacketReader &reader)
+    static void OnInventoryChangeItemState(PacketReader &reader) // 19B8FE0
     {
         auto authorization = reader.ReadString();
         auto changeStateRequestId = reader.ReadUUID();
@@ -207,7 +207,7 @@ public:
         auto newState = reader.ReadUint8();
     }
 
-    static void OnInventoryModifyItemThumbnailAssetId(PacketReader &reader)
+    static void OnInventoryModifyItemThumbnailAssetId(PacketReader &reader) // 19B9050
     {
         auto authorization = reader.ReadString();
         auto modifyThumbnailRequestId = reader.ReadUUID();
@@ -215,7 +215,7 @@ public:
         auto newThumbnailAssetId = reader.ReadString();
     }
 
-    static void OnInventoryModifyItemCapabilities(PacketReader &reader)
+    static void OnInventoryModifyItemCapabilities(PacketReader &reader) // 19B90C0
     {
         auto authorization = reader.ReadString();
         auto modifyCapabilitiesRequestId = reader.ReadUUID();
@@ -224,7 +224,7 @@ public:
         auto capabilitiesToRemove = reader.ReadStringList();
     }
 
-    static void OnInventorySaveItem(PacketReader &reader)
+    static void OnInventorySaveItem(PacketReader &reader) // 19B9130
     {
         auto authorization = reader.ReadString();
         auto saveItemRequestId = reader.ReadUUID();
@@ -236,7 +236,7 @@ public:
         auto resourceVersion = reader.ReadUint64();
     }
 
-    static void OnInventoryUpdateItemReply(PacketReader &reader)
+    static void OnInventoryUpdateItemReply(PacketReader &reader) // 19B91A0
     {
         auto requestId = reader.ReadUUID();
         auto itemId = reader.ReadUUID();
@@ -246,7 +246,7 @@ public:
         auto errorMsg = reader.ReadString();
     }
 
-    static void OnInventoryItemUpload(PacketReader &reader)
+    static void OnInventoryItemUpload(PacketReader &reader) // 19B9210
     {
         auto authorization = reader.ReadString();
         auto itemId = reader.ReadUUID();
@@ -254,7 +254,7 @@ public:
         auto categoryName = reader.ReadString();
     }
 
-    static void OnInventoryItemUploadReply(PacketReader &reader)
+    static void OnInventoryItemUploadReply(PacketReader &reader) // 19B9280
     {
         auto productId = reader.ReadUUID();
         auto status = reader.ReadString();
@@ -264,7 +264,7 @@ public:
         auto errorMessage = reader.ReadString();
     }
 
-    static void OnInventoryCreateListing(PacketReader &reader)
+    static void OnInventoryCreateListing(PacketReader &reader) // 19B92F0
     {
         auto authorization = reader.ReadString();
         auto itemId = reader.ReadUUID();
@@ -273,7 +273,7 @@ public:
         auto bundleName = reader.ReadString();
     }
 
-    static void OnInventoryCreateListingReply(PacketReader &reader)
+    static void OnInventoryCreateListingReply(PacketReader &reader) // 19B9360
     {
         auto canBeListed = reader.ReadUint8();
         auto itemId = reader.ReadUUID();
@@ -281,7 +281,7 @@ public:
         auto categoryName = reader.ReadString();
     }
 
-    static void OnBeginEditServerSpawn(PacketReader &reader)
+    static void OnBeginEditServerSpawn(PacketReader &reader) // 19B93D0
     {
         auto inventoryId = reader.ReadUUID();
         auto personaId = reader.ReadUUID(); // what's this message, from server or to server?
@@ -289,7 +289,7 @@ public:
         auto inventoryName = reader.ReadString();
     }
 
-    static void OnEditServerSpawnReady(PacketReader &reader)
+    static void OnEditServerSpawnReady(PacketReader &reader) // 19B9440
     {
         auto isValid = reader.ReadUint8();
         auto serial = reader.ReadUint32();

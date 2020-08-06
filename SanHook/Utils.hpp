@@ -4,6 +4,9 @@
 #include <cstdio>
 #include <vector>
 
+
+#include <windows.h>
+
 namespace Utils
 {
     void DumpPacket(const char *buff, int len, bool is_sending);
@@ -146,5 +149,46 @@ namespace Utils
         checksum = ~checksum;
         return (uint16_t)checksum;
     }
+    
+    #include <tlhelp32.h>
+    uint8_t *GetBaseAddress()
+    {
+        static uint8_t *kBaseAddress = nullptr;
+
+        if (kBaseAddress != nullptr)
+        {
+            return kBaseAddress;
+        }
+
+        auto process_id = GetCurrentProcessId();
+
+        uintptr_t modBaseAddr = 0;
+        HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPALL, process_id);
+        if (hSnap == INVALID_HANDLE_VALUE)
+        {
+            return 0;
+        }
+
+        MODULEENTRY32 module_entry = { 0 };
+        module_entry.dwSize = sizeof(module_entry);
+
+        if (Module32First(hSnap, &module_entry))
+        {
+            do
+            {
+                if (module_entry.th32ProcessID == process_id)
+                {
+                    kBaseAddress = (uint8_t *)module_entry.modBaseAddr;
+                    CloseHandle(hSnap);
+
+                    return kBaseAddress;
+                }
+            } while (Module32Next(hSnap, &module_entry));
+        }
+
+        CloseHandle(hSnap);
+        return nullptr;
+    }
+
 }
 

@@ -45,6 +45,7 @@
 //void OnClientKafkaMessageLeaveRegion(PacketReader &reader);
 //void OnClientKafkaMessageEnterRegion(PacketReader &reader);
 //void OnClientKafkaMessageLogin(PacketReader &reader);
+
 class ClientKafka
 {
 public:
@@ -219,7 +220,6 @@ public:
 
     static void OnShortLivedNotification(PacketReader &reader)
     {
-
         auto id = reader.ReadUUID();
         auto type = reader.ReadUint32();
         auto message = reader.ReadString();
@@ -235,13 +235,11 @@ public:
 
     static void OnLongLivedNotificationsLoaded(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
     }
 
     static void OnLongLivedNotificationDelete(PacketReader &reader)
     {
-
         auto id = reader.ReadUUID();
 
         printf("ClientKafkaMessages::LongLivedNotificationDelete:\n  id = %s\n",
@@ -251,7 +249,6 @@ public:
 
     static void OnLongLivedNotification(PacketReader &reader)
     {
-
         auto id = reader.ReadUUID();
         auto type = reader.ReadUint32();
         auto message = reader.ReadString();
@@ -267,7 +264,6 @@ public:
 
     static void OnUnsubscribeScriptRegionConsole(PacketReader &reader)
     {
-
         auto instanceId = reader.ReadString();
 
         printf("ClientKafkaMessages::UnsubscriptScriptRegionConsole:\n  instanceId = %s\n",
@@ -277,7 +273,6 @@ public:
 
     static void OnSubscribeScriptRegionConsole(PacketReader &reader)
     {
-
         auto instanceId = reader.ReadString();
         auto offset = reader.ReadUint64();
 
@@ -289,7 +284,6 @@ public:
 
     static void OnRegionEventMetric(PacketReader &reader)
     {
-
         auto ownerPersonaID = reader.ReadUUID();
         auto eventName = reader.ReadString();
         auto headcount = reader.ReadUint32();
@@ -327,7 +321,6 @@ public:
 
     static void OnRegionHeartbeatMetric(PacketReader &reader)
     {
-
         auto ownerPersonaID = reader.ReadUUID();
         auto averageFrameRate = reader.ReadFloat();
         auto minFrameRate = reader.ReadFloat();
@@ -369,7 +362,6 @@ public:
 
     static void OnClientMetric(PacketReader &reader)
     {
-
         auto jsonString = reader.ReadString();
 
         printf("ClientKafkaMessages::ClientMetric:\n  instanceId = %s\n",
@@ -379,7 +371,6 @@ public:
 
     static void OnScriptRegionConsoleLoaded(PacketReader &reader)
     {
-
         auto instanceId = reader.ReadString();
         auto offset = reader.ReadUint64();
 
@@ -391,55 +382,46 @@ public:
 
     static void OnPrivateChatStatusLoaded(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
     }
 
     static void OnPrivateChatLoaded(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
     }
 
     static void OnRelationshipTableLoaded(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
     }
 
     static void OnFriendTableLoaded(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
     }
 
     static void OnPresenceUpdateFanoutLoaded(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
     }
 
     static void OnFriendResponseLoaded(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
     }
 
     static void OnFriendRequestLoaded(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
     }
 
     static void OnInventoryLoaded(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
     }
 
     static void OnInventoryItemDelete(PacketReader &reader)
     {
-
         auto id = reader.ReadString();
         auto offset = reader.ReadUint64();
 
@@ -451,20 +433,12 @@ public:
 
     static void OnInventoryItemRevision(PacketReader &reader)
     {
-
         auto asset_id = reader.ReadString();
         auto asset_type = reader.ReadString();
         auto asset_hint = reader.ReadUint32();
         auto thumbnail_asset_id = reader.ReadString();
         auto license_asset_id = reader.ReadString();
-
-        auto capabilitiesLength = reader.ReadUint32();
-        auto capabilities = std::vector<std::string>(capabilitiesLength);
-        for (size_t i = 0; i < capabilitiesLength; i++)
-        {
-            auto capability = reader.ReadString();
-            capabilities.push_back(capability);
-        }
+        auto capabilities = reader.ReadStringList();
 
         printf("ClientKafkaMessages::InventoryItemRevision:\n  asset_id = %s\n  asset_type = %s\n  asset_hint = %u\n  thumbnail_asset_id = %s\n  license_asset_id = %s\n  capabilities =",
             asset_id.c_str(),
@@ -481,14 +455,7 @@ public:
 
     static void OnInventoryItemCapabilities(PacketReader &reader)
     {
-
-        auto capabilitiesLength = reader.ReadUint32();
-        std::vector<std::string> capabilities(capabilitiesLength);
-        for (size_t i = 0; i < capabilitiesLength; i++)
-        {
-            auto capability = reader.ReadString();
-            capabilities.push_back(capability);
-        }
+        auto capabilities = reader.ReadStringList();
 
         printf("ClientKafkaMessages::InventoryItemCapabilities:\n");
         for (auto &item : capabilities)
@@ -499,7 +466,6 @@ public:
 
     static void OnRelationshipOperation(PacketReader &reader)
     {
-
         auto other = reader.ReadUUID();
         auto operation = reader.ReadUint32();
 
@@ -511,7 +477,6 @@ public:
 
     static void OnFriendTable(PacketReader &reader)
     {
-
         auto fromPersonaId = reader.ReadUUID();
         auto toPersonaId = reader.ReadUUID();
         auto status = reader.ReadUint32();
@@ -525,7 +490,6 @@ public:
 
     static void OnFriendResponseStatus(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
         auto status = reader.ReadUint32();
 
@@ -537,7 +501,6 @@ public:
 
     static void OnFriendResponse(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();;
         auto fromPersonaId = reader.ReadUUID();
         auto toPersonaId = reader.ReadUUID();
@@ -559,7 +522,6 @@ public:
 
     static void OnFriendRequestStatus(PacketReader &reader)
     {
-
         auto offset = reader.ReadUint64();
         auto status = reader.ReadUint32();
 
@@ -588,7 +550,6 @@ public:
 
     static void OnLeaveRegion(PacketReader &reader)
     {
-
         auto regionAddress = reader.ReadString();
 
         printf("ClientKafkaMessages::LeaveRegion '%s'\n", regionAddress.c_str());

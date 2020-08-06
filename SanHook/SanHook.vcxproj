@@ -162,6 +162,7 @@
     <ClInclude Include="Audio.h" />
     <ClInclude Include="bitReader.hpp" />
     <ClInclude Include="ClientKafka.h" />
+    <ClInclude Include="ClientRegion.h" />
     <ClInclude Include="ClientVoice.h" />
     <ClInclude Include="EditServer.h" />
     <ClInclude Include="GameWorld.h" />

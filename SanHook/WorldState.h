@@ -26,7 +26,7 @@ class WorldState
 {
 public:
 
-    static void OnCreateWorld(PacketReader &reader)
+    static void OnCreateWorld(PacketReader &reader) // 1BB5960
     {
         auto worldDefinition = reader.ReadUUID();
         auto startingClusterId = reader.ReadUint32();
@@ -39,26 +39,26 @@ public:
         );
     }
 
-    static void OnDestroyWorld(PacketReader &reader)
+    static void OnDestroyWorld(PacketReader &reader) // 1BB59D0
     {
         auto worldId = reader.ReadUint32();
     }
 
-    static void OnRigidBodyComponentInitialState(PacketReader &reader)
+    static void OnRigidBodyComponentInitialState(PacketReader &reader) // 1BB5B90
     {
         auto relativeComponentId = reader.ReadUint32();
         auto linearVelocity = reader.ReadVectorF(3);
         auto angularVelocity = reader.ReadVectorF(3);
     }
 
-    static void OnAnimationComponentInitialState(PacketReader &reader)
+    static void OnAnimationComponentInitialState(PacketReader &reader) // 1BB5C00
     {
         auto relativeComponentId = reader.ReadUint32();
         auto velocity = reader.ReadVectorF(3);
         auto behaviorState = reader.ReadArray();
     }
 
-    static void OnLoadClusterDefinition(PacketReader &reader)
+    static void OnLoadClusterDefinition(PacketReader &reader) // 1BB5C70
     {
         auto resourceId = reader.ReadUUID();
         auto clusterId = reader.ReadUint32();
@@ -69,33 +69,27 @@ public:
         );
     }
 
-    static void OnComponentRelativeTransform(PacketReader &reader)
+    static void OnComponentRelativeTransform(PacketReader &reader) // 1BB5CE0
     {
         auto relativePosition = reader.ReadVectorF(3);
         auto relativeRotation = reader.ReadVectorF(4);
         auto componentId = reader.ReadUint64();
     }
 
-    static void OnInitiateCluster(PacketReader &reader)
+    static void OnInitiateCluster(PacketReader &reader) // 1BB5D50
     {
         auto clusterId = reader.ReadUint32();
         auto frame = reader.ReadUint64();
         auto rigidBodyInitialStatesLength = reader.ReadUint32();
         for (size_t i = 0; i < rigidBodyInitialStatesLength; i++)
         {
-            // OnRigidBodyComponentInitialState(reader);
-            auto relativeComponentId = reader.ReadUint32();
-            auto linearVelocity = reader.ReadVectorF(3);
-            auto angularVelocity = reader.ReadVectorF(3);
+            OnRigidBodyComponentInitialState(reader);
         }
 
         auto animationInitialStatesLength = reader.ReadUint32();
         for (size_t i = 0; i < animationInitialStatesLength; i++)
         {
-            // OnAnimationComponentInitialState(reader);
-            auto relativeComponentId = reader.ReadUint32();
-            auto velocity = reader.ReadVectorF(3);
-            auto behaviorState = reader.ReadArray();
+            OnAnimationComponentInitialState(reader);
         }
 
         printf("OnInitiateCluster:\n  clusterId = %d\n  frame = %llu\n  rigidBodyInitialStatesLength = %u\n  animationInitialStatesLength = %u\n",
@@ -106,7 +100,7 @@ public:
         );
     }
 
-    static void OnCreateClusterViaDefinition(PacketReader &reader)
+    static void OnCreateClusterViaDefinition(PacketReader &reader) // 1BB5DC0
     {
         auto clusterId = reader.ReadUint32();
         auto startingObjectId = reader.ReadUint32();
@@ -122,7 +116,7 @@ public:
         );
     }
 
-    static void OnDestroyCluster(PacketReader &reader)
+    static void OnDestroyCluster(PacketReader &reader) // 1BB5E30
     {
         auto frame = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
@@ -133,24 +127,24 @@ public:
         );
     }
 
-    static void OnDestroyObject(PacketReader &reader)
+    static void OnDestroyObject(PacketReader &reader) // 1BB5EA0
     {
         auto objectId = reader.ReadUint32();
     }
 
-    static void OnDestroySourceIdSpace(PacketReader &reader)
+    static void OnDestroySourceIdSpace(PacketReader &reader) // 1BB6060
     {
         auto sourceIdSpace = reader.ReadUint32();
     }
 
-    static void OnCreateCharacterNode(PacketReader &reader)
+    static void OnCreateCharacterNode(PacketReader &reader) // 1BB6220
     {
         auto nodeType = reader.ReadUint8();
         auto controllerNodetype = reader.ReadUint8();
         auto flags = reader.ReadUint8();
     }
 
-    static void OnCreateAgentController(PacketReader &reader)
+    static void OnCreateAgentController(PacketReader &reader) // 1BB6290
     {
         auto sessionId = reader.ReadUint32();
         auto clusterId = reader.ReadUint32();
@@ -160,9 +154,7 @@ public:
         auto characterNodesLength = reader.ReadUint32();
         for (size_t i = 0; i < characterNodesLength; i++)
         {
-            auto nodeType = reader.ReadUint8();
-            auto controllerNodeType = reader.ReadUint8();
-            auto flags = reader.ReadUint8();
+            OnCreateCharacterNode(reader);
         }
 
         auto frame = reader.ReadUint64();
@@ -181,7 +173,7 @@ public:
         );
     }
 
-    static void OnDestroyAgentController(PacketReader &reader)
+    static void OnDestroyAgentController(PacketReader &reader) // 1BB6300
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();

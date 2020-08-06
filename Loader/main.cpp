@@ -118,7 +118,6 @@ uint64_t GetBaseAddress(DWORD process_id)
     return 0;
 }
 
-
 int main()
 {
     PROCESS_INFORMATION process_info = {};
@@ -128,8 +127,9 @@ int main()
     auto result_create_process = CreateProcess(
         TEXT("C:\\Program Files\\Sansar\\Client\\SansarClient.exe"),
         //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -sceneUri sansar://sansar.com/experience/nopnop/flatt"),
-        (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false"),
-        //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -system.maxCores 1"),
+      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -audio.attenuationVoiceFactor 0.01 "),
+        (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 0"),
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -system.maxCores 1"),
         nullptr,
         nullptr,
         false,
@@ -161,6 +161,7 @@ int main()
         printf("OK\n");
     }
 
+
     printf("Resuming process...\n");
     ResumeThread(process_info.hThread);
 
@@ -180,10 +181,10 @@ int main()
     uint8_t gravityHack[] = {
         0xB8, 0x14, 0xAE, 0xE7, 0x3F, 0x90, 0x90
     };
-    *((float*)&gravityHack[1]) = 2.0f;
+   // *((float*)&gravityHack[1]) = 2.0f;
 
-    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17533DA), gravityHack, sizeof(gravityHack), &written);
-    printf("Written to %X: %d bytes\n", base + 0x17533DA, written);
+    //WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17533DA), gravityHack, sizeof(gravityHack), &written);
+    //printf("Written to %X: %d bytes\n", base + 0x17533DA, written);
 
 
     ///////////////////////////////////

@@ -36,7 +36,6 @@ public:
 
     static void OnSetWorldGravityMagnitude(PacketReader &reader)
     {
-
         auto frame = reader.ReadUint64();
         auto magnitude = reader.ReadFloat();
     }
@@ -62,7 +61,6 @@ public:
         );
     }
 
-
     static void OnRigidBodyDeactivated(PacketReader &reader)
     {
         auto componentId = reader.ReadUint64();
@@ -80,7 +78,6 @@ public:
 
     static void OnRigidBodyPropertyChanged(PacketReader &reader)
     {
-
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
         auto propertyData = reader.ReadBytes(16);
@@ -89,7 +86,6 @@ public:
 
     static void OnRigidBodyDestroyed(PacketReader &reader)
     {
-
         auto componentId = reader.ReadUint64();
     }
 };

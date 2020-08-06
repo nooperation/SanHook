@@ -23,7 +23,7 @@ class Audio
 {
 public:
 
-    static void OnLoadSound(PacketReader &reader)
+    static void OnLoadSound(PacketReader &reader) // 15B6490
     {
         auto resourceId = reader.ReadUUID();
 
@@ -32,16 +32,13 @@ public:
         );
     }
 
-
-    static void OnPlaySound(PacketReader &reader)
+    static void OnPlaySound(PacketReader &reader) // 15B6620
     {
         auto resourceId = reader.ReadUUID();
         auto createPlayHandleId = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
-        auto positionX = reader.ReadFloat();
-        auto positionY = reader.ReadFloat();
-        auto positionZ = reader.ReadFloat();
+        auto position = reader.ReadVectorF(3);
         auto loudness = reader.ReadFloat();
         auto pitch = reader.ReadFloat();
         auto playOffset = reader.ReadUint32();
@@ -52,7 +49,7 @@ public:
             createPlayHandleId,
             frame,
             componentId,
-            positionX, positionY, positionZ,
+            position[0], position[1], position[2],
             loudness,
             pitch,
             playOffset,
@@ -60,8 +57,49 @@ public:
         );
     }
 
+    static void OnPlayStream(PacketReader &reader) // 15B6690
+    {
+        auto streamChannel = reader.ReadUint8();
+        auto createPlayHandleId = reader.ReadUint64();
+        auto componentId = reader.ReadUint64();
+        auto position = reader.ReadVectorF(3);
+        auto loudness = reader.ReadFloat();
+        auto pitch = reader.ReadFloat();
+        auto flags = reader.ReadUint8();
+    }
 
-    static void OnSetLoudness(PacketReader &reader)
+    static void OnStopBroadcastingSound(PacketReader &reader) // 15B6700
+    {
+        auto playHandleId = reader.ReadUint64();
+    }
+
+    static void OnSetAudioStream(PacketReader &reader) // 15B68C0
+    {
+        auto url = reader.ReadString();
+        auto rebroadcast = reader.ReadUint8();
+    }
+
+    static void OnSetMediaSource(PacketReader &reader)  // 15B6930
+    {
+        auto url = reader.ReadString();
+        auto mediaWidth = reader.ReadUint32();
+        auto mediaHeight = reader.ReadUint32();
+        auto rebroadcast = reader.ReadUint8();
+    }
+
+    static void OnPerformMediaAction(PacketReader &reader)  // 15B69A0
+    {
+        auto mediaAction = reader.ReadUint32();
+        auto rebroadcast = reader.ReadUint8();
+    }
+
+    static void OnStopSound(PacketReader &reader) // 15B6A10
+    {
+        auto playHandleId = reader.ReadUint64();
+        auto immediate = reader.ReadUint8();
+    }
+
+    static void OnSetLoudness(PacketReader &reader) // 15B6A80
     {
         auto playHandleId = reader.ReadUint32();
         auto loudness = reader.ReadFloat();
@@ -72,7 +110,7 @@ public:
         );
     }
 
-    static void OnSetPitch(PacketReader &reader)
+    static void OnSetPitch(PacketReader &reader) // 15B6AF0
     {
         auto playHandleId = reader.ReadUint32();
         auto pitch = reader.ReadFloat();
@@ -82,55 +120,4 @@ public:
             pitch
         );
     }
-
-    static void OnPlayStream(PacketReader &reader)
-    {
-
-        auto streamChannel = reader.ReadUint8();
-        auto createPlayHandleId = reader.ReadUint64();
-        auto componentId = reader.ReadUint64();
-        auto position_x = reader.ReadFloat();
-        auto position_y = reader.ReadFloat();
-        auto position_z = reader.ReadFloat();
-        auto loudness = reader.ReadFloat();
-        auto pitch = reader.ReadFloat();
-        auto flags = reader.ReadUint8();
-    }
-
-    static void OnStopBroadcastingSound(PacketReader &reader)
-    {
-
-        auto playHandleId = reader.ReadUint64();
-    }
-
-    static void OnSetAudioStream(PacketReader &reader)
-    {
-
-        auto url = reader.ReadString();
-        auto rebroadcast = reader.ReadUint8();
-    }
-
-    static void OnSetMediaSource(PacketReader &reader)
-    {
-
-        auto url = reader.ReadString();
-        auto mediaWidth = reader.ReadUint32();
-        auto mediaHeight = reader.ReadUint32();
-        auto rebroadcast = reader.ReadUint8();
-    }
-
-    static void OnPerformMediaAction(PacketReader &reader)
-    {
-
-        auto mediaAction = reader.ReadUint32();
-        auto rebroadcast = reader.ReadUint8();
-    }
-
-    static void OnStopSound(PacketReader &reader)
-    {
-
-        auto playHandleId = reader.ReadUint64();
-        auto immediate = reader.ReadUint8();
-    }
 };
-

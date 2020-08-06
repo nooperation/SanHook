@@ -27,7 +27,7 @@
 class ClientVoice 
 {
 public:
-    static void OnLogin(PacketReader &reader)
+    static void OnLogin(PacketReader &reader)  // 1DF9BD0
     {
         auto instance = reader.ReadString();
         auto secret = reader.ReadUint32();
@@ -35,7 +35,7 @@ public:
         auto slave = reader.ReadUint8();
     }
 
-    static void OnLoginReply(PacketReader &reader)
+    static void OnLoginReply(PacketReader &reader)  // 1DF9C40
     {
         auto success = reader.ReadUint8();
         auto message = reader.ReadString();
@@ -43,18 +43,18 @@ public:
         printf("OnClientVoiceLoginReply: Success=%d: %s\n", success, message.c_str());
     }
 
-    static void OnAudioData(PacketReader &reader)
+    static void OnAudioData(PacketReader &reader)  // 1DF9CB0
     {
         auto volume = reader.ReadUint16();
         auto data = reader.ReadArray();
     }
 
-    static void OnSpeechGraphicsData(PacketReader &reader)
+    static void OnSpeechGraphicsData(PacketReader &reader) // 1DF9D20
     {
         auto data = reader.ReadArray();
     }
 
-    static void OnLocalAudioData(PacketReader &reader)
+    static void OnLocalAudioData(PacketReader &reader) // 1DF9D90
     {
         auto sequence = reader.ReadUint64();
         auto instance = reader.ReadString();
@@ -62,7 +62,7 @@ public:
         auto broadcast = reader.ReadUint8();
     }
 
-    static void OnLocalAudioStreamState(PacketReader &reader)
+    static void OnLocalAudioStreamState(PacketReader &reader) // 1DF9E00
     {
         auto instance = reader.ReadString();
         auto agentControllerId = reader.ReadUint32();
@@ -77,7 +77,7 @@ public:
         );
     }
 
-    static void OnLocalAudioPosition(PacketReader &reader)
+    static void OnLocalAudioPosition(PacketReader &reader) // 1DF9E70
     {
         auto sequence = reader.ReadUint64();
         auto instance = reader.ReadString();
@@ -85,52 +85,52 @@ public:
         auto agentControllerId = reader.ReadUint32();
     }
 
-    static void OnLocalAudioMute(PacketReader &reader)
+    static void OnLocalAudioMute(PacketReader &reader) // 1DF9EE0
     {
         auto agentControllerId = reader.ReadUint32();
         auto shouldMute = reader.ReadUint8();
     }
 
-    static void OnLocalSetRegionBroadcasted(PacketReader &reader)
+    static void OnLocalSetRegionBroadcasted(PacketReader &reader) // 1DF9F50
     {
         auto broadcasted = reader.ReadUint8();
     }
 
-    static void OnLocalSetMuteAll(PacketReader &reader)
+    static void OnLocalSetMuteAll(PacketReader &reader)  // 1DFA110
     {
         auto muteAll = reader.ReadUint8();
     }
 
-    static void OnGroupAudioData(PacketReader &reader)
+    static void OnGroupAudioData(PacketReader &reader) // 1DFA2D0
     {
         auto group = reader.ReadString();
         auto user = reader.ReadString();
     }
 
-    static void OnLocalTextData(PacketReader &reader)
+    static void OnLocalTextData(PacketReader &reader)  // 1DFA340
     {
         auto instance = reader.ReadString();
         auto agentControllerId = reader.ReadUint32();
         auto data = reader.ReadString();
     }
 
-    static void OnMasterInstance(PacketReader &reader)
+    static void OnMasterInstance(PacketReader &reader) // 1DFA3B0
     {
         auto instance = reader.ReadUUID();
     }
 
-    static void OnVoiceModerationCommand(PacketReader &reader)
+    static void OnVoiceModerationCommand(PacketReader &reader)  // 1DFA540
     {
         auto commandLine = reader.ReadString();
     }
 
-    static void OnVoiceModerationCommandResponse(PacketReader &reader)
+    static void OnVoiceModerationCommandResponse(PacketReader &reader)  // 1DFA6F0
     {
         auto message = reader.ReadString();
         auto success = reader.ReadUint8();
     }
 
-    static void OnVoiceNotification(PacketReader &reader)
+    static void OnVoiceNotification(PacketReader &reader)  // 1DFA760
     {
         auto notification = reader.ReadString();
     }
