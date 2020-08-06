@@ -162,11 +162,14 @@
     <ClInclude Include="Audio.h" />
     <ClInclude Include="bitReader.hpp" />
     <ClInclude Include="ClientKafka.h" />
+    <ClInclude Include="ClientVoice.h" />
+    <ClInclude Include="EditServer.h" />
     <ClInclude Include="GameWorld.h" />
     <ClInclude Include="Magic.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="PacketReader.hpp" />
+    <ClInclude Include="Render.h" />
     <ClInclude Include="Simulation.h" />
     <ClInclude Include="Utils.hpp" />
   </ItemGroup>
