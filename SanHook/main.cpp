@@ -2337,7 +2337,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == AgentControllerMessages::RequestBehaviorStateUpdate)  // 170FB80
         {
-            AgentController::OnRequestBehaviorStateUpdate();
+            AgentController::OnRequestBehaviorStateUpdate(reader);
         }
         else if (messageId == AgentControllerMessages::AttachToCharacterNode)  // 170FBF0
         {
@@ -2393,7 +2393,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == AgentControllerMessages::RequestSitOnObject)  // 1710420
         {
-            AgentController::OnRequestSitOnObject();
+            AgentController::OnRequestSitOnObject(reader);
         }
         else if (messageId == AgentControllerMessages::SitOnObject)  // 1710490
         {
@@ -2409,7 +2409,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == AgentControllerMessages::RequestSetAgentFiltersBody)  // 17105E0
         {
-            AgentController::OnRequestSetAgentfiltersBody();
+            AgentController::OnRequestSetAgentfiltersBody(reader);
         }
         else if (messageId == AgentControllerMessages::SetCharacterUserProperty)  // 1710650
         {

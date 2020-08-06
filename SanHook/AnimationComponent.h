@@ -80,6 +80,34 @@ public:
         );
     }
 
+    static void OnCharacterBehaviorInternalState(PacketReader &reader)
+    {
+        // TODO: Nope, not handling this one
+
+        auto componentId = reader.ReadUint64();
+        auto frame = reader.ReadUint64();
+
+        auto overridesLength = reader.ReadUint32();
+        /* auto overridesData = reader.ReadBytes(overridesLength);
+
+         auto numSlotStates = reader.ReadUint32();
+         for (size_t i = 0; i < numSlotStates; i++)
+         {
+             auto slotState = reader.ReadUint8();
+         }
+
+         auto stateDataLength = reader.ReadUint32();
+         auto stateData = reader.ReadBytes(stateDataLength);
+
+         auto isPlaying = reader.ReadUint8();*/
+
+        printf("AnimationComponentMessages::BehaviorInternalState:\n  componentId = %llu\n  frame = %llu\n  overridesLength = %u\n",
+            componentId,
+            frame,
+            overridesLength
+        );
+    }
+
     static void OnBehaviorInternalState(PacketReader &reader)
     {
         // TODO: Nope, not handling this one
@@ -129,11 +157,85 @@ public:
 
     static void OnBehaviorStateUpdate(PacketReader &reader)
     {
-
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
-        auto groundComponentId = reader.ReadUint64();
-        auto position = reader.ReadBits(0x48);
+        auto exceptAgentControllerId = reader.ReadUint32();
+
+        printf("AnimationComponentMessages::BehaviorStateUpdate:\n  frame = %llu\n  componentId = %llu\n  exceptAgentControllerId = %u\n",
+            frame,
+            componentId,
+            exceptAgentControllerId
+        );
+
+        return;
+        /*
+        // Nah not going to touch this one...
+
+        auto floatsLength = 0;
+        for (size_t i = 0; i < floatsLength; i++)
+        {
+            auto internalId = reader.ReadUint16();
+            auto value = reader.ReadFloat();
+        }
+
+        auto vectorsLength = 0;
+        for (size_t i = 0; i < vectorsLength; i++)
+        {
+            auto internalId = reader.ReadUint16();
+            auto value_x = reader.ReadFloat();
+            auto value_y = reader.ReadFloat();
+            auto value_z = reader.ReadFloat();
+        }
+
+        auto quaternionsLength = reader.ReadUint32();
+        for (size_t i = 0; i < quaternionsLength; i++)
+        {
+            auto internalId = reader.ReadUint16();
+            auto value_x = reader.ReadFloat();
+            auto value_y = reader.ReadFloat();
+            auto value_z = reader.ReadFloat();
+            auto value_w = reader.ReadFloat();
+        }
+
+        auto int8sLength = reader.ReadUint32();
+        for (size_t i = 0; i < int8sLength; i++)
+        {
+            auto internalId = reader.ReadUint16();
+            auto value = reader.ReadUint8();
+        }
+
+        auto boolsLength = reader.ReadUint32();
+        for (size_t i = 0; i < boolsLength; i++)
+        {
+            auto internalId = reader.ReadUint16();
+            auto value = reader.ReadUint8();
+        }
+
+        auto internalEventIds = reader.ReadUint32();
+        for (size_t i = 0; i < internalEventIds; i++)
+        {
+            // tbd
+            auto internalId = reader.ReadUint16();
+            auto value = reader.ReadUint8();
+        }
+
+        auto animationAction = reader.ReadUint8();
+
+        auto nodeLocalTimesLength = reader.ReadUint32();
+        for (size_t i = 0; i < nodeLocalTimesLength; i++)
+        {
+            auto nodeId = reader.ReadUint16();
+            auto value = reader.ReadUint32();
+        }
+
+        auto nodeCropValuesLength = reader.ReadUint32();
+        for (size_t i = 0; i < nodeCropValuesLength; i++)
+        {
+            auto nodeId = reader.ReadUint16();
+            auto startValue = reader.ReadFloat();
+            auto endValue = reader.ReadFloat();
+        }
+        */
     }
 
     static void OnAnimationOverride(PacketReader &reader)

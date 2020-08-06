@@ -167,6 +167,7 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="PacketReader.hpp" />
+    <ClInclude Include="Simulation.h" />
     <ClInclude Include="Utils.hpp" />
   </ItemGroup>
   <ItemGroup>

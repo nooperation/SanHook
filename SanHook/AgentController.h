@@ -261,7 +261,6 @@ public:
 
     static void OnRequestDetachFromCharacterNode(PacketReader &reader)
     {
-        // double check...
         OnDetachFromCharacterNode(reader);
     }
 
@@ -335,9 +334,9 @@ public:
         );
     }
 
-    static void OnRequestSitOnObject()
+    static void OnRequestSitOnObject(PacketReader &reader)
     {
-        // No palyload
+        OnSitOnObject(reader);
     }
 
     static void OnSitOnObject(PacketReader &reader)
@@ -390,9 +389,9 @@ public:
         );
     }
 
-    static void OnRequestSetAgentfiltersBody()
+    static void OnRequestSetAgentfiltersBody(PacketReader &reader)
     {
-        // No palyload
+        OnSetAgentFiltersBody(reader);
     }
 
     static void OnSetCharacterUserProperty(PacketReader &reader)
