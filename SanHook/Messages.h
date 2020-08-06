@@ -97,12 +97,16 @@ public:
     static const uint32_t UpdateRuntimeInventorySettings = 0x371D99C1;
 };
 
+class RegionRegionMessages {
+public:
+    static const uint32_t  DynamicSubscribe = 0x513700E2;
+    static const uint32_t  DynamicPlayback = 0xE87C89BB;
+    static const uint32_t  MasterFrameSync = 0x5A4AFA33;
+    static const uint32_t  AgentControllerMapping = 0xBB5865E8;
+};
+
 class WorldStateMessages {
 public:
-    static const uint32_t DynamicPlayback = 0x1505C6D8;
-    static const uint32_t MasterFrameSync = 0x5A4AFA33;
-    static const uint32_t AgentControllerMapping = 0xBB5865E8;
-
     static const uint32_t CreateWorld = 0x685B436C;
     static const uint32_t DestroyWorld = 0x20C45982;
     static const uint32_t RigidBodyComponentInitialState = 0x065C105B;
@@ -212,10 +216,11 @@ public:
     static const uint32_t InitialChunkSubscribed = 0xB4E1AB7B;
     static const uint32_t ClientKickNotification = 0x4B68A51C;
     static const uint32_t ClientSmiteNotification = 0x58003034;
-    static const uint32_t ClientNotification = 0x6188A537;
+    static const uint32_t ClientMuteNotification = 0x6188A537;
     static const uint32_t ClientVoiceBroadcastStartNotification = 0x7E28AEAF;
     static const uint32_t ClientVoiceBroadcastStopNotification = 0xC33DE58B;
-    static const uint32_t CreateRegionBroadcasted = 0x87341F77;
+    static const uint32_t ClientRuntimeInventoryUpdatedNotification = 0x9643B9C3;
+    static const uint32_t ClientSetRegionBroadcasted = 0x87341F77;
     static const uint32_t SubscribeCommand = 0xABDA80C7;
     static const uint32_t UnsubscribeCommand = 0xA36E9F9C;
     static const uint32_t ClientCommand = 0xB87F9C66;

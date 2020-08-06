@@ -26,6 +26,7 @@ std::string GetAddressFromAddr(const sockaddr *addr);
 #include "AnimationComponent.h"
 #include "GameWorld.h"
 #include "AgentController.h"
+#include "Audio.h"
 #include "Utils.hpp"
 
 #include <thread>
@@ -1443,44 +1444,6 @@ void OnTimestamp(PacketReader &reader)
 }
 
 
-
-void OnLoadSound(PacketReader &reader)
-{
-    auto resourceId = reader.ReadUUID();
-
-    printf("AudioMessages::LoadSound:\n  resourceId = %s\n",
-        resourceId.c_str()
-    );
-}
-
-
-void OnPlaySound(PacketReader &reader)
-{
-    auto resourceId = reader.ReadUUID();
-    auto createPlayHandleId = reader.ReadUint64();
-    auto frame = reader.ReadUint64();
-    auto componentId = reader.ReadUint64();
-    auto positionX = reader.ReadFloat();
-    auto positionY = reader.ReadFloat();
-    auto positionZ = reader.ReadFloat();
-    auto loudness = reader.ReadFloat();
-    auto pitch = reader.ReadFloat();
-    auto playOffset = reader.ReadUint32();
-    auto flags = reader.ReadUint8();
-
-    printf("AudioMessages::PlaySound:\n  resourceId = %s\n  createPlayHandleId = %llu\n  frame = %llu\n  componentId = %llu\n  position = <%f, %f, %f>\n  loudness = %f\n  pitch = %f\n  playOffset = %u\n  flags = %u\n",
-        resourceId.c_str(),
-        createPlayHandleId,
-        frame,
-        componentId,
-        positionX, positionY, positionZ,
-        loudness,
-        pitch,
-        playOffset,
-        flags
-    );
-}
-
 void OnRigidBodyDeactivated(PacketReader &reader)
 {
     auto componentId = reader.ReadUint64();
@@ -1552,28 +1515,6 @@ void OnDestroyAgentController(PacketReader &reader)
     printf("WorldStateMessages::DestroyAgentController:\n  frame = %llu\n  agentControllerId = %u\n",
         frame,
         agentControllerId
-    );
-}
-
-void OnSetLoudness(PacketReader &reader)
-{
-    auto playHandleId = reader.ReadUint32();
-    auto loudness = reader.ReadFloat();
-
-    printf("AudioMessages::SetLoudness:\n  playHandleId = %u\n  loudness = %f\n",
-        playHandleId,
-        loudness
-    );
-}
-
-void OnSetPitch(PacketReader &reader)
-{
-    auto playHandleId = reader.ReadUint32();
-    auto pitch = reader.ReadFloat();
-
-    printf("AudioMessages::SetPitch:\n  playHandleId = %u\n  pitch = %f\n",
-        playHandleId,
-        pitch
     );
 }
 
@@ -1686,50 +1627,349 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 
         messageId = reader.ReadUint32();
 
-        if (messageId == ClientRegionMessages::UserLoginReply)
+        if (messageId == ClientRegionMessages::UserLoginReply) // 1B9B360
         {
             OnUserLoginReply(reader);
         }
-        else if (messageId == ClientRegionMessages::AddUser)
+        else if (messageId == ClientRegionMessages::UserLoginReply) // 1B9B520
+        {
+            OnUserLoginReply(reader);
+        }
+        else if (messageId == ClientRegionMessages::AddUser) // 1B9B590
         {
             OnAddUser(reader);
         }
-        else if (messageId == ClientRegionMessages::ChatMessageToClient)
+        else if (messageId == ClientRegionMessages::RemoveUser) // 1B9B600
+        {
+            OnRemoveUser(reader);
+        }
+        else if (messageId == ClientRegionMessages::RenameUser) // 1B9B7C0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ChatMessageToServer) // 1B9B830
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ChatMessageToClient) // 1B9B8A0
         {
             OnChatMessageToClient(reader);
         }
-        else if (messageId == ClientVoiceMessages::LoginReply)
+        else if (messageId == ClientRegionMessages::VibrationPulseToClient) // 1B9B910
         {
-            OnClientVoiceLoginReply(reader);
+            On(reader);
         }
-        else if (messageId == ClientRegionMessages::UserLoginReply)
+        else if (messageId == ClientRegionMessages::SetAgentController) // 1B9B980
         {
-            OnUserLoginReply(reader);
+            OnSetAgentController(reader);
         }
-        else if (messageId == WorldStateMessages::CreateWorld) // 0x685B436C // 1B7FB00 // OK
+        else if (messageId == ClientRegionMessages::TeleportTo) // 1B9B9F0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::TeleportToUri) // 1B9BA60
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::TeleportToEditMode) // 1B9BC10
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::DebugTimeChangeToServer) // 1B9BC80
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::DebugTimeChangeToClient) // 1B9BCF0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::VisualDebuggerCaptureToServer) // 1B9BD60
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::VisualDebuggerCaptureToClient) // 1B9BDD0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ScriptModalDialog) // 1B9BE40
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ScriptModalDialogResponse) // 1B9BEB0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::TwitchEventSubscription) // 1B9BF20
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::TwitchEvent) // 1B9C0E0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientStaticReady) // 1B9C150
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientDynamicReady) // 1B9C310
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::InitialChunkSubscribed) // 1B9C380
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientRegionCommandMessage) // 1B9C540
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientKickNotification) // 1B9C6F0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientSmiteNotification) // 1B9C8A0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientMuteNotification) // 1B9CA50
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientVoiceBroadcastStartNotification) // 1B9CC00
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientVoiceBroadcastStopNotification) // 1B9CDB0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientRuntimeInventoryUpdatedNotification) // 1B9CF60
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientSetRegionBroadcasted) // 1B9D110
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::SubscribeCommand) // 1B9D2D0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::UnsubscribeCommand) // 1B9D340
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientCommand) // 1B9D3B0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::RequestDropPortal) // 1B9D420
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::OpenStoreListing) // 1B9D490
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::OpenUserStore) // 1B9D620
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::OpenQuestCharacterDialog) // 1B9D7D0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::UIScriptableBarStart) // 1B9D960
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::UIScriptableBarStopped) // 1B9D9D0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::UIScriptableBarCancel) // 1B9DA40
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::UIHintTextUpdate) // 1B9DC00
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::QuestOfferResponse) // 1B9DDB0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::QuestCompleted) // 1B9DE20
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::QuestRemoved) // 1B9DE90
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ShowWorldDetail) // 1B9E020
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::ShowTutorialHint) // 1B9E090
+        {
+            On(reader);
+        }
+        else if (messageId == ClientRegionMessages::TutorialHintsSetEnabled) // 1B9E100
+        {
+            On(reader);
+        }
+
+
+
+        else if (messageId == RegionRegionMessages::DynamicSubscribe) // 1BB19B0
+        {
+            On(reader);
+        }
+        else if (messageId == RegionRegionMessages::DynamicPlayback) // 1BB1B00
+        {
+            On(reader);
+        }
+        else if (messageId == RegionRegionMessages::MasterFrameSync) // 1BB1C50
+        {
+            On(reader);
+        }
+        else if (messageId == RegionRegionMessages::AgentControllerMapping) // 1BB1E10
+        {
+            On(reader);
+        }
+
+
+
+        else if (messageId == WorldStateMessages::CreateWorld) // 1BB5960
         {
             OnCreateWorld(reader);
         }
-        else if (messageId == WorldStateMessages::InitiateCluster) // 0x349AD257 // 1B7FEF0 // OK
+        else if (messageId == WorldStateMessages::DestroyWorld) // 1BB59D0
         {
-            // OnInitiateCluster(reader);
+            On(reader);
         }
-        else if (messageId == WorldStateMessages::LoadClusterDefinition) // 0xA5C4FB23 // 1B7FE10 // OK
+        else if (messageId == WorldStateMessages::RigidBodyComponentInitialState) // 1BB5B90
         {
-            // OnLoadClusterDefinition(reader);
+            On(reader);
         }
-        else if (messageId == WorldStateMessages::CreateClusterViaDefinition) // 0x73810D53 // 1B7FF60 // OK
+        else if (messageId == WorldStateMessages::AnimationComponentInitialState) // 1BB5C00
         {
-            // OnCreateClusterViaDefinition(reader);
+            On(reader);
         }
-        else if (messageId == ClientRegionMessages::SetAgentController) // 0xD6F4CF23 // 1B659D0 // OK
+        else if (messageId == WorldStateMessages::LoadClusterDefinition) // 1BB5C70
         {
-            OnSetAgentController(reader);
+            OnLoadClusterDefinition(reader);
+        }
+        else if (messageId == WorldStateMessages::ComponentRelativeTransform) // 1BB5CE0
+        {
+            On(reader);
+        }
+        else if (messageId == WorldStateMessages::InitiateCluster) // 1BB5D50
+        {
+            OnInitiateCluster(reader);
+        }
+        else if (messageId == WorldStateMessages::CreateClusterViaDefinition) // 1BB5DC0
+        {
+            OnCreateClusterViaDefinition(reader);
+        }
+        else if (messageId == WorldStateMessages::DestroyCluster) // 1BB5E30
+        {
+            OnDestroyCluster(reader);
+        }
+        else if (messageId == WorldStateMessages::DestroyObject) // 1BB5EA0
+        {
+            On(reader);
+        }
+        else if (messageId == WorldStateMessages::DestroySourceIdSpace) // 1BB6060
+        {
+            On(reader);
+        }
+        else if (messageId == WorldStateMessages::CreateCharacterNode) // 1BB6220
+        {
+            On(reader);
         }
         else if (messageId == WorldStateMessages::CreateAgentController) // 1BB6290
         {
             OnCreateAgentController(reader);
         }
+        else if (messageId == WorldStateMessages::DestroyAgentController) // 1BB6300
+        {
+            OnDestroyAgentController(reader);
+        }
+
+
+
+
+        else if (messageId == ClientVoiceMessages::Login)  // 1DF9BD0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::LoginReply)  // 1DF9C40
+        {
+            OnClientVoiceLoginReply(reader);
+        }
+        else if (messageId == ClientVoiceMessages::AudioData)  // 1DF9CB0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::SpeechGraphicsData)  // 1DF9D20
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::LocalAudioData)  // 1DF9D90
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::LocalAudioStreamState)  // 1DF9E00
+        {
+            OnLocalAudioStreamState(reader);
+        }
+        else if (messageId == ClientVoiceMessages::LocalAudioPosition)  // 1DF9E70
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::LocalAudioMute)  // 1DF9EE0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::LocalSetRegionBroadcasted)  // 1DF9F50
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::LocalSetMuteAll)  // 1DFA110
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::GroupAudioData)  // 1DFA2D0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::LocalTextData)  // 1DFA340
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::MasterInstance)  // 1DFA3B0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::VoiceModerationCommand)  // 1DFA540
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::VoiceModerationCommandResponse)  // 1DFA6F0
+        {
+            On(reader);
+        }
+        else if (messageId == ClientVoiceMessages::VoiceNotification)  // 1DFA760
+        {
+            On(reader);
+        }
+
+
+
+
+
         else if (messageId == EditServerMessages::AddUser) // 50155562 // 1984E40 // ok
         {
             OnEditServerAddUser(reader);
@@ -1742,34 +1982,13 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         {
             OnEditServerWorkspaceReadyReply(reader);
         }
-        else if (messageId == ClientRegionMessages::InitialChunkSubscribed)
-        {
-            //printf("InitialChunkSubscribed\n");
-        }
-        else if (messageId == ClientRegionMessages::CreateRegionBroadcasted)
-        {
-            //printf("CreateRegionBroadcasted\n");
-        }
-        else if (messageId == ClientRegionMessages::RemoveUser)
-        {
-            OnRemoveUser(reader);
-        }
         else if (messageId == RenderMessages::LightStateChanged) // 0x6951DAEC // 1611170
         {
             // OnLightStateChanged(reader); 
         }
-        else if (messageId == WorldStateMessages::DestroyAgentController) // 0x16406FB7  // 1BB6300
-        {
-            OnDestroyAgentController(reader);
-        }
-        else if (messageId == WorldStateMessages::DestroyCluster) // 0x2926D248  // 1BB5E30
-        {
-            //OnDestroyCluster(reader);
-        }
-        else if (messageId == ClientVoiceMessages::LocalAudioStreamState) // 0xF2FB6AD0  // 1DF9E00
-        {
-            OnLocalAudioStreamState(reader);
-        }
+
+
+
 
         // Animation stuff
         else if (messageId == AnimationComponentMessages::FloatVariable)  // 15809C0
@@ -1840,6 +2059,10 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         {
             AnimationComponent::OnPlayAnimation(reader);
         }
+
+
+
+        // SimulationMessages
         else if (messageId == SimulationMessages::InitialTimestamp)  // 15733C0 
         {
             OnInitialTimestamp(reader);
@@ -1877,62 +2100,49 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         // Audio stuff
         else if (messageId == AudioMessages::LoadSound)  // 0x412484C4 // 15B6490
         {
-            // OnLoadSound(reader);
+            Audio::OnLoadSound(reader);
         }
         else if (messageId == AudioMessages::PlaySound)  // 0x8FC77316 // 15B6620
         {
-            OnPlaySound(reader);
+            Audio::OnPlaySound(reader);
         }
         else if (messageId == AudioMessages::PlayStream)  // 15B6690
         {
-            auto streamChannel = reader.ReadUint8();
-            auto createPlayHandleId = reader.ReadUint64();
-            auto componentId = reader.ReadUint64();
-            auto position_x = reader.ReadFloat();
-            auto position_y = reader.ReadFloat();
-            auto position_z = reader.ReadFloat();
-            auto loudness = reader.ReadFloat();
-            auto pitch = reader.ReadFloat();
-            auto flags = reader.ReadUint8();
+            Audio::OnPlayStream(reader);
         }
         else if (messageId == AudioMessages::StopBroadcastingSound)  // 15B6700
         {
-            auto playHandleId = reader.ReadUint64();
+            Audio::OnStopBroadcastingSound(reader);
         }
         else if (messageId == AudioMessages::SetAudioStream)  // 15B68C0
         {
-            auto url = reader.ReadString();
-            auto rebroadcast = reader.ReadUint8();
+            Audio::OnSetAudioStream(reader);
         }
         else if (messageId == AudioMessages::SetMediaSource)  // 15B6930
         {
-            auto url = reader.ReadString();
-            auto mediaWidth = reader.ReadUint32();
-            auto mediaHeight = reader.ReadUint32();
-            auto rebroadcast = reader.ReadUint8();
+            Audio::OnSetMediaSource(reader);
         }
         else if (messageId == AudioMessages::PerformMediaAction)  // 15B69A0
         {
-            auto mediaAction = reader.ReadUint32();
-            auto rebroadcast = reader.ReadUint8();
+            Audio::OnPerformMediaAction(reader);
         }
         else if (messageId == AudioMessages::StopSound)  // 15B6A10
         {
-            auto playHandleId = reader.ReadUint64();
-            auto immediate = reader.ReadUint8();
+            Audio::OnStopSound(reader);
         }
         else if (messageId == AudioMessages::SetLoudness) // 0x20EDD0C4  // 15B6A80
         {
-            //OnSetLoudness(reader);
+            Audio::OnSetLoudness(reader);
         }
         else if (messageId == AudioMessages::SetPitch) // 0x7BB86A5B  // 15B6AF0
         {
-            //OnSetPitch(reader);
+            Audio::OnSetPitch(reader);
         }
 
 
+        /*
 
-        // Agent controller stuff? dono
+        // Agent controller stuff
         else if (messageId == AgentControllerMessages::PlayAnimation) // 0x009385A0    // 1581210
         {
             AgentController::OnPlayAnimation(reader);
@@ -2132,19 +2342,19 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         {
             ClientKafka::OnLoginReply(reader);
         }
-        else if (messageId == ClientKafkaMessages::EnterRegion) // // 17A1370 ? 
+        else if (messageId == ClientKafkaMessages::EnterRegion) // // 17A1370 ?
         {
             ClientKafka::OnEnterRegion(reader);
         }
-        else if (messageId == ClientKafkaMessages::LeaveRegion) // // 17A1520 ? 
+        else if (messageId == ClientKafkaMessages::LeaveRegion) // // 17A1520 ?
         {
             ClientKafka::OnLeaveRegion(reader);
         }
-        else if (messageId == ClientKafkaMessages::PrivateChat) // // 17A1740 ? 
+        else if (messageId == ClientKafkaMessages::PrivateChat) // // 17A1740 ?
         {
             ClientKafka::OnPrivateChat(reader);
         }
-        else if (messageId == ClientKafkaMessages::PrivateChatStatus) // // 17A17B0 ? 
+        else if (messageId == ClientKafkaMessages::PrivateChatStatus) // // 17A17B0 ?
         {
             ClientKafka::OnPrivateChatUpdate(reader);
         }
@@ -2152,27 +2362,27 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         {
             ClientKafka::OnPresenceUpdate(reader);
         }
-        else if (messageId == ClientKafkaMessages::FriendRequest) // // 17A1890 ? 
+        else if (messageId == ClientKafkaMessages::FriendRequest) // // 17A1890 ?
         {
             ClientKafka::OnFriendRequest(reader);
         }
-        else if (messageId == ClientKafkaMessages::FriendRequestStatus) // // 17A1900 ? 
+        else if (messageId == ClientKafkaMessages::FriendRequestStatus) // // 17A1900 ?
         {
             ClientKafka::OnFriendRequestStatus(reader);
         }
-        else if (messageId == ClientKafkaMessages::FriendResponse) // // 17A1970 ? 
+        else if (messageId == ClientKafkaMessages::FriendResponse) // // 17A1970 ?
         {
             ClientKafka::OnFriendResponse(reader);
         }
-        else if (messageId == ClientKafkaMessages::FriendResponseStatus) // // 17A19E0 ? 
+        else if (messageId == ClientKafkaMessages::FriendResponseStatus) // // 17A19E0 ?
         {
             ClientKafka::OnFriendResponseStatus(reader);
         }
-        else if (messageId == ClientKafkaMessages::FriendTable) // // 17A1A50 ? 
+        else if (messageId == ClientKafkaMessages::FriendTable) // // 17A1A50 ?
         {
             ClientKafka::OnFriendTable(reader);
         }
-        else if (messageId == ClientKafkaMessages::RelationshipOperation) // // 17A1AC0 ? 
+        else if (messageId == ClientKafkaMessages::RelationshipOperation) // // 17A1AC0 ?
         {
             ClientKafka::OnRelationshipOperation(reader);
         }
@@ -2260,7 +2470,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         {
             ClientKafka::OnLongLivedNotification(reader);
         }
-        else if (messageId == ClientKafkaMessages::LongLivedNotificationDelete) // 17A32D0 
+        else if (messageId == ClientKafkaMessages::LongLivedNotificationDelete) // 17A32D0
         {
             ClientKafka::OnLongLivedNotificationDelete(reader);
         }
@@ -2272,16 +2482,9 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         {
             ClientKafka::OnShortLivedNotification(reader);
         }
-
-
-        /*
-
-        else if (messageId ==ClientVoiceMessages::LocalAudioData)  // 0x0D50D087 //
-        {
-            OnLocalAudioData(reader);
-        }
-
         */
+
+
 
         else
         {
@@ -2298,6 +2501,8 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         printf("!!! Caught exception -> %s\n", ex.what());
     }
 }
+
+
 
 
 

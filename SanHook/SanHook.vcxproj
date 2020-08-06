@@ -159,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="AgentController.h" />
     <ClInclude Include="AnimationComponent.h" />
+    <ClInclude Include="Audio.h" />
     <ClInclude Include="bitReader.hpp" />
     <ClInclude Include="ClientKafka.h" />
     <ClInclude Include="GameWorld.h" />
