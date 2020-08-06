@@ -7,7 +7,6 @@
 class AudioMessages
 {
 public:
-    //static const uint32_t = 0x;
     static const uint32_t LoadSound = 0x412484C4;
     static const uint32_t PlaySound = 0x8FC77316;
     static const uint32_t PlayStream = 0x6A2C4CEF;
@@ -121,7 +120,6 @@ public:
     static const uint32_t CreateCharacterNode = 0x32DC63D7;
     static const uint32_t CreateAgentController = 0xF555FE2D;
     static const uint32_t DestroyAgentController = 0x16406FB7;
-    //static const uint32_t  = 0x;
 };
 
 class ClientKafkaMessages
