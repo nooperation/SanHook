@@ -213,6 +213,32 @@ public:
         return std::vector<uint8_t>();
     }
 
+    std::vector<std::string> ReadStringList()
+    {
+        auto numStrings = ReadUint32();
+        std::vector<std::string> result(numStrings);
+
+        for (size_t i = 0; i < numStrings; i++)
+        {
+            auto item = ReadString();
+            result.push_back(item);
+        }
+
+        return result;
+    }
+
+    std::vector<uint8_t> ReadArray()
+    {
+        auto numBytes = ReadUint32();
+
+        CheckOutOfBoundsRead(numBytes);
+
+        auto result = std::vector<uint8_t>(&buffer[bufferIndex], &buffer[bufferIndex + (numBytes - 1)]);
+        bufferIndex += numBytes;
+
+        return result;
+    }
+
     std::vector<uint8_t> ReadBytes(uint32_t numBytes)
     {
         CheckOutOfBoundsRead(numBytes);

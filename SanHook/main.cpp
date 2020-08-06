@@ -2065,10 +2065,11 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
 
 
-
+        // EditServerMessages
         else if (EditServerMessages::UserLogin) // 19B81B0
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto secret = reader.ReadUint32();
         }
         else if (EditServerMessages::UserLoginReply) // 19B8220
         {
@@ -2080,47 +2081,62 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (EditServerMessages::RemoveUser) // 19B8300
         {
-            On(reader);
+            auto sessionId = reader.ReadUint32();
         }
         else if (EditServerMessages::OpenWorkspace) // 19B84C0
         {
-            On(reader);
+            auto worldSourceInventoryItemId = reader.ReadUUID();
+            auto worldSourceResourceId = reader.ReadString();
         }
         else if (EditServerMessages::CloseWorkspace) // 19B8530
         {
-            On(reader);
+            auto workspaceId = reader.ReadUint32();
         }
         else if (EditServerMessages::EditWorkspaceCommand) // 19B86F0
         {
-            On(reader);
+            auto commandData = reader.ReadArray();
         }
         else if (EditServerMessages::SaveWorkspace) // 19B88E0
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto sessionData = reader.ReadArray();
+            auto sceneName = reader.ReadString();
         }
         else if (EditServerMessages::SaveWorkspaceReply) // 19B8950
         {
-            On(reader);
+            auto success = reader.ReadUint8();
+            auto itemInventoryId = reader.ReadString();
+            auto itemResourceId = reader.ReadString();
+            auto itemName = reader.ReadString();
         }
         else if (EditServerMessages::BuildWorkspace) // 19B89C0
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto sceneName = reader.ReadString();
+            auto start = reader.ReadUint8();
         }
         else if (EditServerMessages::UpdateWorkspaceClientbuiltBakeData) // 19B8A30
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto bakeData = reader.ReadArray();
+
         }
         else if (EditServerMessages::BuildWorkspaceCompileReply) // 19B8AA0
         {
-            On(reader);
+            auto compileStatus = reader.ReadUint8();
+            auto isCanceled = reader.ReadUint8();
+            auto errors = reader.ReadStringList();
+            auto nonErrorMessage = reader.ReadStringList();
         }
         else if (EditServerMessages::BuildWorkspaceProgressUpdate) // 19B8B10
         {
-            On(reader);
+            auto stage = reader.ReadUint32();
+            auto percent = reader.ReadFloat();
         }
         else if (EditServerMessages::BuildWorkspaceUploadReply) // 19B8B80
         {
-            On(reader);
+            auto success = reader.ReadUint8();
+            auto worldDefinitionId = reader.ReadString();
         }
         else if (EditServerMessages::WorkspaceReadyReply) // 19B8BF0
         {
@@ -2128,67 +2144,135 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (EditServerMessages::SaveWorkspaceSelectionToInventory) // 19B8DB0
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto itemName = reader.ReadString();
+            auto selectionId = reader.ReadUint64();
+            auto triggeringState = reader.ReadUint32();
+            auto parentInstanceId = reader.ReadUint32();
         }
         else if (EditServerMessages::SaveWorkspaceSelectionToInventoryReply) // 19B8E20
         {
-            On(reader);
+            auto itemName = reader.ReadString();
+            auto itemId = reader.ReadUUID();
+            auto triggeringState = reader.ReadUint32();
+            auto requestResult = reader.ReadUint32();
+            auto statusCode = reader.ReadUint32();
         }
         else if (EditServerMessages::InventoryCreateItem) // 19B8E90
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto createRequestId = reader.ReadUUID();
+            auto itemName = reader.ReadString();
+            auto ssetId = reader.ReadString();
+            auto licenseAssetName = reader.ReadString();
+            auto inventoryTag = reader.ReadString();
+            auto assetSerializationTag = reader.ReadString();
+            auto thumbnailAssetId = reader.ReadString();
+            auto additionalCapabilities = reader.ReadStringList();
+            auto resourceVersion = reader.ReadUint64();
+            auto assetState = reader.ReadUint8();
         }
         else if (EditServerMessages::InventoryDeleteItem) // 19B8F00
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto deleteRequestId = reader.ReadUUID();
+            auto itemToDeleteId = reader.ReadUUID();
         }
         else if (EditServerMessages::InventoryChangeItemName) // 19B8F70
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto changeNameRequestId = reader.ReadUUID();
+            auto itemToChangeId = reader.ReadUUID();
+            auto newName = reader.ReadString();
         }
         else if (EditServerMessages::InventoryChangeItemState) // 19B8FE0
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto changeStateRequestId = reader.ReadUUID();
+            auto itemToChangeId = reader.ReadUUID();
+            auto newState = reader.ReadUint8();
         }
         else if (EditServerMessages::InventoryModifyItemThumbnailAssetId) // 19B9050
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto modifyThumbnailRequestId = reader.ReadUUID();
+            auto itemToChangeId = reader.ReadUUID();
+            auto newThumbnailAssetId = reader.ReadString();
         }
         else if (EditServerMessages::InventoryModifyItemCapabilities) // 19B90C0
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto modifyCapabilitiesRequestId = reader.ReadUUID();
+            auto itemToChangeId = reader.ReadUUID();
+            auto capabilitiesToAdd = reader.ReadStringList();
+            auto capabilitiesToRemove = reader.ReadStringList();
         }
         else if (EditServerMessages::InventorySaveItem) // 19B9130
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto saveItemRequestId = reader.ReadUUID();
+            auto itemToSaveId = reader.ReadUUID();
+            auto assetId = reader.ReadString();
+            auto licenseAssetName = reader.ReadString();
+            auto assetState = reader.ReadUint8();
+            auto assetSerializationTag = reader.ReadString();
+            auto resourceVersion = reader.ReadUint64();
         }
         else if (EditServerMessages::InventoryUpdateItemReply) // 19B91A0
         {
-            On(reader);
+            auto requestId = reader.ReadUUID();
+            auto itemId = reader.ReadUUID();
+            auto assetId = reader.ReadString();
+            auto requestResult = reader.ReadUint32();
+            auto statusCode = reader.ReadString();
+            auto errorMsg = reader.ReadString();
         }
         else if (EditServerMessages::InventoryItemUpload) // 19B9210
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto itemId = reader.ReadUUID();
+            auto itemName = reader.ReadString();
+            auto categoryName = reader.ReadString();
         }
         else if (EditServerMessages::InventoryItemUploadReply) // 19B9280
         {
-            On(reader);
+            auto productId = reader.ReadUUID();
+            auto status = reader.ReadString();
+            auto listingUrl = reader.ReadString();
+            auto editUrl = reader.ReadString();
+            auto errorCode = reader.ReadString();
+            auto errorMessage = reader.ReadString();
         }
         else if (EditServerMessages::InventoryCreateListing) // 19B92F0
         {
-            On(reader);
+            auto authorization = reader.ReadString();
+            auto itemId = reader.ReadUUID();
+            auto itemName = reader.ReadString();
+            auto categoryName = reader.ReadString();
+            auto bundleName = reader.ReadString();
         }
         else if (EditServerMessages::InventoryCreateListingReply) // 19B9360
         {
-            On(reader);
+            auto canBeListed = reader.ReadUint8();
+            auto itemId = reader.ReadUUID();
+            auto itemName = reader.ReadString();
+            auto categoryName = reader.ReadString();
         }
         else if (EditServerMessages::BeginEditServerSpawn) // 19B93D0
         {
-            On(reader);
+            auto inventoryId = reader.ReadUUID();
+            auto personaId = reader.ReadUUID(); // what's this message, from server or to server?
+            auto serial = reader.ReadUint32();
+            auto inventoryName = reader.ReadString();
         }
         else if (EditServerMessages::EditServerSpawnReady) // 19B9440
         {
-            On(reader);
+            auto isValid = reader.ReadUint8();
+            auto serial = reader.ReadUint32();
+            auto instanceCount = reader.ReadUint32();
+            auto inventoryName = reader.ReadString();
+            auto instanceNames = reader.ReadStringList();
+            auto folderNames = reader.ReadStringList();
         }
 
 
