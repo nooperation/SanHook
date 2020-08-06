@@ -1646,11 +1646,13 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == ClientRegionMessages::RenameUser) // 1B9B7C0
         {
-            On(reader);
+            auto sessionId = reader.ReadUint32();
+            auto userName = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ChatMessageToServer) // 1B9B830
         {
-            On(reader);
+            auto toSessionId = reader.ReadUint32();
+            auto message = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ChatMessageToClient) // 1B9B8A0
         {
@@ -1658,7 +1660,9 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == ClientRegionMessages::VibrationPulseToClient) // 1B9B910
         {
-            On(reader);
+            auto controlPointType = reader.ReadUint32();
+            auto intensity = reader.ReadFloat();
+            auto duration = reader.ReadFloat();
         }
         else if (messageId == ClientRegionMessages::SetAgentController) // 1B9B980
         {
@@ -1666,159 +1670,222 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == ClientRegionMessages::TeleportTo) // 1B9B9F0
         {
-            On(reader);
+            auto personaHandle = reader.ReadString();
+            auto locationHandle = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::TeleportToUri) // 1B9BA60
         {
-            On(reader);
+            auto sansarUri = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::TeleportToEditMode) // 1B9BC10
         {
-            On(reader);
+            auto returnSpawnPointName = reader.ReadString();
+            auto workspaceEditView = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::DebugTimeChangeToServer) // 1B9BC80
         {
-            On(reader);
+            auto requestId = reader.ReadUint32();
+            auto clientDeltaTimeForced = reader.ReadFloat();
+            auto clientDeltaTimeScale = reader.ReadFloat();
         }
         else if (messageId == ClientRegionMessages::DebugTimeChangeToClient) // 1B9BCF0
         {
-            On(reader);
+            auto requestId = reader.ReadUint32();
+            auto clientDeltaTimeForced = reader.ReadFloat();
+            auto clientDeltaTimeScale = reader.ReadFloat();
+            auto requestAccepted = reader.ReadUint8();
+            auto errorMessage = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::VisualDebuggerCaptureToServer) // 1B9BD60
         {
-            On(reader);
+            auto startTimeFormatted = reader.ReadString();
+            auto beginCapture = reader.ReadUint8();
+
+            auto viewersLength = reader.ReadUint32();
+            auto viewers = std::vector<std::string>(viewersLength);
+            for (size_t i = 0; i < viewersLength; i++)
+            {
+                auto viewer = reader.ReadString();
+                viewers.push_back(viewer);
+            }
         }
         else if (messageId == ClientRegionMessages::VisualDebuggerCaptureToClient) // 1B9BDD0
         {
-            On(reader);
+            auto startTimeFormatted = reader.ReadString();
+            auto compressedHkmBytesLength = reader.ReadUint32();
+            auto compressedHkmBytes = reader.ReadBytes(compressedHkmBytesLength);
+            auto uncompressedSize = reader.ReadUint64();
+            auto beginCapture = reader.ReadUint8();
+            auto succeeded = reader.ReadUint8();
+            auto errorMessage = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ScriptModalDialog) // 1B9BE40
         {
-            On(reader);
+            auto eventId = reader.ReadUint64();
+            auto message = reader.ReadString();
+            auto leftButtonLabel = reader.ReadString();
+            auto rightButtonLabel = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ScriptModalDialogResponse) // 1B9BEB0
         {
-            On(reader);
+            auto eventId = reader.ReadUint64();
+            auto response = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::TwitchEventSubscription) // 1B9BF20
         {
-            On(reader);
+            auto eventMask = reader.ReadUint32();
         }
         else if (messageId == ClientRegionMessages::TwitchEvent) // 1B9C0E0
         {
-            On(reader);
+            auto eventType = reader.ReadUint32();
+            auto intensity = reader.ReadFloat();
         }
         else if (messageId == ClientRegionMessages::ClientStaticReady) // 1B9C150
         {
-            On(reader);
+            auto ready = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::ClientDynamicReady) // 1B9C310
         {
-            On(reader);
+            auto position = reader.ReadVectorF(3);
+            auto orientation = reader.ReadVectorF(4);
+            auto targetPersonaId_0 = reader.ReadUint64();
+            auto targetPersonaId_1 = reader.ReadUint64();
+            auto targetSpawnPointName = reader.ReadString();
+            auto spawnStyle = reader.ReadUint8();
+            auto ready = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::InitialChunkSubscribed) // 1B9C380
         {
-            On(reader);
+            auto unused = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::ClientRegionCommandMessage) // 1B9C540
         {
-            On(reader);
+            auto commandLine = reader.ReadString(); // What's this suspicious looking thing
         }
         else if (messageId == ClientRegionMessages::ClientKickNotification) // 1B9C6F0
         {
-            On(reader);
+            auto message = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ClientSmiteNotification) // 1B9C8A0
         {
-            On(reader);
+            auto message = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ClientMuteNotification) // 1B9CA50
         {
-            On(reader);
+            auto message = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ClientVoiceBroadcastStartNotification) // 1B9CC00
         {
-            On(reader);
+            auto message = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ClientVoiceBroadcastStopNotification) // 1B9CDB0
         {
-            On(reader);
+            auto message = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ClientRuntimeInventoryUpdatedNotification) // 1B9CF60
         {
-            On(reader);
+            auto message = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ClientSetRegionBroadcasted) // 1B9D110
         {
-            On(reader);
+            auto broadcasted = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::SubscribeCommand) // 1B9D2D0
         {
-            On(reader);
+            auto command = reader.ReadString();
+            auto action = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::UnsubscribeCommand) // 1B9D340
         {
-            On(reader);
+            auto action = reader.ReadUint8(); // yes, this is reverse from subscribecommand?
+            auto command = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::ClientCommand) // 1B9D3B0
         {
-            On(reader);
+            auto command = reader.ReadString();
+            auto action = reader.ReadUint8();
+            auto origin = reader.ReadVectorF(3);
+            auto targetPosition = reader.ReadVectorF(3);
+            auto normal = reader.ReadVectorF(3);
+            auto componentId = reader.ReadUint64();
+            auto frame = reader.ReadUint64();
+            auto device = reader.ReadUint8();
+            auto mouseLook = reader.ReadUint8();
+            auto controlMode = reader.ReadUint8();
+            auto isAimTarget = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::RequestDropPortal) // 1B9D420
         {
-            On(reader);
+            auto sansarUri = reader.ReadString();
+            auto sansarUriDescription = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::OpenStoreListing) // 1B9D490
         {
-            On(reader);
+            auto listingId = reader.ReadUUID();
         }
         else if (messageId == ClientRegionMessages::OpenUserStore) // 1B9D620
         {
-            On(reader);
+            auto creatorHandle = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::OpenQuestCharacterDialog) // 1B9D7D0
         {
-            On(reader);
+            auto characterId = reader.ReadUUID();
         }
         else if (messageId == ClientRegionMessages::UIScriptableBarStart) // 1B9D960
         {
-            On(reader);
+            auto barId = reader.ReadUint32();
+            auto scriptEventId = reader.ReadUint64();
+            auto label = reader.ReadString();
+            auto duration = reader.ReadFloat();
+            auto color = reader.ReadVectorF(3);
+            auto startPct = reader.ReadFloat();
+            auto endPct = reader.ReadFloat();
+            auto options = reader.ReadUint8();
+            auto start = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::UIScriptableBarStopped) // 1B9D9D0
         {
-            On(reader);
+            auto barId = reader.ReadUint32();
+            auto scriptEventId = reader.ReadUint64();
+            auto completed = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::UIScriptableBarCancel) // 1B9DA40
         {
-            On(reader);
+            auto barId = reader.ReadUint32();
         }
         else if (messageId == ClientRegionMessages::UIHintTextUpdate) // 1B9DC00
         {
-            On(reader);
+            auto text = reader.ReadString();
         }
         else if (messageId == ClientRegionMessages::QuestOfferResponse) // 1B9DDB0
         {
-            On(reader);
+            auto questId = reader.ReadUUID();
+            auto questDefinitionId = reader.ReadUUID();
+            auto accepted = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::QuestCompleted) // 1B9DE20
         {
-            On(reader);
+            auto questId = reader.ReadUUID();
+            auto questDefinitionId = reader.ReadUUID();
+            auto completedState = reader.ReadUint32();
         }
         else if (messageId == ClientRegionMessages::QuestRemoved) // 1B9DE90
         {
-            On(reader);
+            auto questId = reader.ReadUUID();
         }
         else if (messageId == ClientRegionMessages::ShowWorldDetail) // 1B9E020
         {
-            On(reader);
+            auto sansarUri = reader.ReadString();
+            auto show = reader.ReadUint8();
         }
         else if (messageId == ClientRegionMessages::ShowTutorialHint) // 1B9E090
         {
-            On(reader);
+            auto tutorialHintEnum = reader.ReadUint32();
+            auto variant = reader.ReadUint32();
         }
         else if (messageId == ClientRegionMessages::TutorialHintsSetEnabled) // 1B9E100
         {
-            On(reader);
+            auto enabled = reader.ReadUint8();
         }
 
 
