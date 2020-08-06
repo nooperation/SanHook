@@ -169,9 +169,11 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="PacketReader.hpp" />
+    <ClInclude Include="RegionRegion.h" />
     <ClInclude Include="Render.h" />
     <ClInclude Include="Simulation.h" />
     <ClInclude Include="Utils.hpp" />
+    <ClInclude Include="WorldState.h" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Magic.asm">

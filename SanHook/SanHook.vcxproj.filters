@@ -65,6 +65,12 @@
     <ClInclude Include="ClientVoice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="WorldState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RegionRegion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Magic.asm">
