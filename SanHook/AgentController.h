@@ -145,14 +145,14 @@ public:
 
     static void OnCharacterControlPointInputReliable(PacketReader &reader)
     {
-        // Todo: no payload?
         printf("AgentControllerMessages::CharacterControlPointInputReliable\n");
+        OnCharacterControlPointInput(reader);
     }
 
     static void OnCharacterControllerInputReliable(PacketReader &reader)
     {
-        // Todo: no payload?
         printf("AgentControllerMessages::CharacterControllerInputReliable\n");
+        OnCharacterControllerInput(reader);
     }
 
     static void OnCharacterControlPointInput(PacketReader &reader)
@@ -212,9 +212,10 @@ public:
         auto controlPointType = reader.ReadBits(4);
     }
 
-    static void OnRequestWarpCharacter()
+    static void OnRequestWarpCharacter(PacketReader &reader)
     {
-        // No palyload
+        // double check...
+        OnWarpCharacter(reader);
     }
 
     static void OnAgentPlayanimation(PacketReader &reader)
@@ -222,14 +223,16 @@ public:
         auto agentControllerId = reader.ReadUint32();
     }
 
-    static void OnRequestAgentPlayAnimation()
+    static void OnRequestAgentPlayAnimation(PacketReader &reader)
     {
-        // No palyload
+        // double check...
+        OnAgentPlayanimation(reader);
     }
 
-    static void OnRequestBehaviorStateUpdate()
+    static void OnRequestBehaviorStateUpdate(PacketReader &reader)
     {
-        // No palyload
+        // double check...
+        AnimationComponent::OnBehaviorStateUpdate(reader);
     }
 
     static void OnAttachToCharacterNode(PacketReader &reader)
@@ -256,9 +259,10 @@ public:
         auto nodeType = reader.ReadUint8();
     }
 
-    static void OnRequestDetachFromCharacterNode()
+    static void OnRequestDetachFromCharacterNode(PacketReader &reader)
     {
-        // No palyload
+        // double check...
+        OnDetachFromCharacterNode(reader);
     }
 
     static void OnSetCharacterNodePhysics(PacketReader &reader)

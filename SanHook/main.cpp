@@ -27,6 +27,7 @@ std::string GetAddressFromAddr(const sockaddr *addr);
 #include "GameWorld.h"
 #include "AgentController.h"
 #include "Audio.h"
+#include "Simulation.h"
 #include "Utils.hpp"
 
 #include <thread>
@@ -1426,39 +1427,6 @@ void OnCreateAgentController(PacketReader &reader)
 }
 
 
-void OnInitialTimestamp(PacketReader &reader)
-{
-    auto nanoseconds = reader.ReadUint64();
-    auto frame = reader.ReadUint64();
-
-    printf("OnInitialTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
-}
-
-
-void OnTimestamp(PacketReader &reader)
-{
-    auto nanoseconds = reader.ReadUint64();
-    auto frame = reader.ReadUint64();
-
-    printf("OnTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
-}
-
-
-void OnRigidBodyDeactivated(PacketReader &reader)
-{
-    auto componentId = reader.ReadUint64();
-    auto frame = reader.ReadUint64();
-    auto ownershipWatermark = reader.ReadUint8();
-    //position = reader.   78bit floats
-    // orientationQuat  43bit floats
-
-    printf("SimulationManager::OnRigidBodyDeactivated:\n  componentId = %llu\n  frame = %llu\n  ownershipWatermark = %u\n",
-        componentId,
-        frame,
-        ownershipWatermark
-    );
-}
-
 
 void OnLightStateChanged(PacketReader &reader)
 {
@@ -1485,28 +1453,6 @@ void OnLightStateChanged(PacketReader &reader)
     );
 }
 
-void OnActiveRigidBodyUpdate(PacketReader &reader)
-{
-    auto componentId = reader.ReadUint64();
-    auto frame = reader.ReadUint64();
-    auto ownerId = reader.ReadUint32();
-    auto ownershipWatermark = reader.ReadUint8();
-    auto authority = reader.ReadUint8();
-    // auto position // 78bit
-    // auto orientationQuat // 43bit
-    // auto linearVeolcity // 39bit
-    // auto angularVelocity  // 36bit
-
-    printf("SimulationMessages::ActiveRigidBodyUpdate:\n  componentId = %llu\n  frame = %llu\n  ownerId = %u\n  ownershipWatermark = %u\n  authority = %u\n",
-        componentId,
-        frame,
-        ownerId,
-        ownershipWatermark,
-        authority
-    );
-}
-
-
 void OnDestroyAgentController(PacketReader &reader)
 {
     auto frame = reader.ReadUint64();
@@ -1519,90 +1465,6 @@ void OnDestroyAgentController(PacketReader &reader)
 }
 
 
-
-void OnBehaviorStateUpdate(PacketReader &reader)
-{
-    auto frame = reader.ReadUint64();
-    auto componentId = reader.ReadUint64();
-    auto exceptAgentControllerId = reader.ReadUint32();
-
-    printf("AnimationComponentMessages::BehaviorStateUpdate:\n  frame = %llu\n  componentId = %llu\n  exceptAgentControllerId = %u\n",
-        frame,
-        componentId,
-        exceptAgentControllerId
-    );
-
-    return;
-    /*
-    // Nah not going to touch this one...
-
-    auto floatsLength = 0;
-    for (size_t i = 0; i < floatsLength; i++)
-    {
-        auto internalId = reader.ReadUint16();
-        auto value = reader.ReadFloat();
-    }
-
-    auto vectorsLength = 0;
-    for (size_t i = 0; i < vectorsLength; i++)
-    {
-        auto internalId = reader.ReadUint16();
-        auto value_x = reader.ReadFloat();
-        auto value_y = reader.ReadFloat();
-        auto value_z = reader.ReadFloat();
-    }
-
-    auto quaternionsLength = reader.ReadUint32();
-    for (size_t i = 0; i < quaternionsLength; i++)
-    {
-        auto internalId = reader.ReadUint16();
-        auto value_x = reader.ReadFloat();
-        auto value_y = reader.ReadFloat();
-        auto value_z = reader.ReadFloat();
-        auto value_w = reader.ReadFloat();
-    }
-
-    auto int8sLength = reader.ReadUint32();
-    for (size_t i = 0; i < int8sLength; i++)
-    {
-        auto internalId = reader.ReadUint16();
-        auto value = reader.ReadUint8();
-    }
-
-    auto boolsLength = reader.ReadUint32();
-    for (size_t i = 0; i < boolsLength; i++)
-    {
-        auto internalId = reader.ReadUint16();
-        auto value = reader.ReadUint8();
-    }
-
-    auto internalEventIds = reader.ReadUint32();
-    for (size_t i = 0; i < internalEventIds; i++)
-    {
-        // tbd
-        auto internalId = reader.ReadUint16();
-        auto value = reader.ReadUint8();
-    }
-
-    auto animationAction = reader.ReadUint8();
-
-    auto nodeLocalTimesLength = reader.ReadUint32();
-    for (size_t i = 0; i < nodeLocalTimesLength; i++)
-    {
-        auto nodeId = reader.ReadUint16();
-        auto value = reader.ReadUint32();
-    }
-
-    auto nodeCropValuesLength = reader.ReadUint32();
-    for (size_t i = 0; i < nodeCropValuesLength; i++)
-    {
-        auto nodeId = reader.ReadUint16();
-        auto startValue = reader.ReadFloat();
-        auto endValue = reader.ReadFloat();
-    }
-
-    */
-}
 
 void OnDestroyCluster(PacketReader &reader)
 {
@@ -2335,7 +2197,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == AnimationComponentMessages::CharacterBehaviorInternalState)  // 1581050
         {
-            // No payload?
+            AnimationComponent::OnCharacterBehaviorInternalState(reader);
         }
         else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 0x217192BE  // 15810C0
         {
@@ -2359,35 +2221,31 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         // SimulationMessages
         else if (messageId == SimulationMessages::InitialTimestamp)  // 15733C0 
         {
-            OnInitialTimestamp(reader);
+            Simulation::OnInitialTimestamp(reader);
         }
         else if (messageId == SimulationMessages::Timestamp) // 1573430 
         {
-            //OnTimestamp(reader);
+            Simulation::OnTimestamp(reader);
         }
         else if (messageId == SimulationMessages::SetWorldGravityMagnitude)  // 15734A0
         {
-            auto frame = reader.ReadUint64();
-            auto magnitude = reader.ReadFloat();
+            Simulation::OnSetWorldGravityMagnitude(reader);
         }
         else if (messageId == SimulationMessages::ActiveRigidBodyUpdate)  // 1573510
         {
-            // OnActiveRigidBodyUpdate(reader);
+            Simulation::OnActiveRigidBodyUpdate(reader);
         }
         else if (messageId == SimulationMessages::RigidBodyDeactivated)  // 1573580
         {
-            // OnRigidBodyDeactivated(reader);
+            Simulation::OnRigidBodyDeactivated(reader);
         }
         else if (messageId == SimulationMessages::RigidBodyPropertyChanged)  // 15735F0
         {
-            auto frame = reader.ReadUint64();
-            auto componentId = reader.ReadUint64();
-            auto propertyData = reader.ReadBytes(16);
-            //auto propertyType = reader.ReadBits(5);
+            Simulation::OnRigidBodyPropertyChanged(reader);
         }
         else if (messageId == SimulationMessages::RigidBodyDestroyed)  // 1573660
         {
-            auto componentId = reader.ReadUint64();
+            Simulation::OnRigidBodyDestroyed(reader);
         }
 
 
@@ -2451,7 +2309,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == AgentControllerMessages::RequestWarpCharacter)  // 170F870
         {
-            AgentController::OnRequestWarpCharacter();
+            AgentController::OnRequestWarpCharacter(reader);
         }
         else if (messageId == AgentControllerMessages::CharacterControlPointInput)  // 170F8E0
         {
@@ -2475,7 +2333,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == AgentControllerMessages::RequestAgentPlayAnimation)  // 170FB10
         {
-            AgentController::OnRequestAgentPlayAnimation();
+            AgentController::OnRequestAgentPlayAnimation(reader);
         }
         else if (messageId == AgentControllerMessages::RequestBehaviorStateUpdate)  // 170FB80
         {
@@ -2491,7 +2349,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         }
         else if (messageId == AgentControllerMessages::RequestDetachFromCharacterNode)  // 170FCD0
         {
-            AgentController::OnRequestDetachFromCharacterNode();
+            AgentController::OnRequestDetachFromCharacterNode(reader);
         }
         else if (messageId == AgentControllerMessages::SetCharacterNodePhysics)  // 170FD40
         {
@@ -2795,11 +2653,6 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         printf("!!! Caught exception -> %s\n", ex.what());
     }
 }
-
-
-
-
-
 
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
