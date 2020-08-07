@@ -701,8 +701,8 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
                 // Right below a call to RotMatrix, enter that call
                 // rcx+30 = our pointer
                 // Function above it with a bunch of xmm stuff going on (see screenshots)
-                //const static auto kCameraPositionOffset = 0x4AA91C0;
-                const static auto kCameraPositionOffset = 0x4AA91C0;
+                //const static auto kCameraPositionOffset = 0x4AAB1C0;
+                const static auto kCameraPositionOffset = 0x4AAB1C0;
 
                 positionX = *((float *)(base + kCameraPositionOffset + 0));
                 positionY = *((float *)(base + kCameraPositionOffset + 4));
@@ -2129,10 +2129,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x14DAB1A, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + 0x14DADAA, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DAED1);
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DB161);
         }
 
 

@@ -167,83 +167,83 @@ int main()
 
     Sleep(500);
 
-    auto base = GetBaseAddress(process_info.dwProcessId);
-    SIZE_T written = 0;
+    if (true)
+    {
+        auto base = GetBaseAddress(process_info.dwProcessId);
+        SIZE_T written = 0;
 
-    // NOTE: COPY RVA, NOT FILE OFFSET!
-    // NOTE: COPY RVA, NOT FILE OFFSET!
-    // NOTE: COPY RVA, NOT FILE OFFSET!
-    // NOTE: COPY RVA, NOT FILE OFFSET!
+        // NOTE: COPY RVA, NOT FILE OFFSET!
+        // NOTE: COPY RVA, NOT FILE OFFSET!
+        // NOTE: COPY RVA, NOT FILE OFFSET!
+        // NOTE: COPY RVA, NOT FILE OFFSET!
 
-    ///////////////////////////////////
-    /// GRAVITYS (right above collision hack, look for "skyCubemap")
-    ///////////////////////////////////
-    uint8_t gravityHack[] = {
-        0xB8, 0x14, 0xAE, 0xE7, 0x3F, 0x90, 0x90
-    };
-   // *((float*)&gravityHack[1]) = 2.0f;
+        ///////////////////////////////////
+        /// GRAVITYS (right above collision hack, look for "skyCubemap")
+        ///////////////////////////////////
 
-    //WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17533DA), gravityHack, sizeof(gravityHack), &written);
-    //printf("Written to %X: %d bytes\n", base + 0x17533DA, written);
+        uint8_t gravityHack[] = {
+            0xB8, 0x14, 0xAE, 0xE7, 0x3F, 0x90, 0x90
+        };
+        *((float*)&gravityHack[1]) = 2.0f;
+
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175366A), gravityHack, sizeof(gravityHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x175366A, written);
 
 
-    ///////////////////////////////////
-    /// COLLISION - ALWAYS COLLIDE AVATARS (right above freecam hack, look for "skyCubemap")
-    ///////////////////////////////////
-    uint8_t collisionHack[] = {
-       // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
-         0xB0, 0x01, 0x90
-    };
-    //WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1753423), collisionHack, sizeof(collisionHack), &written);
-    printf("Written to %X: %d bytes\n", base + 0x1753423, written);
+
+        uint8_t collisionHack[] = {
+           // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
+             0xB0, 0x01, 0x90
+        };
+        //WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17536B3), collisionHack, sizeof(collisionHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x17536B3, written);
     
 
-    ///////////////////////////////////
-    /// FREECAM - ALLOW ALWAYS (rigth below freecam hack, look for "skyCubemap")
-    ///////////////////////////////////
-    uint8_t freecamHack[] = {
-        0xB0, 0x01, 0x90
-    };
-    written = 0;
-    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175346E), freecamHack, sizeof(freecamHack), &written);
-    printf("Written to %X: %d bytes\n", base + 0x175346E, written);
+        ///////////////////////////////////
+        /// FREECAM - ALLOW ALWAYS (rigth below freecam hack, look for "skyCubemap" (THIRD DOWN FROM 'defaultSkyCubeMap') (func below has 'environment' reference)
+        ///////////////////////////////////
+        uint8_t freecamHack[] = {
+            0xB0, 0x01, 0x90
+        };
+        written = 0;
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17536FE), freecamHack, sizeof(freecamHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x17536FE, written);
 
 
-    
-    ///////////////////////////////////
-    /// INVENTORY - ALLOW ALWAYS
-    ///////////////////////////////////
-    uint8_t inventoryAlwaysHack[] = {
-       0xB0, 0x01, 0x88, 0x07
-    };
-    written = 0;
-    WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1759A65), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
-    printf("Written to %X: %d bytes\n", base + 0x1759A65, written);
+        uint8_t inventoryAlwaysHack[] = {
+           0xB0, 0x01, 0x88, 0x07
+        };
+        written = 0;
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1759CF5), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x1759CF5, written);
 
 
 
-    //uint8_t hijackClientRegionMessage_AddUserLogin[] = {
-    //    0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0x20
-    //};
-    //*((uint64_t*)&hijackClientRegionMessage_AddUserLogin[2]) = 0;
-    //uint64_t hijackClientRegionMessage_RETURN = 0x1242F9C;
-    //written = 0;
-    //WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1242F90), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
-    //printf("Written to %X: %d bytes\n", base + 0x1242F90, written);
+        //uint8_t hijackClientRegionMessage_AddUserLogin[] = {
+        //    0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0x20
+        //};
+        //*((uint64_t*)&hijackClientRegionMessage_AddUserLogin[2]) = 0;
+        //uint64_t hijackClientRegionMessage_RETURN = 0x1242F9C;
+        //written = 0;
+        //WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1242F90), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
+        //printf("Written to %X: %d bytes\n", base + 0x1242F90, written);
 
 
 
 
 
 
-    // see main.cpp "no-input-source"
-    uint8_t no1minTelemetry[] = {
-        0xEB, 0x08
-    };
-    auto telemetryCallerAddress = 0x1165C5B;
-    written = 0;
-    //WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
-    printf("Written to %X: %d bytes\n", base + telemetryCallerAddress, written);
+        /*
+        // see main.cpp "no-input-source"
+        uint8_t no1minTelemetry[] = {
+            0xEB, 0x08
+        };
+        auto telemetryCallerAddress = 0x1165D9B;
+        written = 0;
+        //WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
+        printf("Written to %X: %d bytes\n", base + telemetryCallerAddress, written);
+        */
+    }
 
 
     printf("Process resumed. Cleaning up...\n");
