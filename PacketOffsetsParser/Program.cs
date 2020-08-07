@@ -63,11 +63,23 @@ namespace PacketOffsetsParser
         static void Main(string[] args)
         {
             Regex patternPacketName = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})  \\\"(?<name>[a-zA-Z]+::[a-zA-Z0-9]+)\\\"");
-            Regex patternValueType = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})  ");
+            Regex patternValueType = new Regex("(?<address>[0-9A-Z]{16})  (?<value>[0-9A-Z]{16})  ");
             Regex patternSmallValueType = new Regex("[0-9A-Z]{16}  000000000000(?<value>[0-9A-Z]{4})  ");
             Regex patternParserOffset = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})");
 
             List<ParserData> parsers = new List<ParserData>();
+
+            Console.WriteLine("Address of first line of client code:");
+            var codeAddressLine = Console.ReadLine();
+            var codeAddress = ulong.Parse(codeAddressLine, System.Globalization.NumberStyles.HexNumber);
+
+            Console.WriteLine("File offset of first line of client code:");
+            var fileOffsetLine = Console.ReadLine();
+            var fileOffset = ulong.Parse(fileOffsetLine, System.Globalization.NumberStyles.HexNumber);
+
+            var totalOffset = codeAddress - fileOffset;
+
+            Console.WriteLine("Input memory dump:");
 
             while (true)
             {
@@ -105,6 +117,12 @@ namespace PacketOffsetsParser
                         continue;
                     }
                     var offset = ulong.Parse(matchParserOffset.Groups["value"].Value, System.Globalization.NumberStyles.HexNumber);
+                    if(offset < codeAddress)
+                    {
+                        continue;
+                    }
+
+                    offset -= totalOffset;
 
                     var nextLineValue3 = Console.ReadLine();
                     var matchValue3 = patternValueType.Match(nextLineValue3);
