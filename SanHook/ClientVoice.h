@@ -32,82 +32,82 @@ public:
     {
         switch (messageId)
         {
-            case ClientVoiceMessages::Login:  // 1DF9BD0
+            case ClientVoiceMessages::Login:  // TAG: 1DF9BD0
             {
                 ClientVoice::OnLogin(reader);
                 break;
             }
-            case ClientVoiceMessages::LoginReply:  // 1DF9C40
+            case ClientVoiceMessages::LoginReply:  // TAG: 1DF9C40
             {
                 ClientVoice::OnLoginReply(reader);
                 break;
             }
-            case ClientVoiceMessages::AudioData:  // 1DF9CB0
+            case ClientVoiceMessages::AudioData:  // TAG: 1DF9CB0
             {
                 ClientVoice::OnAudioData(reader);
                 break;
             }
-            case ClientVoiceMessages::SpeechGraphicsData:  // 1DF9D20
+            case ClientVoiceMessages::SpeechGraphicsData:  // TAG: 1DF9D20
             {
                 ClientVoice::OnSpeechGraphicsData(reader);
                 break;
             }
-            case ClientVoiceMessages::LocalAudioData:  // 1DF9D90
+            case ClientVoiceMessages::LocalAudioData:  // TAG: 1DF9D90
             {
                 ClientVoice::OnLocalAudioData(reader);
                 break;
             }
-            case ClientVoiceMessages::LocalAudioStreamState:  // 1DF9E00
+            case ClientVoiceMessages::LocalAudioStreamState:  // TAG: 1DF9E00
             {
                 ClientVoice::OnLocalAudioStreamState(reader);
                 break;
             }
-            case ClientVoiceMessages::LocalAudioPosition:  // 1DF9E70
+            case ClientVoiceMessages::LocalAudioPosition:  // TAG: 1DF9E70
             {
                 ClientVoice::OnLocalAudioPosition(reader);
                 break;
             }
-            case ClientVoiceMessages::LocalAudioMute:  // 1DF9EE0
+            case ClientVoiceMessages::LocalAudioMute:  // TAG: 1DF9EE0
             {
                 ClientVoice::OnLocalAudioMute(reader);
                 break;
             }
-            case ClientVoiceMessages::LocalSetRegionBroadcasted:  // 1DF9F50
+            case ClientVoiceMessages::LocalSetRegionBroadcasted:  // TAG: 1DF9F50
             {
                 ClientVoice::OnLocalSetRegionBroadcasted(reader);
                 break;
             }
-            case ClientVoiceMessages::LocalSetMuteAll:  // 1DFA110
+            case ClientVoiceMessages::LocalSetMuteAll:  // TAG: 1DFA110
             {
                 ClientVoice::OnLocalSetMuteAll(reader);
                 break;
             }
-            case ClientVoiceMessages::GroupAudioData:  // 1DFA2D0
+            case ClientVoiceMessages::GroupAudioData:  // TAG: 1DFA2D0
             {
                 ClientVoice::OnGroupAudioData(reader);
                 break;
             }
-            case ClientVoiceMessages::LocalTextData:  // 1DFA340
+            case ClientVoiceMessages::LocalTextData:  // TAG: 1DFA340
             {
                 ClientVoice::OnLocalTextData(reader);
                 break;
             }
-            case ClientVoiceMessages::MasterInstance:  // 1DFA3B0
+            case ClientVoiceMessages::MasterInstance:  // TAG: 1DFA3B0
             {
                 ClientVoice::OnMasterInstance(reader);
                 break;
             }
-            case ClientVoiceMessages::VoiceModerationCommand:  // 1DFA540
+            case ClientVoiceMessages::VoiceModerationCommand:  // TAG: 1DFA540
             {
                 ClientVoice::OnVoiceModerationCommand(reader);
                 break;
             }
-            case ClientVoiceMessages::VoiceModerationCommandResponse:  // 1DFA6F0
+            case ClientVoiceMessages::VoiceModerationCommandResponse:  // TAG: 1DFA6F0
             {
                 ClientVoice::OnVoiceModerationCommandResponse(reader);
                 break;
             }
-            case ClientVoiceMessages::VoiceNotification:  // 1DFA760
+            case ClientVoiceMessages::VoiceNotification:  // TAG: 1DFA760
             {
                 ClientVoice::OnVoiceNotification(reader);
                 break;
@@ -121,7 +121,7 @@ public:
         return true;
     }
 
-    static void OnLogin(PacketReader &reader)  // 1DF9BD0
+    static void OnLogin(PacketReader &reader)  // TAG: 1DF9BD0
     {
         auto instance = reader.ReadString();
         auto secret = reader.ReadUint32();
@@ -129,7 +129,7 @@ public:
         auto slave = reader.ReadUint8();
     }
 
-    static void OnLoginReply(PacketReader &reader)  // 1DF9C40
+    static void OnLoginReply(PacketReader &reader)  // TAG: 1DF9C40
     {
         auto success = reader.ReadUint8();
         auto message = reader.ReadString();
@@ -137,18 +137,18 @@ public:
         printf("OnClientVoiceLoginReply: Success=%d: %s\n", success, message.c_str());
     }
 
-    static void OnAudioData(PacketReader &reader)  // 1DF9CB0
+    static void OnAudioData(PacketReader &reader)  // TAG: 1DF9CB0
     {
         auto volume = reader.ReadUint16();
         auto data = reader.ReadArray();
     }
 
-    static void OnSpeechGraphicsData(PacketReader &reader) // 1DF9D20
+    static void OnSpeechGraphicsData(PacketReader &reader) // TAG: 1DF9D20
     {
         auto data = reader.ReadArray();
     }
 
-    static void OnLocalAudioData(PacketReader &reader) // 1DF9D90
+    static void OnLocalAudioData(PacketReader &reader) // TAG: 1DF9D90
     {
         auto sequence = reader.ReadUint64();
         auto instance = reader.ReadString();
@@ -156,7 +156,7 @@ public:
         auto broadcast = reader.ReadUint8();
     }
 
-    static void OnLocalAudioStreamState(PacketReader &reader) // 1DF9E00
+    static void OnLocalAudioStreamState(PacketReader &reader) // TAG: 1DF9E00
     {
         auto instance = reader.ReadString();
         auto agentControllerId = reader.ReadUint32();
@@ -171,7 +171,7 @@ public:
         );
     }
 
-    static void OnLocalAudioPosition(PacketReader &reader) // 1DF9E70
+    static void OnLocalAudioPosition(PacketReader &reader) // TAG: 1DF9E70
     {
         auto sequence = reader.ReadUint64();
         auto instance = reader.ReadString();
@@ -179,52 +179,52 @@ public:
         auto agentControllerId = reader.ReadUint32();
     }
 
-    static void OnLocalAudioMute(PacketReader &reader) // 1DF9EE0
+    static void OnLocalAudioMute(PacketReader &reader) // TAG: 1DF9EE0
     {
         auto agentControllerId = reader.ReadUint32();
         auto shouldMute = reader.ReadUint8();
     }
 
-    static void OnLocalSetRegionBroadcasted(PacketReader &reader) // 1DF9F50
+    static void OnLocalSetRegionBroadcasted(PacketReader &reader) // TAG: 1DF9F50
     {
         auto broadcasted = reader.ReadUint8();
     }
 
-    static void OnLocalSetMuteAll(PacketReader &reader)  // 1DFA110
+    static void OnLocalSetMuteAll(PacketReader &reader)  // TAG: 1DFA110
     {
         auto muteAll = reader.ReadUint8();
     }
 
-    static void OnGroupAudioData(PacketReader &reader) // 1DFA2D0
+    static void OnGroupAudioData(PacketReader &reader) // TAG: 1DFA2D0
     {
         auto group = reader.ReadString();
         auto user = reader.ReadString();
     }
 
-    static void OnLocalTextData(PacketReader &reader)  // 1DFA340
+    static void OnLocalTextData(PacketReader &reader)  // TAG: 1DFA340
     {
         auto instance = reader.ReadString();
         auto agentControllerId = reader.ReadUint32();
         auto data = reader.ReadString();
     }
 
-    static void OnMasterInstance(PacketReader &reader) // 1DFA3B0
+    static void OnMasterInstance(PacketReader &reader) // TAG: 1DFA3B0
     {
         auto instance = reader.ReadUUID();
     }
 
-    static void OnVoiceModerationCommand(PacketReader &reader)  // 1DFA540
+    static void OnVoiceModerationCommand(PacketReader &reader)  // TAG: 1DFA540
     {
         auto commandLine = reader.ReadString();
     }
 
-    static void OnVoiceModerationCommandResponse(PacketReader &reader)  // 1DFA6F0
+    static void OnVoiceModerationCommandResponse(PacketReader &reader)  // TAG: 1DFA6F0
     {
         auto message = reader.ReadString();
         auto success = reader.ReadUint8();
     }
 
-    static void OnVoiceNotification(PacketReader &reader)  // 1DFA760
+    static void OnVoiceNotification(PacketReader &reader)  // TAG: 1DFA760
     {
         auto notification = reader.ReadString();
     }

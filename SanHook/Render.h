@@ -18,7 +18,7 @@ public:
     {
         switch (messageId)
         {
-            case RenderMessages::LightStateChanged: // 1611170
+            case RenderMessages::LightStateChanged: // TAG: 1611170
             {
                 Render::OnLightStateChanged(reader);
                 break;
@@ -32,7 +32,7 @@ public:
         return true;
     }
 
-    static void OnLightStateChanged(PacketReader &reader)  // 1611170
+    static void OnLightStateChanged(PacketReader &reader)  // TAG: 1611170
     {
         auto componentId = reader.ReadUint64();
         auto frame = reader.ReadUint64();

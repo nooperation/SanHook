@@ -28,57 +28,57 @@ public:
     {
         switch (messageId)
         {
-            case GameWorldMessages::Timestamp:  // 16E9DC0
+            case GameWorldMessages::Timestamp:  // TAG: 16E9DC0
             {
                 GameWorld::OnTimestamp(reader);
                 break;
             }
-            case GameWorldMessages::MoveEntity: // 16E9E30
+            case GameWorldMessages::MoveEntity: // TAG: 16E9E30
             {
                 GameWorld::OnMoveEntity(reader);
                 break;
             }
-            case GameWorldMessages::ChangeMaterialVectorParam:  // 16E9EA0
+            case GameWorldMessages::ChangeMaterialVectorParam:  // TAG: 16E9EA0
             {
                 GameWorld::OnChangeMaterialVectorParam(reader);
                 break;
             }
-            case GameWorldMessages::ChangeMaterialFloatParam:  // 16E9F10
+            case GameWorldMessages::ChangeMaterialFloatParam:  // TAG: 16E9F10
             {
                 GameWorld::OnChangeMaterialFloatParam(reader);
                 break;
             }
-            case GameWorldMessages::ChangeMaterial:  // 16E9F80
+            case GameWorldMessages::ChangeMaterial:  // TAG: 16E9F80
             {
                 GameWorld::OnChangeMaterial(reader);
                 break;
             }
-            case GameWorldMessages::StaticMeshFlagsChanged:  // 16E9FF0
+            case GameWorldMessages::StaticMeshFlagsChanged:  // TAG: 16E9FF0
             {
                 GameWorld::OnStaticMeshFlagsChanged(reader);
                 break;
             }
-            case GameWorldMessages::StaticMeshScaleChanged:  // 16EA060
+            case GameWorldMessages::StaticMeshScaleChanged:  // TAG: 16EA060
             {
                 GameWorld::OnStaticMeshScaleChanged(reader);
                 break;
             }
-            case GameWorldMessages::RiggedMeshFlagsChange:  // 16EA0D0
+            case GameWorldMessages::RiggedMeshFlagsChange:  // TAG: 16EA0D0
             {
                 GameWorld::OnRiggedMeshFlagsChange(reader);
                 break;
             }
-            case GameWorldMessages::RiggedMeshScaleChanged:  // 16EA140
+            case GameWorldMessages::RiggedMeshScaleChanged:  // TAG: 16EA140
             {
                 GameWorld::OnRiggedMeshScaleChanged(reader);
                 break;
             }
-            case GameWorldMessages::ScriptCameraMessage:  // 16EA1B0
+            case GameWorldMessages::ScriptCameraMessage:  // TAG: 16EA1B0
             {
                 GameWorld::OnScriptCameraMessage(reader);
                 break;
             }
-            case GameWorldMessages::UpdateRuntimeInventorySettings:  // 16EA220
+            case GameWorldMessages::UpdateRuntimeInventorySettings:  // TAG: 16EA220
             {
                 GameWorld::OnUpdateRuntimeInventorySettings(reader);
                 break;
@@ -92,13 +92,13 @@ public:
         return true;
     }
 
-    static void OnTimestamp(PacketReader &reader) // 16E9DC0
+    static void OnTimestamp(PacketReader &reader) // TAG: 16E9DC0
     {
         auto nanoseconds = reader.ReadUint64();
         auto frame = reader.ReadUint64();
     }
 
-    static void OnMoveEntity(PacketReader &reader)// 16E9E30
+    static void OnMoveEntity(PacketReader &reader)// TAG: 16E9E30
     {
         auto startFrame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -119,21 +119,21 @@ public:
         //);
     }
 
-    static void OnChangeMaterialVectorParam(PacketReader &reader)// 16E9EA0
+    static void OnChangeMaterialVectorParam(PacketReader &reader)// TAG: 16E9EA0
     {
         auto parameter = reader.ReadUint8();
         auto start = reader.ReadVectorF(3);
         auto end = reader.ReadVectorF(3);
     }
 
-    static void OnChangeMaterialFloatParam(PacketReader &reader)   // 16E9F10
+    static void OnChangeMaterialFloatParam(PacketReader &reader)   // TAG: 16E9F10
     {
         auto parameter = reader.ReadUint8();
         auto start = reader.ReadFloat();
         auto end = reader.ReadFloat();
     }
 
-    static void OnChangeMaterial(PacketReader &reader) // 16E9F80
+    static void OnChangeMaterial(PacketReader &reader) // TAG: 16E9F80
     {
         auto startFrame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -156,42 +156,42 @@ public:
         */
     }
 
-    static void OnStaticMeshFlagsChanged(PacketReader &reader) // 16E9FF0
+    static void OnStaticMeshFlagsChanged(PacketReader &reader) // TAG: 16E9FF0
     {
         auto componentid = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto flags = reader.ReadUint8();
     }
 
-    static void OnStaticMeshScaleChanged(PacketReader &reader)  // 16EA060
+    static void OnStaticMeshScaleChanged(PacketReader &reader)  // TAG: 16EA060
     {
         auto componentid = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto scale = reader.ReadFloat();
     }
 
-    static void OnRiggedMeshFlagsChange(PacketReader &reader) // 16EA0D0
+    static void OnRiggedMeshFlagsChange(PacketReader &reader) // TAG: 16EA0D0
     {
         auto componentid = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto flags = reader.ReadUint8();
     }
 
-    static void OnRiggedMeshScaleChanged(PacketReader &reader) // 16EA140
+    static void OnRiggedMeshScaleChanged(PacketReader &reader) // TAG: 16EA140
     {
         auto componentid = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto scale = reader.ReadFloat();
     }
 
-    static void OnScriptCameraMessage(PacketReader &reader) // 16EA1B0
+    static void OnScriptCameraMessage(PacketReader &reader) // TAG: 16EA1B0
     {
         auto componentid = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto controlMode = reader.ReadBits(4);
     }
 
-    static void OnUpdateRuntimeInventorySettings(PacketReader &reader) // 16EA220
+    static void OnUpdateRuntimeInventorySettings(PacketReader &reader) // TAG: 16EA220
     {
         auto spawnSource = reader.ReadUint8();
         auto spawnLifetimePolicy = reader.ReadUint8();

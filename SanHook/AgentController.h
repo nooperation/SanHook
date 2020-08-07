@@ -49,167 +49,167 @@ public:
     {
         switch (messageId)
         {
-            case AgentControllerMessages::ControlPoint:  // 170F790
+            case AgentControllerMessages::ControlPoint:  // TAG: 170F790
             {
                 AgentController::OnControlPoint(reader);
                 break;
             }
-            case AgentControllerMessages::WarpCharacter: // 170F800
+            case AgentControllerMessages::WarpCharacter: // TAG: 170F800
             {
                 AgentController::OnWarpCharacter(reader);
                 break;
             }
-            case AgentControllerMessages::RequestWarpCharacter:  // 170F870
+            case AgentControllerMessages::RequestWarpCharacter:  // TAG: 170F870
             {
                 AgentController::OnRequestWarpCharacter(reader);
                 break;
             }
-            case AgentControllerMessages::CharacterControlPointInput:  // 170F8E0
+            case AgentControllerMessages::CharacterControlPointInput:  // TAG: 170F8E0
             {
                 AgentController::OnCharacterControlPointInput(reader);
                 break;
             }
-            case AgentControllerMessages::CharacterControlPointInputReliable:  // 170F950
+            case AgentControllerMessages::CharacterControlPointInputReliable:  // TAG: 170F950
             {
                 AgentController::OnCharacterControlPointInputReliable(reader);
                 break;
             }
-            case AgentControllerMessages::CharacterControllerInput: // 170F9C0
+            case AgentControllerMessages::CharacterControllerInput: // TAG: 170F9C0
             {
                 AgentController::OnCharacterControllerInput(reader);
                 break;
             }
-            case AgentControllerMessages::CharacterControllerInputReliable: // 170FA30
+            case AgentControllerMessages::CharacterControllerInputReliable: // TAG: 170FA30
             {
                 AgentController::OnCharacterControllerInputReliable(reader);
                 break;
             }
-            case AgentControllerMessages::AgentPlayAnimation:  // 170FAA0
+            case AgentControllerMessages::AgentPlayAnimation:  // TAG: 170FAA0
             {
                 AgentController::OnAgentPlayAnimation(reader);
                 break;
             }
-            case AgentControllerMessages::RequestAgentPlayAnimation:  // 170FB10
+            case AgentControllerMessages::RequestAgentPlayAnimation:  // TAG: 170FB10
             {
                 AgentController::OnRequestAgentPlayAnimation(reader);
                 break;
             }
-            case AgentControllerMessages::RequestBehaviorStateUpdate:  // 170FB80
+            case AgentControllerMessages::RequestBehaviorStateUpdate:  // TAG: 170FB80
             {
                 AgentController::OnRequestBehaviorStateUpdate(reader);
                 break;
             }
-            case AgentControllerMessages::AttachToCharacterNode:  // 170FBF0
+            case AgentControllerMessages::AttachToCharacterNode:  // TAG: 170FBF0
             {
                 AgentController::OnAttachToCharacterNode(reader);
                 break;
             }
-            case AgentControllerMessages::DetachFromCharacterNode:  // 170FC60
+            case AgentControllerMessages::DetachFromCharacterNode:  // TAG: 170FC60
             {
                 AgentController::OnDetachFromCharacterNode(reader);
                 break;
             }
-            case AgentControllerMessages::RequestDetachFromCharacterNode:  // 170FCD0
+            case AgentControllerMessages::RequestDetachFromCharacterNode:  // TAG: 170FCD0
             {
                 AgentController::OnRequestDetachFromCharacterNode(reader);
                 break;
             }
-            case AgentControllerMessages::SetCharacterNodePhysics:  // 170FD40
+            case AgentControllerMessages::SetCharacterNodePhysics:  // TAG: 170FD40
             {
                 AgentController::OnSetCharacterNodePhysics(reader);
                 break;
             }
-            case AgentControllerMessages::WarpCharacterNode:  // 170FDB0
+            case AgentControllerMessages::WarpCharacterNode:  // TAG: 170FDB0
             {
                 AgentController::OnWarpCharacterNode(reader);
                 break;
             }
-            case AgentControllerMessages::CharacterIKBone:  // 170FE20
+            case AgentControllerMessages::CharacterIKBone:  // TAG: 170FE20
             {
                 AgentController::OnCharacterIKBone(reader);
                 break;
             }
-            case AgentControllerMessages::CharacterIKPose:  // 170FE90
+            case AgentControllerMessages::CharacterIKPose:  // TAG: 170FE90
             {
                 AgentController::OnCharacterIKPose(reader);
                 break;
             }
-            case AgentControllerMessages::CharacterIKBoneDelta:  // 1710040
+            case AgentControllerMessages::CharacterIKBoneDelta:  // TAG: 1710040
             {
                 AgentController::OnCharacterIKBoneDelta(reader);
                 break;
             }
-            case AgentControllerMessages::CharacterIKPoseDelta:  // 17100B0
+            case AgentControllerMessages::CharacterIKPoseDelta:  // TAG: 17100B0
             {
                 AgentController::OnCharacterIKPoseDelta(reader);
                 break;
             }
-            case AgentControllerMessages::ObjectInteraction:  // 1710260
+            case AgentControllerMessages::ObjectInteraction:  // TAG: 1710260
             {
                 AgentController::OnObjectInteraction(reader);
                 break;
             }
-            case AgentControllerMessages::ObjectInteractionUpdate:  // 17102D0
+            case AgentControllerMessages::ObjectInteractionUpdate:  // TAG: 17102D0
             {
                 AgentController::OnObjectInteractionUpdate(reader);
                 break;
             }
-            case AgentControllerMessages::ObjectInteractionPromptUpdate:  // 1710340
+            case AgentControllerMessages::ObjectInteractionPromptUpdate:  // TAG: 1710340
             {
                 AgentController::OnObjectInteractionPromptUpdate(reader);
                 break;
             }
-            case AgentControllerMessages::ObjectInteractionCreate:  // 17103B0
+            case AgentControllerMessages::ObjectInteractionCreate:  // TAG: 17103B0
             {
                 AgentController::OnObjectInteractionCreate(reader);
                 break;
             }
-            case AgentControllerMessages::RequestSitOnObject:  // 1710420
+            case AgentControllerMessages::RequestSitOnObject:  // TAG: 1710420
             {
                 AgentController::OnRequestSitOnObject(reader);
                 break;
             }
-            case AgentControllerMessages::SitOnObject:  // 1710490
+            case AgentControllerMessages::SitOnObject:  // TAG: 1710490
             {
                 AgentController::OnSitOnObject(reader);
                 break;
             }
-            case AgentControllerMessages::ExitSit:  // 1710500
+            case AgentControllerMessages::ExitSit:  // TAG: 1710500
             {
                 AgentController::OnExitSit(reader);
                 break;
             }
-            case AgentControllerMessages::SetAgentFiltersBody:  // 1710570
+            case AgentControllerMessages::SetAgentFiltersBody:  // TAG: 1710570
             {
                 AgentController::OnSetAgentFiltersBody(reader);
                 break;
             }
-            case AgentControllerMessages::RequestSetAgentFiltersBody:  // 17105E0
+            case AgentControllerMessages::RequestSetAgentFiltersBody:  // TAG: 17105E0
             {
                 AgentController::OnRequestSetAgentfiltersBody(reader);
                 break;
             }
-            case AgentControllerMessages::SetCharacterUserProperty:  // 1710650
+            case AgentControllerMessages::SetCharacterUserProperty:  // TAG: 1710650
             {
                 AgentController::OnSetCharacterUserProperty(reader);
                 break;
             }
-            case AgentControllerMessages::CreateSpeechGraphicsPlayer: // 0x158B2580  // 17106C0
+            case AgentControllerMessages::CreateSpeechGraphicsPlayer: // TAG: 17106C0
             {
                 AgentController::OnCreateSpeechGraphicsPlayer(reader);
                 break;
             }
-            case AgentControllerMessages::RequestSpawnItem:  // 1710730
+            case AgentControllerMessages::RequestSpawnItem:  // TAG: 1710730
             {
                 AgentController::OnRequestSpawnItem(reader);
                 break;
             }
-            case AgentControllerMessages::RequestDeleteLatestSpawn:  // 17107A0
+            case AgentControllerMessages::RequestDeleteLatestSpawn:  // TAG: 17107A0
             {
                 AgentController::OnRequestDeleteLatestSpawn(reader);
                 break;
             }
-            case AgentControllerMessages::RequestDeleteAllSpawns:  // 1710810
+            case AgentControllerMessages::RequestDeleteAllSpawns:  // TAG: 1710810
             {
                 AgentController::OnRequestDeleteAllSpawns(reader);
                 break;
@@ -223,7 +223,7 @@ public:
         return true;
     }
 
-    static void OnCharacterControllerInput(PacketReader &reader) // 170F9C0
+    static void OnCharacterControllerInput(PacketReader &reader) // TAG: 170F9C0
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -293,7 +293,7 @@ public:
         //);
     }
 
-    static void OnObjectInteractionUpdate(PacketReader &reader)  // 17102D0
+    static void OnObjectInteractionUpdate(PacketReader &reader)  // TAG: 17102D0
     {
         auto frame = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
@@ -308,7 +308,7 @@ public:
         );
     }
 
-    static void OnCreateSpeechGraphicsPlayer(PacketReader &reader) // 17106C0
+    static void OnCreateSpeechGraphicsPlayer(PacketReader &reader) // TAG: 17106C0
     {
         auto agentControllerId = reader.ReadUint32();
 
@@ -320,7 +320,7 @@ public:
         );
     }
 
-    static void OnCharacterIKPoseDelta(PacketReader &reader)  // 17100B0
+    static void OnCharacterIKPoseDelta(PacketReader &reader)  // TAG: 17100B0
     {
         auto agentControllerId = reader.ReadUint32();
         auto frame = reader.ReadUint64();
@@ -341,7 +341,7 @@ public:
         );
     }
 
-    static void OnCharacterIKPose(PacketReader &reader)   // 170FE90
+    static void OnCharacterIKPose(PacketReader &reader)   // TAG: 170FE90
     {
         // TODO: Nope, not handling this one
 
@@ -365,17 +365,17 @@ public:
         );
     }
 
-    static void OnCharacterControlPointInputReliable(PacketReader &reader)  // 170F950
+    static void OnCharacterControlPointInputReliable(PacketReader &reader)  // TAG: 170F950
     {
         OnCharacterControlPointInput(reader);
     }
 
-    static void OnCharacterControllerInputReliable(PacketReader &reader) // 170FA30
+    static void OnCharacterControllerInputReliable(PacketReader &reader) // TAG: 170FA30
     {
         OnCharacterControllerInput(reader);
     }
 
-    static void OnCharacterControlPointInput(PacketReader &reader)  // 170F8E0
+    static void OnCharacterControlPointInput(PacketReader &reader)  // TAG: 170F8E0
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -398,7 +398,7 @@ public:
         );
     }
 
-    static void OnWarpCharacter(PacketReader &reader) // 170F800
+    static void OnWarpCharacter(PacketReader &reader) // TAG: 170F800
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -423,7 +423,7 @@ public:
         );
     }
 
-    static void OnControlPoint(PacketReader &reader)  // 170F790
+    static void OnControlPoint(PacketReader &reader)  // TAG: 170F790
     {
         auto position = reader.ReadBits(0x30);
         auto orientation = reader.ReadBits(0x28);
@@ -431,30 +431,30 @@ public:
         auto controlPointType = reader.ReadBits(4);
     }
 
-    static void OnRequestWarpCharacter(PacketReader &reader)  // 170F870
+    static void OnRequestWarpCharacter(PacketReader &reader)  // TAG: 170F870
     {
         // double check...
         OnWarpCharacter(reader);
     }
 
-    static void OnAgentPlayAnimation(PacketReader &reader)   // 170FAA0
+    static void OnAgentPlayAnimation(PacketReader &reader)   // TAG: 170FAA0
     {
         auto agentControllerId = reader.ReadUint32();
     }
 
-    static void OnRequestAgentPlayAnimation(PacketReader &reader)  // 170FB10
+    static void OnRequestAgentPlayAnimation(PacketReader &reader)  // TAG: 170FB10
     {
         // double check...
         OnAgentPlayAnimation(reader);
     }
 
-    static void OnRequestBehaviorStateUpdate(PacketReader &reader) // 170FB80
+    static void OnRequestBehaviorStateUpdate(PacketReader &reader) // TAG: 170FB80
     {
         // double check...
         AnimationComponent::OnBehaviorStateUpdate(reader);
     }
 
-    static void OnAttachToCharacterNode(PacketReader &reader)   // 170FBF0
+    static void OnAttachToCharacterNode(PacketReader &reader)   // TAG: 170FBF0
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -466,7 +466,7 @@ public:
         auto broadcastToSelf = reader.ReadUint8();
     }
 
-    static void OnDetachFromCharacterNode(PacketReader &reader)  // 170FC60
+    static void OnDetachFromCharacterNode(PacketReader &reader)  // TAG: 170FC60
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -478,12 +478,12 @@ public:
         auto nodeType = reader.ReadUint8();
     }
 
-    static void OnRequestDetachFromCharacterNode(PacketReader &reader)  // 170FCD0
+    static void OnRequestDetachFromCharacterNode(PacketReader &reader)  // TAG: 170FCD0
     {
         OnDetachFromCharacterNode(reader);
     }
 
-    static void OnSetCharacterNodePhysics(PacketReader &reader)  // 170FD40
+    static void OnSetCharacterNodePhysics(PacketReader &reader)  // TAG: 170FD40
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -492,25 +492,25 @@ public:
         auto broadcastToSelf = reader.ReadUint8();
     }
 
-    static void OnWarpCharacterNode(PacketReader &reader) // 170FDB0
+    static void OnWarpCharacterNode(PacketReader &reader) // TAG: 170FDB0
     {
         auto agentControllerId = reader.ReadUint32();
         auto nodeType = reader.ReadUint32(); /// why is this node type 4bytes?
     }
 
-    static void OnCharacterIKBone(PacketReader &reader) // 170FE20
+    static void OnCharacterIKBone(PacketReader &reader) // TAG: 170FE20
     {
         auto boneIndex = reader.ReadBits(6);
         auto localOrientation = reader.ReadBits(0x28);
     }
 
-    static void OnCharacterIKBoneDelta(PacketReader &reader)  // 1710040
+    static void OnCharacterIKBoneDelta(PacketReader &reader)  // TAG: 1710040
     {
         auto boneIndex = reader.ReadBits(6);
         auto localOrientation = reader.ReadBits(0x19);
     }
 
-    static void OnObjectInteraction(PacketReader &reader)   // 1710260
+    static void OnObjectInteraction(PacketReader &reader)   // TAG: 1710260
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -521,7 +521,7 @@ public:
         auto controlPointType = reader.ReadBits(4);
     }
 
-    static void OnObjectInteractionPromptUpdate(PacketReader &reader)   // 1710340
+    static void OnObjectInteractionPromptUpdate(PacketReader &reader)   // TAG: 1710340
     {
         auto frame = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
@@ -536,7 +536,7 @@ public:
         );
     }
 
-    static void OnObjectInteractionCreate(PacketReader &reader)  // 17103B0
+    static void OnObjectInteractionCreate(PacketReader &reader)  // TAG: 17103B0
     {
         auto frame = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
@@ -553,12 +553,12 @@ public:
         );
     }
 
-    static void OnRequestSitOnObject(PacketReader &reader)  // 1710420
+    static void OnRequestSitOnObject(PacketReader &reader)  // TAG: 1710420
     {
         OnSitOnObject(reader);
     }
 
-    static void OnSitOnObject(PacketReader &reader)  // 1710490
+    static void OnSitOnObject(PacketReader &reader)  // TAG: 1710490
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -575,7 +575,7 @@ public:
         );
     }
 
-    static void OnExitSit(PacketReader &reader)  // 1710500
+    static void OnExitSit(PacketReader &reader)  // TAG: 1710500
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -590,7 +590,7 @@ public:
         );
     }
 
-    static void OnSetAgentFiltersBody(PacketReader &reader) // 1710570
+    static void OnSetAgentFiltersBody(PacketReader &reader) // TAG: 1710570
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -605,12 +605,12 @@ public:
         );
     }
 
-    static void OnRequestSetAgentfiltersBody(PacketReader &reader)  // 17105E0
+    static void OnRequestSetAgentfiltersBody(PacketReader &reader)  // TAG: 17105E0
     {
         OnSetAgentFiltersBody(reader);
     }
 
-    static void OnSetCharacterUserProperty(PacketReader &reader)  // 1710650
+    static void OnSetCharacterUserProperty(PacketReader &reader)  // TAG: 1710650
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -625,7 +625,7 @@ public:
         );
     }
 
-    static void OnRequestSpawnItem(PacketReader &reader) // 1710730
+    static void OnRequestSpawnItem(PacketReader &reader) // TAG: 1710730
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -642,7 +642,7 @@ public:
         );
     }
 
-    static void OnRequestDeleteLatestSpawn(PacketReader &reader)  // 17107A0
+    static void OnRequestDeleteLatestSpawn(PacketReader &reader)  // TAG: 17107A0
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -653,7 +653,7 @@ public:
         );
     }
 
-    static void OnRequestDeleteAllSpawns(PacketReader &reader)  // 1710810
+    static void OnRequestDeleteAllSpawns(PacketReader &reader)  // TAG: 1710810
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -664,7 +664,7 @@ public:
         );
     }
 
-    static void OnPlayAnimation(PacketReader &reader) // 1581210
+    static void OnPlayAnimation(PacketReader &reader) // TAG: 1581210
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();

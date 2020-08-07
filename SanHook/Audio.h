@@ -27,52 +27,52 @@ public:
     {
         switch (messageId)
         {
-            case AudioMessages::LoadSound:  // 0x412484C4 // 15B6490
+            case AudioMessages::LoadSound:  // TAG: 15B6490
             {
                 Audio::OnLoadSound(reader);
                 break;
             }
-            case AudioMessages::PlaySound:  // 0x8FC77316 // 15B6620
+            case AudioMessages::PlaySound:  // TAG: 15B6620
             {
                 Audio::OnPlaySound(reader);
                 break;
             }
-            case AudioMessages::PlayStream:  // 15B6690
+            case AudioMessages::PlayStream:  // TAG: 15B6690
             {
                 Audio::OnPlayStream(reader);
                 break;
             }
-            case AudioMessages::StopBroadcastingSound:  // 15B6700
+            case AudioMessages::StopBroadcastingSound:  // TAG: 15B6700
             {
                 Audio::OnStopBroadcastingSound(reader);
                 break;
             }
-            case AudioMessages::SetAudioStream:  // 15B68C0
+            case AudioMessages::SetAudioStream:  // TAG: 15B68C0
             {
                 Audio::OnSetAudioStream(reader);
                 break;
             }
-            case AudioMessages::SetMediaSource:  // 15B6930
+            case AudioMessages::SetMediaSource:  // TAG: 15B6930
             {
                 Audio::OnSetMediaSource(reader);
                 break;
             }
-            case AudioMessages::PerformMediaAction:  // 15B69A0
+            case AudioMessages::PerformMediaAction:  // TAG: 15B69A0
             {
                 Audio::OnPerformMediaAction(reader);
                 break;
             }
-            case AudioMessages::StopSound:  // 15B6A10
+            case AudioMessages::StopSound:  // TAG: 15B6A10
             {
                 Audio::OnStopSound(reader);
                 break;
             }
-            case AudioMessages::SetLoudness: // 0x20EDD0C4  // 15B6A80
+            case AudioMessages::SetLoudness: // TAG: 15B6A80
             {
                 Audio::OnSetLoudness(reader);
                 break;
             }
-            case AudioMessages::SetPitch: // 0x7BB86A5B  // 15B6AF0
+            case AudioMessages::SetPitch: // TAG: 15B6AF0
             {
                 Audio::OnSetPitch(reader);
                 break;
@@ -87,7 +87,7 @@ public:
     }
 
 
-    static void OnLoadSound(PacketReader &reader) // 15B6490
+    static void OnLoadSound(PacketReader &reader) // TAG: 15B6490
     {
         auto resourceId = reader.ReadUUID();
 
@@ -96,7 +96,7 @@ public:
         );
     }
 
-    static void OnPlaySound(PacketReader &reader) // 15B6620
+    static void OnPlaySound(PacketReader &reader) // TAG: 15B6620
     {
         auto resourceId = reader.ReadUUID();
         auto createPlayHandleId = reader.ReadUint64();
@@ -121,7 +121,7 @@ public:
         );
     }
 
-    static void OnPlayStream(PacketReader &reader) // 15B6690
+    static void OnPlayStream(PacketReader &reader) // TAG: 15B6690
     {
         auto streamChannel = reader.ReadUint8();
         auto createPlayHandleId = reader.ReadUint64();
@@ -132,18 +132,18 @@ public:
         auto flags = reader.ReadUint8();
     }
 
-    static void OnStopBroadcastingSound(PacketReader &reader) // 15B6700
+    static void OnStopBroadcastingSound(PacketReader &reader) // TAG: 15B6700
     {
         auto playHandleId = reader.ReadUint64();
     }
 
-    static void OnSetAudioStream(PacketReader &reader) // 15B68C0
+    static void OnSetAudioStream(PacketReader &reader) // TAG: 15B68C0
     {
         auto url = reader.ReadString();
         auto rebroadcast = reader.ReadUint8();
     }
 
-    static void OnSetMediaSource(PacketReader &reader)  // 15B6930
+    static void OnSetMediaSource(PacketReader &reader)  // TAG: 15B6930
     {
         auto url = reader.ReadString();
         auto mediaWidth = reader.ReadUint32();
@@ -151,19 +151,19 @@ public:
         auto rebroadcast = reader.ReadUint8();
     }
 
-    static void OnPerformMediaAction(PacketReader &reader)  // 15B69A0
+    static void OnPerformMediaAction(PacketReader &reader)  // TAG: 15B69A0
     {
         auto mediaAction = reader.ReadUint32();
         auto rebroadcast = reader.ReadUint8();
     }
 
-    static void OnStopSound(PacketReader &reader) // 15B6A10
+    static void OnStopSound(PacketReader &reader) // TAG: 15B6A10
     {
         auto playHandleId = reader.ReadUint64();
         auto immediate = reader.ReadUint8();
     }
 
-    static void OnSetLoudness(PacketReader &reader) // 15B6A80
+    static void OnSetLoudness(PacketReader &reader) // TAG: 15B6A80
     {
         auto playHandleId = reader.ReadUint32();
         auto loudness = reader.ReadUint32();
@@ -174,7 +174,7 @@ public:
         );
     }
 
-    static void OnSetPitch(PacketReader &reader) // 15B6AF0
+    static void OnSetPitch(PacketReader &reader) // TAG: 15B6AF0
     {
         auto playHandleId = reader.ReadUint32();
         auto pitch = reader.ReadUint32();

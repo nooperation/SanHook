@@ -20,22 +20,22 @@ public:
     {
         switch (messageId)
         {
-            case RegionRegionMessages::DynamicSubscribe: // 1BB19B0
+            case RegionRegionMessages::DynamicSubscribe: // TAG: 1BB19B0
             {
                 RegionRegion::OnDynamicSubscribe(reader);
                 break;
             }
-            case RegionRegionMessages::DynamicPlayback: // 1BB1B00
+            case RegionRegionMessages::DynamicPlayback: // TAG: 1BB1B00
             {
                 RegionRegion::OnDynamicPlayback(reader);
                 break;
             }
-            case RegionRegionMessages::MasterFrameSync: // 1BB1C50
+            case RegionRegionMessages::MasterFrameSync: // TAG: 1BB1C50
             {
                 RegionRegion::OnMasterFrameSync(reader);
                 break;
             }
-            case RegionRegionMessages::AgentControllerMapping: // 1BB1E10
+            case RegionRegionMessages::AgentControllerMapping: // TAG: 1BB1E10
             {
                 RegionRegion::OnAgentControllerMapping(reader);
                 break;
@@ -49,22 +49,22 @@ public:
         return true;
     }
 
-    static void OnDynamicSubscribe(PacketReader &reader)  // 1BB19B0
+    static void OnDynamicSubscribe(PacketReader &reader)  // TAG: 1BB19B0
     {
         // No payload
     }
 
-    static void OnDynamicPlayback(PacketReader &reader) // 1BB1B00
+    static void OnDynamicPlayback(PacketReader &reader) // TAG: 1BB1B00
     {
         // No payload
     }
 
-    static void OnMasterFrameSync(PacketReader &reader) // 1BB1C50
+    static void OnMasterFrameSync(PacketReader &reader) // TAG: 1BB1C50
     {
         auto masterFrame = reader.ReadUint64();
     }
 
-    static void OnAgentControllerMapping(PacketReader &reader)  // 1BB1E10
+    static void OnAgentControllerMapping(PacketReader &reader)  // TAG: 1BB1E10
     {
         auto agentControllerId = reader.ReadUint32();
         auto animationComponentId = reader.ReadUint64();

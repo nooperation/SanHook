@@ -30,72 +30,72 @@ public:
     {
         switch (messageId)
         {
-            case WorldStateMessages::CreateWorld: // 1BB5960
+            case WorldStateMessages::CreateWorld: // TAG: 1BB5960
             {
                 WorldState::OnCreateWorld(reader);
                 break;
             }
-            case WorldStateMessages::DestroyWorld: // 1BB59D0
+            case WorldStateMessages::DestroyWorld: // TAG: 1BB59D0
             {
                 WorldState::OnDestroyWorld(reader);
                 break;
             }
-            case WorldStateMessages::RigidBodyComponentInitialState: // 1BB5B90
+            case WorldStateMessages::RigidBodyComponentInitialState: // TAG: 1BB5B90
             {
                 WorldState::OnRigidBodyComponentInitialState(reader);
                 break;
             }
-            case WorldStateMessages::AnimationComponentInitialState: // 1BB5C00
+            case WorldStateMessages::AnimationComponentInitialState: // TAG: 1BB5C00
             {
                 WorldState::OnAnimationComponentInitialState(reader);
                 break;
             }
-            case WorldStateMessages::LoadClusterDefinition: // 1BB5C70
+            case WorldStateMessages::LoadClusterDefinition: // TAG: 1BB5C70
             {
                 WorldState::OnLoadClusterDefinition(reader);
                 break;
             }
-            case WorldStateMessages::ComponentRelativeTransform: // 1BB5CE0
+            case WorldStateMessages::ComponentRelativeTransform: // TAG: 1BB5CE0
             {
                 WorldState::OnComponentRelativeTransform(reader);
                 break;
             }
-            case WorldStateMessages::InitiateCluster: // 1BB5D50
+            case WorldStateMessages::InitiateCluster: // TAG: 1BB5D50
             {
                 WorldState::OnInitiateCluster(reader);
                 break;
             }
-            case WorldStateMessages::CreateClusterViaDefinition: // 1BB5DC0
+            case WorldStateMessages::CreateClusterViaDefinition: // TAG: 1BB5DC0
             {
                 WorldState::OnCreateClusterViaDefinition(reader);
                 break;
             }
-            case WorldStateMessages::DestroyCluster: // 1BB5E30
+            case WorldStateMessages::DestroyCluster: // TAG: 1BB5E30
             {
                 WorldState::OnDestroyCluster(reader);
                 break;
             }
-            case WorldStateMessages::DestroyObject: // 1BB5EA0
+            case WorldStateMessages::DestroyObject: // TAG: 1BB5EA0
             {
                 WorldState::OnDestroyObject(reader);
                 break;
             }
-            case WorldStateMessages::DestroySourceIdSpace: // 1BB6060
+            case WorldStateMessages::DestroySourceIdSpace: // TAG: 1BB6060
             {
                 WorldState::OnDestroySourceIdSpace(reader);
                 break;
             }
-            case WorldStateMessages::CreateCharacterNode: // 1BB6220
+            case WorldStateMessages::CreateCharacterNode: // TAG: 1BB6220
             {
                 WorldState::OnCreateCharacterNode(reader);
                 break;
             }
-            case WorldStateMessages::CreateAgentController: // 1BB6290
+            case WorldStateMessages::CreateAgentController: // TAG: 1BB6290
             {
                 WorldState::OnCreateAgentController(reader);
                 break;
             }
-            case WorldStateMessages::DestroyAgentController: // 1BB6300
+            case WorldStateMessages::DestroyAgentController: // TAG: 1BB6300
             {
                 WorldState::OnDestroyAgentController(reader);
                 break;
@@ -109,7 +109,7 @@ public:
         return true;;
     }
 
-    static void OnCreateWorld(PacketReader &reader) // 1BB5960
+    static void OnCreateWorld(PacketReader &reader) // TAG: 1BB5960
     {
         auto worldDefinition = reader.ReadUUID();
         auto startingClusterId = reader.ReadUint32();
@@ -122,26 +122,26 @@ public:
         );
     }
 
-    static void OnDestroyWorld(PacketReader &reader) // 1BB59D0
+    static void OnDestroyWorld(PacketReader &reader) // TAG: 1BB59D0
     {
         auto worldId = reader.ReadUint32();
     }
 
-    static void OnRigidBodyComponentInitialState(PacketReader &reader) // 1BB5B90
+    static void OnRigidBodyComponentInitialState(PacketReader &reader) // TAG: 1BB5B90
     {
         auto relativeComponentId = reader.ReadUint32();
         auto linearVelocity = reader.ReadVectorF(3);
         auto angularVelocity = reader.ReadVectorF(3);
     }
 
-    static void OnAnimationComponentInitialState(PacketReader &reader) // 1BB5C00
+    static void OnAnimationComponentInitialState(PacketReader &reader) // TAG: 1BB5C00
     {
         auto relativeComponentId = reader.ReadUint32();
         auto velocity = reader.ReadVectorF(3);
         auto behaviorState = reader.ReadArray();
     }
 
-    static void OnLoadClusterDefinition(PacketReader &reader) // 1BB5C70
+    static void OnLoadClusterDefinition(PacketReader &reader) // TAG: 1BB5C70
     {
         auto resourceId = reader.ReadUUID();
         auto clusterId = reader.ReadUint32();
@@ -152,14 +152,14 @@ public:
         );
     }
 
-    static void OnComponentRelativeTransform(PacketReader &reader) // 1BB5CE0
+    static void OnComponentRelativeTransform(PacketReader &reader) // TAG: 1BB5CE0
     {
         auto relativePosition = reader.ReadVectorF(3);
         auto relativeRotation = reader.ReadVectorF(4);
         auto componentId = reader.ReadUint64();
     }
 
-    static void OnInitiateCluster(PacketReader &reader) // 1BB5D50
+    static void OnInitiateCluster(PacketReader &reader) // TAG: 1BB5D50
     {
         auto clusterId = reader.ReadUint32();
         auto frame = reader.ReadUint64();
@@ -183,7 +183,7 @@ public:
         );
     }
 
-    static void OnCreateClusterViaDefinition(PacketReader &reader) // 1BB5DC0
+    static void OnCreateClusterViaDefinition(PacketReader &reader) // TAG: 1BB5DC0
     {
         auto clusterId = reader.ReadUint32();
         auto startingObjectId = reader.ReadUint32();
@@ -199,7 +199,7 @@ public:
         );
     }
 
-    static void OnDestroyCluster(PacketReader &reader) // 1BB5E30
+    static void OnDestroyCluster(PacketReader &reader) // TAG: 1BB5E30
     {
         auto frame = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
@@ -210,24 +210,24 @@ public:
         );
     }
 
-    static void OnDestroyObject(PacketReader &reader) // 1BB5EA0
+    static void OnDestroyObject(PacketReader &reader) // TAG: 1BB5EA0
     {
         auto objectId = reader.ReadUint32();
     }
 
-    static void OnDestroySourceIdSpace(PacketReader &reader) // 1BB6060
+    static void OnDestroySourceIdSpace(PacketReader &reader) // TAG: 1BB6060
     {
         auto sourceIdSpace = reader.ReadUint32();
     }
 
-    static void OnCreateCharacterNode(PacketReader &reader) // 1BB6220
+    static void OnCreateCharacterNode(PacketReader &reader) // TAG: 1BB6220
     {
         auto nodeType = reader.ReadUint8();
         auto controllerNodetype = reader.ReadUint8();
         auto flags = reader.ReadUint8();
     }
 
-    static void OnCreateAgentController(PacketReader &reader) // 1BB6290
+    static void OnCreateAgentController(PacketReader &reader) // TAG: 1BB6290
     {
         auto sessionId = reader.ReadUint32();
         auto clusterId = reader.ReadUint32();
@@ -256,7 +256,7 @@ public:
         );
     }
 
-    static void OnDestroyAgentController(PacketReader &reader) // 1BB6300
+    static void OnDestroyAgentController(PacketReader &reader) // TAG: 1BB6300
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();

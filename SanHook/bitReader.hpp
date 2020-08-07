@@ -94,7 +94,7 @@ public:
 
     int32_t packFloat26(float val)
     {
-        double newVal = val * (0x1FFFFFF / 2048.0);  // 16383.99951171875
+        double newVal = val * (0x1FFFFFF / 2048.0);  // TAG: 16383.99951171875
         newVal = round(newVal);
 
         auto result = (int32_t)(newVal);

@@ -54,192 +54,192 @@ public:
     {
         switch (messageId)
         {
-            case ClientKafkaMessages::RegionChat:
+            case ClientKafkaMessages::RegionChat: // TAG: 17A16D0
             {
                 ClientKafka::OnRegionChat(reader);
                 break;
             }
-            case ClientKafkaMessages::Login: // 0C0C9D81 // 17A1290 ?
+            case ClientKafkaMessages::Login: // TAG: 17A1290
             {
                 ClientKafka::OnLogin(reader);
                 break;
             }
-            case ClientKafkaMessages::LoginReply:
+            case ClientKafkaMessages::LoginReply: // TAG: 17A1300
             {
                 ClientKafka::OnLoginReply(reader);
                 break;
             }
-            case ClientKafkaMessages::EnterRegion: // // 17A1370 ?
+            case ClientKafkaMessages::EnterRegion: // TAG: 17A1370
             {
                 ClientKafka::OnEnterRegion(reader);
                 break;
             }
-            case ClientKafkaMessages::LeaveRegion: // // 17A1520 ?
+            case ClientKafkaMessages::LeaveRegion: // TAG: 17A1520
             {
                 ClientKafka::OnLeaveRegion(reader);
                 break;
             }
-            case ClientKafkaMessages::PrivateChat: // // 17A1740 ?
+            case ClientKafkaMessages::PrivateChat: // TAG: 17A1740
             {
                 ClientKafka::OnPrivateChat(reader);
                 break;
             }
-            case ClientKafkaMessages::PrivateChatStatus: // // 17A17B0 ?
+            case ClientKafkaMessages::PrivateChatStatus: // TAG: 17A17B0
             {
                 ClientKafka::OnPrivateChatUpdate(reader);
                 break;
             }
-            case ClientKafkaMessages::PresenceUpdate:
+            case ClientKafkaMessages::PresenceUpdate: // TAG: 17A1820
             {
                 ClientKafka::OnPresenceUpdate(reader);
                 break;
             }
-            case ClientKafkaMessages::FriendRequest: // // 17A1890 ?
+            case ClientKafkaMessages::FriendRequest: // TAG: 17A1890
             {
                 ClientKafka::OnFriendRequest(reader);
                 break;
             }
-            case ClientKafkaMessages::FriendRequestStatus: // // 17A1900 ?
+            case ClientKafkaMessages::FriendRequestStatus: // TAG: 17A1900
             {
                 ClientKafka::OnFriendRequestStatus(reader);
                 break;
             }
-            case ClientKafkaMessages::FriendResponse: // // 17A1970 ?
+            case ClientKafkaMessages::FriendResponse: // TAG: 17A1970
             {
                 ClientKafka::OnFriendResponse(reader);
                 break;
             }
-            case ClientKafkaMessages::FriendResponseStatus: // // 17A19E0 ?
+            case ClientKafkaMessages::FriendResponseStatus: // TAG: 17A19E0
             {
                 ClientKafka::OnFriendResponseStatus(reader);
                 break;
             }
-            case ClientKafkaMessages::FriendTable: // // 17A1A50 ?
+            case ClientKafkaMessages::FriendTable: // TAG: 17A1A50
             {
                 ClientKafka::OnFriendTable(reader);
                 break;
             }
-            case ClientKafkaMessages::RelationshipOperation: // // 17A1AC0 ?
+            case ClientKafkaMessages::RelationshipOperation: // TAG: 17A1AC0
             {
                 ClientKafka::OnRelationshipOperation(reader);
                 break;
             }
-            case ClientKafkaMessages::RelationshipTable: // 17A1B30
+            case ClientKafkaMessages::RelationshipTable: // TAG: 17A1B30
             {
                 ClientKafka::OnRelationshipTable(reader);
                 break;
             }
-            case ClientKafkaMessages::InventoryItemCapabilities: // 17A1BA0
+            case ClientKafkaMessages::InventoryItemCapabilities: // TAG: 17A1BA0
             {
                 ClientKafka::OnInventoryItemCapabilities(reader);
                 break;
             }
-            case ClientKafkaMessages::InventoryItemRevision: // 17A1D80
+            case ClientKafkaMessages::InventoryItemRevision: // TAG: 17A1D80
             {
                 ClientKafka::OnInventoryItemRevision(reader);
                 break;
             }
-            case ClientKafkaMessages::InventoryItemUpdate: // 17A1DF0
+            case ClientKafkaMessages::InventoryItemUpdate: // TAG: 17A1DF0
             {
                 ClientKafka::OnInventoryItemUpdate(reader);
                 break;
             }
-            case ClientKafkaMessages::InventoryItemDelete: // 17A1E60
+            case ClientKafkaMessages::InventoryItemDelete: // TAG: 17A1E60
             {
                 ClientKafka::OnInventoryItemDelete(reader);
                 break;
             }
-            case ClientKafkaMessages::InventoryLoaded: // 17A1ED0
+            case ClientKafkaMessages::InventoryLoaded: // TAG: 17A1ED0
             {
                 ClientKafka::OnInventoryLoaded(reader);
                 break;
             }
-            case ClientKafkaMessages::FriendRequestLoaded: // 17A2090
+            case ClientKafkaMessages::FriendRequestLoaded: // TAG: 17A2090
             {
                 ClientKafka::OnFriendRequestLoaded(reader);
                 break;
             }
-            case ClientKafkaMessages::FriendResponseLoaded: // 17A2250
+            case ClientKafkaMessages::FriendResponseLoaded: // TAG: 17A2250
             {
                 ClientKafka::OnFriendResponseLoaded(reader);
                 break;
             }
-            case ClientKafkaMessages::PresenceUpdateFanoutLoaded: // 17A2410
+            case ClientKafkaMessages::PresenceUpdateFanoutLoaded: // TAG: 17A2410
             {
                 ClientKafka::OnPresenceUpdateFanoutLoaded(reader);
                 break;
             }
-            case ClientKafkaMessages::FriendTableLoaded: // 17A25D0
+            case ClientKafkaMessages::FriendTableLoaded: // TAG: 17A25D0
             {
                 ClientKafka::OnFriendTableLoaded(reader);
                 break;
             }
-            case ClientKafkaMessages::RelationshipTableLoaded: // 17A2790
+            case ClientKafkaMessages::RelationshipTableLoaded: // TAG: 17A2790
             {
                 ClientKafka::OnRelationshipTableLoaded(reader);
                 break;
             }
-            case ClientKafkaMessages::PrivateChatLoaded: // 17A2950
+            case ClientKafkaMessages::PrivateChatLoaded: // TAG: 17A2950
             {
                 ClientKafka::OnPrivateChatLoaded(reader);
                 break;
             }
-            case ClientKafkaMessages::PrivateChatStatusLoaded: // 17A2B10
+            case ClientKafkaMessages::PrivateChatStatusLoaded: // TAG: 17A2B10
             {
                 ClientKafka::OnPrivateChatStatusLoaded(reader);
                 break;
             }
-            case ClientKafkaMessages::ScriptRegionConsoleLoaded: // 17A2CD0
+            case ClientKafkaMessages::ScriptRegionConsoleLoaded: // TAG: 17A2CD0
             {
                 ClientKafka::OnScriptRegionConsoleLoaded(reader);
                 break;
             }
-            case ClientKafkaMessages::ClientMetric: // 17A2D40
+            case ClientKafkaMessages::ClientMetric: // TAG: 17A2D40
             {
                 ClientKafka::OnClientMetric(reader);
                 break;
             }
-            case ClientKafkaMessages::RegionHeartbeatMetric: // 17A2EF0
+            case ClientKafkaMessages::RegionHeartbeatMetric: // TAG: 17A2EF0
             {
                 ClientKafka::OnRegionHeartbeatMetric(reader);
                 break;
             }
-            case ClientKafkaMessages::RegionEventMetric: // 17A2F60
+            case ClientKafkaMessages::RegionEventMetric: // TAG: 17A2F60
             {
                 ClientKafka::OnRegionEventMetric(reader);
                 break;
             }
-            case ClientKafkaMessages::SubscribeScriptRegionConsole: // 17A2FD0
+            case ClientKafkaMessages::SubscribeScriptRegionConsole: // TAG: 17A2FD0
             {
                 ClientKafka::OnSubscribeScriptRegionConsole(reader);
                 break;
             }
-            case ClientKafkaMessages::UnsubscribeScriptRegionConsole: // 17A3040
+            case ClientKafkaMessages::UnsubscribeScriptRegionConsole: // TAG: 17A3040
             {
                 ClientKafka::OnUnsubscribeScriptRegionConsole(reader);
                 break;
             }
-            case ClientKafkaMessages::ScriptConsoleLog: // 17A31F0
+            case ClientKafkaMessages::ScriptConsoleLog: // TAG: 17A31F0
             {
                 ClientKafka::OnScriptConsoleLog(reader);
                 break;
             }
-            case ClientKafkaMessages::LongLivedNotification: // 17A3260
+            case ClientKafkaMessages::LongLivedNotification: // TAG: 17A3260
             {
                 ClientKafka::OnLongLivedNotification(reader);
                 break;
             }
-            case ClientKafkaMessages::LongLivedNotificationDelete: // 17A32D0
+            case ClientKafkaMessages::LongLivedNotificationDelete: // TAG: 17A32D0
             {
                 ClientKafka::OnLongLivedNotificationDelete(reader);
                 break;
             }
-            case ClientKafkaMessages::LongLivedNotificationsLoaded: // 17A3460
+            case ClientKafkaMessages::LongLivedNotificationsLoaded: // TAG: 17A3460
             {
                 ClientKafka::OnLongLivedNotificationsLoaded(reader);
                 break;
             }
-            case ClientKafkaMessages::ShortLivedNotification: // 17A3620
+            case ClientKafkaMessages::ShortLivedNotification: // TAG: 17A3620
             {
                 ClientKafka::OnShortLivedNotification(reader);
                 break;
@@ -253,7 +253,7 @@ public:
         return true;
     }
 
-    static void OnScriptConsoleLog(PacketReader &reader)
+    static void OnScriptConsoleLog(PacketReader &reader) // TAG: 17A31F0
     {
         auto logLevel = reader.ReadUint32();
         auto tag = reader.ReadString();
@@ -280,7 +280,7 @@ public:
         );
     }
 
-    static void OnLoginReply(PacketReader &reader)
+    static void OnLoginReply(PacketReader &reader)  // TAG: 17A1300
     {
         auto success = reader.ReadUint8();
         auto message = reader.ReadString();
@@ -288,7 +288,7 @@ public:
         printf("ClientKafkaMessages::LoginReply: Success = %u (Message = '%s')\n", success, message.c_str());
     }
 
-    static void OnPresenceUpdate(PacketReader &reader)
+    static void OnPresenceUpdate(PacketReader &reader)  // TAG: 17A1820
     {
         auto personaId = reader.ReadUUID();
         auto present = reader.ReadUint8();
@@ -305,7 +305,7 @@ public:
         );
     }
 
-    static void OnRelationshipTable(PacketReader &reader)
+    static void OnRelationshipTable(PacketReader &reader) // TAG: 17A1B30
     {
         auto other = reader.ReadUUID();
         auto fromSelf = reader.ReadUint8();
@@ -320,7 +320,7 @@ public:
         );
     }
 
-    static void OnInventoryItemUpdate(PacketReader &reader)
+    static void OnInventoryItemUpdate(PacketReader &reader) // TAG: 17A1DF0
     {
         auto id = reader.ReadString();
         auto licensee_label = reader.ReadString();
@@ -353,7 +353,7 @@ public:
         );
     }
 
-    static void OnRegionChat(PacketReader &reader)
+    static void OnRegionChat(PacketReader &reader)  // TAG: 17A16D0
     {
         auto fromPersonaId = reader.ReadUUID();
         auto toPersonaId = reader.ReadUUID();
@@ -386,7 +386,7 @@ public:
         );
     }
 
-    static void OnPrivateChat(PacketReader &reader)
+    static void OnPrivateChat(PacketReader &reader)  // TAG: 17A1740
     {
         auto offset = reader.ReadUint64();
         auto fromPersonaId = reader.ReadUUID();
@@ -411,7 +411,7 @@ public:
         );
     }
 
-    static void OnPrivateChatUpdate(PacketReader &reader)
+    static void OnPrivateChatUpdate(PacketReader &reader)  // TAG: 17A17B0
     {
         auto offset = reader.ReadUint64();
         auto status = reader.ReadUint32();
@@ -422,7 +422,7 @@ public:
         );
     }
 
-    static void OnShortLivedNotification(PacketReader &reader)
+    static void OnShortLivedNotification(PacketReader &reader)  // TAG: 17A3620
     {
         auto id = reader.ReadUUID();
         auto type = reader.ReadUint32();
@@ -437,12 +437,12 @@ public:
         );
     }
 
-    static void OnLongLivedNotificationsLoaded(PacketReader &reader)
+    static void OnLongLivedNotificationsLoaded(PacketReader &reader) // TAG: 17A3460
     {
         auto offset = reader.ReadUint64();
     }
 
-    static void OnLongLivedNotificationDelete(PacketReader &reader)
+    static void OnLongLivedNotificationDelete(PacketReader &reader)  // TAG: 17A32D0
     {
         auto id = reader.ReadUUID();
 
@@ -451,7 +451,7 @@ public:
         );
     }
 
-    static void OnLongLivedNotification(PacketReader &reader)
+    static void OnLongLivedNotification(PacketReader &reader) // TAG: 17A3260
     {
         auto id = reader.ReadUUID();
         auto type = reader.ReadUint32();
@@ -466,7 +466,7 @@ public:
         );
     }
 
-    static void OnUnsubscribeScriptRegionConsole(PacketReader &reader)
+    static void OnUnsubscribeScriptRegionConsole(PacketReader &reader) // TAG: 17A3040
     {
         auto instanceId = reader.ReadString();
 
@@ -475,7 +475,7 @@ public:
         );
     }
 
-    static void OnSubscribeScriptRegionConsole(PacketReader &reader)
+    static void OnSubscribeScriptRegionConsole(PacketReader &reader) // TAG: 17A2FD0
     {
         auto instanceId = reader.ReadString();
         auto offset = reader.ReadUint64();
@@ -486,7 +486,7 @@ public:
         );
     }
 
-    static void OnRegionEventMetric(PacketReader &reader)
+    static void OnRegionEventMetric(PacketReader &reader) // TAG: 17A2F60
     {
         auto ownerPersonaID = reader.ReadUUID();
         auto eventName = reader.ReadString();
@@ -523,7 +523,7 @@ public:
         );
     }
 
-    static void OnRegionHeartbeatMetric(PacketReader &reader)
+    static void OnRegionHeartbeatMetric(PacketReader &reader) // TAG: 17A2EF0
     {
         auto ownerPersonaID = reader.ReadUUID();
         auto averageFrameRate = reader.ReadFloat();
@@ -564,7 +564,7 @@ public:
         );
     }
 
-    static void OnClientMetric(PacketReader &reader)
+    static void OnClientMetric(PacketReader &reader) // TAG: 17A2D40
     {
         auto jsonString = reader.ReadString();
 
@@ -573,7 +573,7 @@ public:
         );
     }
 
-    static void OnScriptRegionConsoleLoaded(PacketReader &reader)
+    static void OnScriptRegionConsoleLoaded(PacketReader &reader) // TAG: 17A2CD0
     {
         auto instanceId = reader.ReadString();
         auto offset = reader.ReadUint64();
@@ -584,47 +584,47 @@ public:
         );
     }
 
-    static void OnPrivateChatStatusLoaded(PacketReader &reader)
+    static void OnPrivateChatStatusLoaded(PacketReader &reader) // TAG: 17A2B10
     {
         auto offset = reader.ReadUint64();
     }
 
-    static void OnPrivateChatLoaded(PacketReader &reader)
+    static void OnPrivateChatLoaded(PacketReader &reader) // TAG: 17A2950
     {
         auto offset = reader.ReadUint64();
     }
 
-    static void OnRelationshipTableLoaded(PacketReader &reader)
+    static void OnRelationshipTableLoaded(PacketReader &reader) // TAG: 17A2790
     {
         auto offset = reader.ReadUint64();
     }
 
-    static void OnFriendTableLoaded(PacketReader &reader)
+    static void OnFriendTableLoaded(PacketReader &reader) // TAG: 17A25D0
     {
         auto offset = reader.ReadUint64();
     }
 
-    static void OnPresenceUpdateFanoutLoaded(PacketReader &reader)
+    static void OnPresenceUpdateFanoutLoaded(PacketReader &reader) // TAG: 17A2410
     {
         auto offset = reader.ReadUint64();
     }
 
-    static void OnFriendResponseLoaded(PacketReader &reader)
+    static void OnFriendResponseLoaded(PacketReader &reader) // TAG: 17A2250
     {
         auto offset = reader.ReadUint64();
     }
 
-    static void OnFriendRequestLoaded(PacketReader &reader)
+    static void OnFriendRequestLoaded(PacketReader &reader) // TAG: 17A2090
     {
         auto offset = reader.ReadUint64();
     }
 
-    static void OnInventoryLoaded(PacketReader &reader)
+    static void OnInventoryLoaded(PacketReader &reader) // TAG: 17A1ED0
     {
         auto offset = reader.ReadUint64();
     }
 
-    static void OnInventoryItemDelete(PacketReader &reader)
+    static void OnInventoryItemDelete(PacketReader &reader) // TAG: 17A1E60
     {
         auto id = reader.ReadString();
         auto offset = reader.ReadUint64();
@@ -635,7 +635,7 @@ public:
         );
     }
 
-    static void OnInventoryItemRevision(PacketReader &reader)
+    static void OnInventoryItemRevision(PacketReader &reader) // TAG: 17A1D80
     {
         auto asset_id = reader.ReadString();
         auto asset_type = reader.ReadString();
@@ -657,7 +657,7 @@ public:
         }
     }
 
-    static void OnInventoryItemCapabilities(PacketReader &reader)
+    static void OnInventoryItemCapabilities(PacketReader &reader)  // TAG: 17A1BA0
     {
         auto capabilities = reader.ReadStringList();
 
@@ -668,7 +668,7 @@ public:
         }
     }
 
-    static void OnRelationshipOperation(PacketReader &reader)
+    static void OnRelationshipOperation(PacketReader &reader)  // TAG: 17A1AC0
     {
         auto other = reader.ReadUUID();
         auto operation = reader.ReadUint32();
@@ -679,7 +679,7 @@ public:
         );
     }
 
-    static void OnFriendTable(PacketReader &reader)
+    static void OnFriendTable(PacketReader &reader)  // TAG: 17A1A50
     {
         auto fromPersonaId = reader.ReadUUID();
         auto toPersonaId = reader.ReadUUID();
@@ -692,7 +692,7 @@ public:
         );
     }
 
-    static void OnFriendResponseStatus(PacketReader &reader)
+    static void OnFriendResponseStatus(PacketReader &reader)  // TAG: 17A19E0
     {
         auto offset = reader.ReadUint64();
         auto status = reader.ReadUint32();
@@ -703,7 +703,7 @@ public:
         );
     }
 
-    static void OnFriendResponse(PacketReader &reader)
+    static void OnFriendResponse(PacketReader &reader)  // TAG: 17A1970
     {
         auto offset = reader.ReadUint64();;
         auto fromPersonaId = reader.ReadUUID();
@@ -724,7 +724,7 @@ public:
         );
     }
 
-    static void OnFriendRequestStatus(PacketReader &reader)
+    static void OnFriendRequestStatus(PacketReader &reader)  // TAG: 17A1900
     {
         auto offset = reader.ReadUint64();
         auto status = reader.ReadUint32();
@@ -735,7 +735,7 @@ public:
         );
     }
 
-    static void OnFriendRequest(PacketReader &reader)
+    static void OnFriendRequest(PacketReader &reader)  // TAG: 17A1890
     {
         auto offset = reader.ReadUint64();;
         auto fromPersonaId = reader.ReadUUID();
@@ -752,21 +752,21 @@ public:
         );
     }
 
-    static void OnLeaveRegion(PacketReader &reader)
+    static void OnLeaveRegion(PacketReader &reader)  // TAG: 17A1520
     {
         auto regionAddress = reader.ReadString();
 
         printf("ClientKafkaMessages::LeaveRegion '%s'\n", regionAddress.c_str());
     }
 
-    static void OnEnterRegion(PacketReader &reader)
+    static void OnEnterRegion(PacketReader &reader)  // TAG: 17A1370
     {
         auto regionAddress = reader.ReadString();
 
         printf("ClientKafkaMessages::EnterRegion '%s'\n", regionAddress.c_str());
     }
 
-    static void OnLogin(PacketReader &reader)
+    static void OnLogin(PacketReader &reader)  // TAG: 17A1290
     {
         auto accountId = reader.ReadUUID();
         auto personaId = reader.ReadUUID();
