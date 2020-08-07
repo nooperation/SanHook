@@ -42,15 +42,12 @@ public:
 class AgentControllerMessages
 {
 public:
-    static const uint32_t PlayAnimation = 0x009385A0;
-    static const uint32_t AgentPlayanimation = 0x00AC2B81;
+    static const uint32_t AgentPlayAnimation = 0x00AC2B81;
     static const uint32_t ExitSit = 0x0B617A9A;
     static const uint32_t ObjectInteractionPromptUpdate = 0x1651CD68;
     static const uint32_t ObjectInteractionCreate = 0xBB086E9B;
     static const uint32_t RequestSitOnObject = 0xE5321C47;
     static const uint32_t SitOnObject = 0x191F08C0;
-    static const uint32_t RiggedMeshScaleChanged = 0xEA2934E8;
-    static const uint32_t ScriptCameraMessage = 0x60C955C0;
     static const uint32_t SetAgentFiltersBody = 0x09DD53F6;
     static const uint32_t RequestSetAgentFiltersBody = 0x2B87F09D;
     static const uint32_t SetCharacterUserProperty = 0x31D1EC43;
@@ -136,7 +133,7 @@ public:
     static const uint32_t RegionHeartbeatMetric = 0xDCF900A4;
     static const uint32_t RegionEventMetric = 0xBA6DB2FC;
     static const uint32_t SubscribeScriptRegionConsole = 0x3BFA4474;
-    static const uint32_t UnsubscriptScriptRegionConsole = 0xD49B04C3;
+    static const uint32_t UnsubscribeScriptRegionConsole = 0xD49B04C3;
     static const uint32_t ScriptConsoleLog = 0x00B0E15E;
     static const uint32_t LongLivedNotification = 0x46C5FDF3;
     static const uint32_t LongLivedNotificationDelete = 0x59CF6950;
@@ -249,7 +246,7 @@ public:
     static const uint32_t SaveWorkspace = 0x7C7BDCA8;
     static const uint32_t SaveWorkspaceReply = 0xFAE838FC;
     static const uint32_t BuildWorkspace = 0x5963934F;
-    static const uint32_t UpdateWorkspaceClientbuiltBakeData = 0xF12FD324;
+    static const uint32_t UpdateWorkspaceClientBuiltBakeData = 0xF12FD324;
     static const uint32_t BuildWorkspaceCompileReply = 0x15B220E0;
     static const uint32_t BuildWorkspaceProgressUpdate = 0xC9FCDB71;
     static const uint32_t BuildWorkspaceUploadReply = 0xF090AF8E;

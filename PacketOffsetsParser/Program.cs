@@ -65,7 +65,7 @@ namespace PacketOffsetsParser
             Regex patternPacketName = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})  \\\"(?<name>[a-zA-Z]+::[a-zA-Z0-9]+)\\\"");
             Regex patternValueType = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})  ");
             Regex patternSmallValueType = new Regex("[0-9A-Z]{16}  000000000000(?<value>[0-9A-Z]{4})  ");
-            Regex patternParserOffset = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})  ([a-zA-Z0-9_-]+\\.sub_[A-Z0-9]+)");
+            Regex patternParserOffset = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})");
 
             List<ParserData> parsers = new List<ParserData>();
 
@@ -139,7 +139,7 @@ namespace PacketOffsetsParser
             }
 
             Console.WriteLine("-----------------------------");
-            Console.WriteLine("name,value1,value2,offset,value3,messageId");
+            Console.WriteLine("name,sizeAligned,version,offset,value3,messageId");
             foreach (var item in parsers)
             {
                 Console.WriteLine(item);

@@ -180,7 +180,7 @@ public:
         {
             ClientKafka::OnSubscribeScriptRegionConsole(reader);
         }
-        else if (messageId == ClientKafkaMessages::UnsubscriptScriptRegionConsole) // 17A3040
+        else if (messageId == ClientKafkaMessages::UnsubscribeScriptRegionConsole) // 17A3040
         {
             ClientKafka::OnUnsubscribeScriptRegionConsole(reader);
         }

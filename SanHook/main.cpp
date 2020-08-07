@@ -868,7 +868,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
             //auto myChecksum = Utils::ShortCRC((uint8_t*)buf, len - 2, checksumSeed_recv); // yes this is the correct checksum to use here despite its name...
             //*((uint16_t*)&buf[len - 2]) = myChecksum;
         }
-        if (0 && messageId == AgentControllerMessages::AgentPlayanimation)
+        if (0 && messageId == AgentControllerMessages::AgentPlayAnimation)
         {
             auto unknownB = *((uint32_t *)&buf[8]);
             auto Time = *((uint64_t *)&buf[12]);

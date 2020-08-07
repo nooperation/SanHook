@@ -18,7 +18,7 @@
 //void OnAgentControllerMessageObjectInteractionUpdate(PacketReader &reader);
 //void OnAgentControllerMessageControlPoint(PacketReader &reader);
 //void OnAgentControllerMessageRequestWarpCharacter();
-//void OnAgentControllerMessageAgentPlayanimation(PacketReader &reader);
+//void OnAgentControllerMessageAgentPlayAnimation(PacketReader &reader);
 //void OnAgentControllerMessageRequestAgentPlayAnimation();
 //void OnAgentControllerMessageRequestBehaviorStateUpdate();
 //void OnAgentControllerMessageAttachToCharacterNode(PacketReader &reader);
@@ -47,11 +47,7 @@ class AgentController : public MessageHandler
 public:
     bool OnMessage(uint32_t messageId, PacketReader &reader)
     {
-        if (messageId == AgentControllerMessages::PlayAnimation) // 0x009385A0    // 1581210
-        {
-            AgentController::OnPlayAnimation(reader);
-        }
-        else if (messageId == AgentControllerMessages::ControlPoint)  // 170F790
+        if (messageId == AgentControllerMessages::ControlPoint)  // 170F790
         {
             AgentController::OnControlPoint(reader);
         }
@@ -79,9 +75,9 @@ public:
         {
             AgentController::OnCharacterControllerInputReliable(reader);
         }
-        else if (messageId == AgentControllerMessages::AgentPlayanimation)  // 170FAA0
+        else if (messageId == AgentControllerMessages::AgentPlayAnimation)  // 170FAA0
         {
-            AgentController::OnAgentPlayanimation(reader);
+            AgentController::OnAgentPlayAnimation(reader);
         }
         else if (messageId == AgentControllerMessages::RequestAgentPlayAnimation)  // 170FB10
         {
@@ -405,7 +401,7 @@ public:
         OnWarpCharacter(reader);
     }
 
-    static void OnAgentPlayanimation(PacketReader &reader)   // 170FAA0
+    static void OnAgentPlayAnimation(PacketReader &reader)   // 170FAA0
     {
         auto agentControllerId = reader.ReadUint32();
     }
@@ -413,7 +409,7 @@ public:
     static void OnRequestAgentPlayAnimation(PacketReader &reader)  // 170FB10
     {
         // double check...
-        OnAgentPlayanimation(reader);
+        OnAgentPlayAnimation(reader);
     }
 
     static void OnRequestBehaviorStateUpdate(PacketReader &reader) // 170FB80

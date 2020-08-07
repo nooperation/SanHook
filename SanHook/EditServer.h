@@ -97,7 +97,7 @@ public:
                 EditServer::OnBuildWorkspace(reader);
                 break;
             }
-            case EditServerMessages::UpdateWorkspaceClientbuiltBakeData: // 19B8A30
+            case EditServerMessages::UpdateWorkspaceClientBuiltBakeData: // 19B8A30
             {
                 EditServer::OnUpdateWorkspaceClientBuiltBakeData(reader);
                 break;
