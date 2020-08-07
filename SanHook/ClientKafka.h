@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "MessageHandler.h"
 #include "PacketReader.hpp"
 #include "Utils.hpp"
 
@@ -46,9 +47,171 @@
 //void OnClientKafkaMessageEnterRegion(PacketReader &reader);
 //void OnClientKafkaMessageLogin(PacketReader &reader);
 
-class ClientKafka
+class ClientKafka : public MessageHandler
 {
 public:
+    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    {
+        if (messageId == ClientKafkaMessages::RegionChat)
+        {
+            ClientKafka::OnRegionChat(reader);
+        }
+        else if (messageId == ClientKafkaMessages::Login) // 0C0C9D81 // 17A1290 ?
+        {
+            ClientKafka::OnLogin(reader);
+        }
+        else if (messageId == ClientKafkaMessages::LoginReply)
+        {
+            ClientKafka::OnLoginReply(reader);
+        }
+        else if (messageId == ClientKafkaMessages::EnterRegion) // // 17A1370 ?
+        {
+            ClientKafka::OnEnterRegion(reader);
+        }
+        else if (messageId == ClientKafkaMessages::LeaveRegion) // // 17A1520 ?
+        {
+            ClientKafka::OnLeaveRegion(reader);
+        }
+        else if (messageId == ClientKafkaMessages::PrivateChat) // // 17A1740 ?
+        {
+            ClientKafka::OnPrivateChat(reader);
+        }
+        else if (messageId == ClientKafkaMessages::PrivateChatStatus) // // 17A17B0 ?
+        {
+            ClientKafka::OnPrivateChatUpdate(reader);
+        }
+        else if (messageId == ClientKafkaMessages::PresenceUpdate)
+        {
+            ClientKafka::OnPresenceUpdate(reader);
+        }
+        else if (messageId == ClientKafkaMessages::FriendRequest) // // 17A1890 ?
+        {
+            ClientKafka::OnFriendRequest(reader);
+        }
+        else if (messageId == ClientKafkaMessages::FriendRequestStatus) // // 17A1900 ?
+        {
+            ClientKafka::OnFriendRequestStatus(reader);
+        }
+        else if (messageId == ClientKafkaMessages::FriendResponse) // // 17A1970 ?
+        {
+            ClientKafka::OnFriendResponse(reader);
+        }
+        else if (messageId == ClientKafkaMessages::FriendResponseStatus) // // 17A19E0 ?
+        {
+            ClientKafka::OnFriendResponseStatus(reader);
+        }
+        else if (messageId == ClientKafkaMessages::FriendTable) // // 17A1A50 ?
+        {
+            ClientKafka::OnFriendTable(reader);
+        }
+        else if (messageId == ClientKafkaMessages::RelationshipOperation) // // 17A1AC0 ?
+        {
+            ClientKafka::OnRelationshipOperation(reader);
+        }
+        else if (messageId == ClientKafkaMessages::RelationshipTable) // 17A1B30
+        {
+            ClientKafka::OnRelationshipTable(reader);
+        }
+        else if (messageId == ClientKafkaMessages::InventoryItemCapabilities) // 17A1BA0
+        {
+            ClientKafka::OnInventoryItemCapabilities(reader);
+        }
+        else if (messageId == ClientKafkaMessages::InventoryItemRevision) // 17A1D80
+        {
+            ClientKafka::OnInventoryItemRevision(reader);
+        }
+        else if (messageId == ClientKafkaMessages::InventoryItemUpdate) // 17A1DF0
+        {
+            ClientKafka::OnInventoryItemUpdate(reader);
+        }
+        else if (messageId == ClientKafkaMessages::InventoryItemDelete) // 17A1E60
+        {
+            ClientKafka::OnInventoryItemDelete(reader);
+        }
+        else if (messageId == ClientKafkaMessages::InventoryLoaded) // 17A1ED0
+        {
+            ClientKafka::OnInventoryLoaded(reader);
+        }
+        else if (messageId == ClientKafkaMessages::FriendRequestLoaded) // 17A2090
+        {
+            ClientKafka::OnFriendRequestLoaded(reader);
+        }
+        else if (messageId == ClientKafkaMessages::FriendResponseLoaded) // 17A2250
+        {
+            ClientKafka::OnFriendResponseLoaded(reader);
+        }
+        else if (messageId == ClientKafkaMessages::PresenceUpdateFanoutLoaded) // 17A2410
+        {
+            ClientKafka::OnPresenceUpdateFanoutLoaded(reader);
+        }
+        else if (messageId == ClientKafkaMessages::FriendTableLoaded) // 17A25D0
+        {
+            ClientKafka::OnFriendTableLoaded(reader);
+        }
+        else if (messageId == ClientKafkaMessages::RelationshipTableLoaded) // 17A2790
+        {
+            ClientKafka::OnRelationshipTableLoaded(reader);
+        }
+        else if (messageId == ClientKafkaMessages::PrivateChatLoaded) // 17A2950
+        {
+            ClientKafka::OnPrivateChatLoaded(reader);
+        }
+        else if (messageId == ClientKafkaMessages::PrivateChatStatusLoaded) // 17A2B10
+        {
+            ClientKafka::OnPrivateChatStatusLoaded(reader);
+        }
+        else if (messageId == ClientKafkaMessages::ScriptRegionConsoleLoaded) // 17A2CD0
+        {
+            ClientKafka::OnScriptRegionConsoleLoaded(reader);
+        }
+        else if (messageId == ClientKafkaMessages::ClientMetric) // 17A2D40
+        {
+            ClientKafka::OnClientMetric(reader);
+        }
+        else if (messageId == ClientKafkaMessages::RegionHeartbeatMetric) // 17A2EF0
+        {
+            ClientKafka::OnRegionHeartbeatMetric(reader);
+        }
+        else if (messageId == ClientKafkaMessages::RegionEventMetric) // 17A2F60
+        {
+            ClientKafka::OnRegionEventMetric(reader);
+        }
+        else if (messageId == ClientKafkaMessages::SubscribeScriptRegionConsole) // 17A2FD0
+        {
+            ClientKafka::OnSubscribeScriptRegionConsole(reader);
+        }
+        else if (messageId == ClientKafkaMessages::UnsubscriptScriptRegionConsole) // 17A3040
+        {
+            ClientKafka::OnUnsubscribeScriptRegionConsole(reader);
+        }
+        else if (messageId == ClientKafkaMessages::ScriptConsoleLog) // 17A31F0
+        {
+            ClientKafka::OnScriptConsoleLog(reader);
+        }
+        else if (messageId == ClientKafkaMessages::LongLivedNotification) // 17A3260
+        {
+            ClientKafka::OnLongLivedNotification(reader);
+        }
+        else if (messageId == ClientKafkaMessages::LongLivedNotificationDelete) // 17A32D0
+        {
+            ClientKafka::OnLongLivedNotificationDelete(reader);
+        }
+        else if (messageId == ClientKafkaMessages::LongLivedNotificationsLoaded) // 17A3460
+        {
+            ClientKafka::OnLongLivedNotificationsLoaded(reader);
+        }
+        else if (messageId == ClientKafkaMessages::ShortLivedNotification) // 17A3620
+        {
+            ClientKafka::OnShortLivedNotification(reader);
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     static void OnScriptConsoleLog(PacketReader &reader)
     {
         auto logLevel = reader.ReadUint32();

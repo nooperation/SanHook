@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Parsers">
+      <UniqueIdentifier>{cc3457f9-fdb6-49e3-974a-415ec65f3d90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -32,43 +35,46 @@
     <ClInclude Include="Magic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AnimationComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientKafka.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Utils.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameWorld.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AgentController.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationComponent.h">
+      <Filter>Header Files\Parsers</Filter>
     </ClInclude>
     <ClInclude Include="Audio.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Parsers</Filter>
     </ClInclude>
-    <ClInclude Include="Simulation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Render.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EditServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientVoice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="WorldState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RegionRegion.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ClientKafka.h">
+      <Filter>Header Files\Parsers</Filter>
     </ClInclude>
     <ClInclude Include="ClientRegion.h">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientVoice.h">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="EditServer.h">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="GameWorld.h">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="RegionRegion.h">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="Render.h">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="Simulation.h">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldState.h">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

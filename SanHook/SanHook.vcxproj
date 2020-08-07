@@ -166,6 +166,7 @@
     <ClInclude Include="ClientVoice.h" />
     <ClInclude Include="EditServer.h" />
     <ClInclude Include="GameWorld.h" />
+    <ClInclude Include="MessageHandler.h" />
     <ClInclude Include="Magic.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="PacketReader.hpp" />

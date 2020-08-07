@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "MessageHandler.h"
 #include "PacketReader.hpp"
 #include "Utils.hpp"
 
@@ -39,8 +40,177 @@
 //void OnEditServerBeginEditServerSpawn(PacketReader &reader);
 //void OnEditServerEditServerSpawnReady(PacketReader &reader);
 
-class EditServer {
+class EditServer : public MessageHandler
+{
 public:
+    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    {
+        switch (messageId)
+        {
+            case EditServerMessages::UserLogin: // 19B81B0
+            {
+                EditServer::OnUserLogin(reader);
+                break;
+            }
+            case EditServerMessages::UserLoginReply: // 19B8220
+            {
+                EditServer::OnUserLoginReply(reader);
+                break;
+            }
+            case EditServerMessages::AddUser: // 19B8290
+            {
+                EditServer::OnAddUser(reader);
+                break;
+            }
+            case EditServerMessages::RemoveUser: // 19B8300
+            {
+                EditServer::OnRemoveUser(reader);
+                break;
+            }
+            case EditServerMessages::OpenWorkspace: // 19B84C0
+            {
+                EditServer::OnOpenWorkspace(reader);
+                break;
+            }
+            case EditServerMessages::CloseWorkspace: // 19B8530
+            {
+                EditServer::OnCloseWorkspace(reader);
+                break;
+            }
+            case EditServerMessages::EditWorkspaceCommand: // 19B86F0
+            {
+                EditServer::OnEditWorkspaceCommand(reader);
+                break;
+            }
+            case EditServerMessages::SaveWorkspace: // 19B88E0
+            {
+                EditServer::OnSaveWorkspace(reader);
+                break;
+            }
+            case EditServerMessages::SaveWorkspaceReply: // 19B8950
+            {
+                EditServer::OnSaveWorkspaceReply(reader);
+                break;
+            }
+            case EditServerMessages::BuildWorkspace: // 19B89C0
+            {
+                EditServer::OnBuildWorkspace(reader);
+                break;
+            }
+            case EditServerMessages::UpdateWorkspaceClientbuiltBakeData: // 19B8A30
+            {
+                EditServer::OnUpdateWorkspaceClientBuiltBakeData(reader);
+                break;
+            }
+            case EditServerMessages::BuildWorkspaceCompileReply: // 19B8AA0
+            {
+                EditServer::OnBuildWorkspaceCompileReply(reader);
+                break;
+            }
+            case EditServerMessages::BuildWorkspaceProgressUpdate: // 19B8B10
+            {
+                EditServer::OnBuildWorkspaceProgressUpdate(reader);
+                break;
+            }
+            case EditServerMessages::BuildWorkspaceUploadReply: // 19B8B80
+            {
+                EditServer::OnBuildWorkspaceuploadReply(reader);
+                break;
+            }
+            case EditServerMessages::WorkspaceReadyReply: // 19B8BF0
+            {
+                EditServer::OnWorkspaceReadyReply(reader);
+                break;
+            }
+            case EditServerMessages::SaveWorkspaceSelectionToInventory: // 19B8DB0
+            {
+                EditServer::OnSaveworkspaceSelectionToInventory(reader);
+                break;
+            }
+            case EditServerMessages::SaveWorkspaceSelectionToInventoryReply: // 19B8E20
+            {
+                EditServer::OnSaveWorkspaceSelectionToInventoryReply(reader);
+                break;
+            }
+            case EditServerMessages::InventoryCreateItem: // 19B8E90
+            {
+                EditServer::OnInventoryCreateItem(reader);
+                break;
+            }
+            case EditServerMessages::InventoryDeleteItem: // 19B8F00
+            {
+                EditServer::OnInventoryDeleteItem(reader);
+                break;
+            }
+            case EditServerMessages::InventoryChangeItemName: // 19B8F70
+            {
+                EditServer::OnInventoryChangeItemName(reader);
+                break;
+            }
+            case EditServerMessages::InventoryChangeItemState: // 19B8FE0
+            {
+                EditServer::OnInventoryChangeItemState(reader);
+                break;
+            }
+            case EditServerMessages::InventoryModifyItemThumbnailAssetId: // 19B9050
+            {
+                EditServer::OnInventoryModifyItemThumbnailAssetId(reader);
+                break;
+            }
+            case EditServerMessages::InventoryModifyItemCapabilities: // 19B90C0
+            {
+                EditServer::OnInventoryModifyItemCapabilities(reader);
+                break;
+            }
+            case EditServerMessages::InventorySaveItem: // 19B9130
+            {
+                EditServer::OnInventorySaveItem(reader);
+                break;
+            }
+            case EditServerMessages::InventoryUpdateItemReply: // 19B91A0
+            {
+                EditServer::OnInventoryUpdateItemReply(reader);
+                break;
+            }
+            case EditServerMessages::InventoryItemUpload: // 19B9210
+            {
+                EditServer::OnInventoryItemUpload(reader);
+                break;
+            }
+            case EditServerMessages::InventoryItemUploadReply: // 19B9280
+            {
+                EditServer::OnInventoryItemUploadReply(reader);
+                break;
+            }
+            case EditServerMessages::InventoryCreateListing: // 19B92F0
+            {
+                EditServer::OnInventoryCreateListing(reader);
+                break;
+            }
+            case EditServerMessages::InventoryCreateListingReply: // 19B9360
+            {
+                EditServer::OnInventoryCreateListingReply(reader);
+                break;
+            }
+            case EditServerMessages::BeginEditServerSpawn: // 19B93D0
+            {
+                EditServer::OnBeginEditServerSpawn(reader);
+                break;
+            }
+            case EditServerMessages::EditServerSpawnReady: // 19B9440
+            {
+                EditServer::OnEditServerSpawnReady(reader);
+                break;
+            }
+            default:
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     static void OnUserLogin(PacketReader &reader) // 19B81B0
     {
         auto authorization = reader.ReadString();

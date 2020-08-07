@@ -7,6 +7,7 @@
 #include <chrono>
 #include <filesystem>
 
+#include "MessageHandler.h"
 #include "PacketReader.hpp"
 #include "Utils.hpp"
 
@@ -63,15 +64,217 @@
 // temp, move into ClientRegion
 std::map<uint32_t, std::string> sessionIdToNameMap = std::map<uint32_t, std::string>();
 
-class ClientRegion
+class ClientRegion : public MessageHandler
 {
 public:
-    static void OnUserLogin(PacketReader &reader)
+    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    {
+        if (messageId == ClientRegionMessages::UserLogin) // 1B9B360
+        {
+            ClientRegion::OnUserLogin(reader);
+        }
+        else if (messageId == ClientRegionMessages::UserLoginReply) // 1B9B520
+        {
+            ClientRegion::OnUserLoginReply(reader);
+        }
+        else if (messageId == ClientRegionMessages::AddUser) // 1B9B590
+        {
+            ClientRegion::OnAddUser(reader);
+        }
+        else if (messageId == ClientRegionMessages::RemoveUser) // 1B9B600
+        {
+            ClientRegion::OnRemoveUser(reader);
+        }
+        else if (messageId == ClientRegionMessages::RenameUser) // 1B9B7C0
+        {
+            ClientRegion::OnRenameUser(reader);
+        }
+        else if (messageId == ClientRegionMessages::ChatMessageToServer) // 1B9B830
+        {
+            ClientRegion::OnChatMessageToServer(reader);
+        }
+        else if (messageId == ClientRegionMessages::ChatMessageToClient) // 1B9B8A0
+        {
+            ClientRegion::OnChatMessageToClient(reader);
+        }
+        else if (messageId == ClientRegionMessages::VibrationPulseToClient) // 1B9B910
+        {
+            ClientRegion::OnVibrationPulseToClient(reader);
+        }
+        else if (messageId == ClientRegionMessages::SetAgentController) // 1B9B980
+        {
+            ClientRegion::OnSetAgentController(reader);
+        }
+        else if (messageId == ClientRegionMessages::TeleportTo) // 1B9B9F0
+        {
+            ClientRegion::OnTeleportTo(reader);
+        }
+        else if (messageId == ClientRegionMessages::TeleportToUri) // 1B9BA60
+        {
+            ClientRegion::OnTeleportToUri(reader);
+        }
+        else if (messageId == ClientRegionMessages::TeleportToEditMode) // 1B9BC10
+        {
+            ClientRegion::OnTeleportToEditMode(reader);
+        }
+        else if (messageId == ClientRegionMessages::DebugTimeChangeToServer) // 1B9BC80
+        {
+            ClientRegion::OnDebugTimeChangeToServer(reader);
+        }
+        else if (messageId == ClientRegionMessages::DebugTimeChangeToClient) // 1B9BCF0
+        {
+            ClientRegion::OnDebugTimeChangeToClient(reader);
+        }
+        else if (messageId == ClientRegionMessages::VisualDebuggerCaptureToServer) // 1B9BD60
+        {
+            ClientRegion::OnVisualDebuggerCaptureToServer(reader);
+        }
+        else if (messageId == ClientRegionMessages::VisualDebuggerCaptureToClient) // 1B9BDD0
+        {
+            ClientRegion::OnVisualDebuggerCaptureToClient(reader);
+        }
+        else if (messageId == ClientRegionMessages::ScriptModalDialog) // 1B9BE40
+        {
+            ClientRegion::OnScriptModalDialog(reader);
+        }
+        else if (messageId == ClientRegionMessages::ScriptModalDialogResponse) // 1B9BEB0
+        {
+            ClientRegion::OnScriptModalDialogResponse(reader);
+        }
+        else if (messageId == ClientRegionMessages::TwitchEventSubscription) // 1B9BF20
+        {
+            ClientRegion::OnTwitchEventSubscription(reader);
+        }
+        else if (messageId == ClientRegionMessages::TwitchEvent) // 1B9C0E0
+        {
+            ClientRegion::OnTwitchEvent(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientStaticReady) // 1B9C150
+        {
+            ClientRegion::OnClientStaticReady(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientDynamicReady) // 1B9C310
+        {
+            ClientRegion::OnClientDynamicReady(reader);
+        }
+        else if (messageId == ClientRegionMessages::InitialChunkSubscribed) // 1B9C380
+        {
+            ClientRegion::OnInitialChunkSubscribed(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientRegionCommandMessage) // 1B9C540
+        {
+            ClientRegion::OnClientRegionCommandMessage(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientKickNotification) // 1B9C6F0
+        {
+            ClientRegion::OnClientKickNotification(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientSmiteNotification) // 1B9C8A0
+        {
+            ClientRegion::OnClientSmiteNotification(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientMuteNotification) // 1B9CA50
+        {
+            ClientRegion::OnClientMuteNotification(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientVoiceBroadcastStartNotification) // 1B9CC00
+        {
+            ClientRegion::OnClientvoiceBroadcastStartNotification(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientVoiceBroadcastStopNotification) // 1B9CDB0
+        {
+            ClientRegion::OnClientVoiceBroadcastStopNotification(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientRuntimeInventoryUpdatedNotification) // 1B9CF60
+        {
+            ClientRegion::OnClientRuntimeInventoryUpdatedNotification(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientSetRegionBroadcasted) // 1B9D110
+        {
+            ClientRegion::OnClientSetRegionBroadcasted(reader);
+        }
+        else if (messageId == ClientRegionMessages::SubscribeCommand) // 1B9D2D0
+        {
+            ClientRegion::OnSubscribeCommand(reader);
+        }
+        else if (messageId == ClientRegionMessages::UnsubscribeCommand) // 1B9D340
+        {
+            ClientRegion::OnUnsubscribeCommand(reader);
+        }
+        else if (messageId == ClientRegionMessages::ClientCommand) // 1B9D3B0
+        {
+            ClientRegion::OnClientCommand(reader);
+        }
+        else if (messageId == ClientRegionMessages::RequestDropPortal) // 1B9D420
+        {
+            ClientRegion::OnRequestDropPortal(reader);
+        }
+        else if (messageId == ClientRegionMessages::OpenStoreListing) // 1B9D490
+        {
+            ClientRegion::OnOpenStoreListing(reader);
+        }
+        else if (messageId == ClientRegionMessages::OpenUserStore) // 1B9D620
+        {
+            ClientRegion::OnOpenUserStore(reader);
+        }
+        else if (messageId == ClientRegionMessages::OpenQuestCharacterDialog) // 1B9D7D0
+        {
+            ClientRegion::OnOpenQuestCharcterDialog(reader);
+        }
+        else if (messageId == ClientRegionMessages::UIScriptableBarStart) // 1B9D960
+        {
+            ClientRegion::OnUIScriptableBarStart(reader);
+        }
+        else if (messageId == ClientRegionMessages::UIScriptableBarStopped) // 1B9D9D0
+        {
+            ClientRegion::OnUIScriptableBarStopped(reader);
+        }
+        else if (messageId == ClientRegionMessages::UIScriptableBarCancel) // 1B9DA40
+        {
+            ClientRegion::OnUIScriptableBarCancel(reader);
+        }
+        else if (messageId == ClientRegionMessages::UIHintTextUpdate) // 1B9DC00
+        {
+            ClientRegion::OnUIHintTextUpdate(reader);
+        }
+        else if (messageId == ClientRegionMessages::QuestOfferResponse) // 1B9DDB0
+        {
+            ClientRegion::OnQuestOfferResponse(reader);
+        }
+        else if (messageId == ClientRegionMessages::QuestCompleted) // 1B9DE20
+        {
+            ClientRegion::OnQuestCompleted(reader);
+        }
+        else if (messageId == ClientRegionMessages::QuestRemoved) // 1B9DE90
+        {
+            ClientRegion::OnQuestRemoved(reader);
+        }
+        else if (messageId == ClientRegionMessages::ShowWorldDetail) // 1B9E020
+        {
+            ClientRegion::OnShowWorldDetail(reader);
+        }
+        else if (messageId == ClientRegionMessages::ShowTutorialHint) // 1B9E090
+        {
+            ClientRegion::OnShowTutorialHints(reader);
+        }
+        else if (messageId == ClientRegionMessages::TutorialHintsSetEnabled) // 1B9E100
+        {
+            ClientRegion::OnTutorialHintsEnabled(reader);
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    static void OnUserLogin(PacketReader &reader)// 1B9B360
     {
         auto secret = reader.ReadUint32();
     }
 
-    static void OnUserLoginReply(PacketReader &reader)
+    static void OnUserLoginReply(PacketReader &reader)// 1B9B520
     {
         printf("ClientRegionMessages::UserLoginReply\n");
 
@@ -87,7 +290,7 @@ public:
         }
     }
 
-    static void OnAddUser(PacketReader &reader)
+    static void OnAddUser(PacketReader &reader) // 1B9B590
     {
         static const std::regex kPatternAvatarType("avatarAssetId = \"([^\"]+)\"[^a]+avatarInventoryId = \"([^\"]+)\"");
 
@@ -162,7 +365,7 @@ public:
         );
     }
 
-    static void OnRemoveUser(PacketReader &reader)
+    static void OnRemoveUser(PacketReader &reader) // 1B9B600
     {
         auto sessionId = reader.ReadUint32();
 
@@ -180,19 +383,19 @@ public:
         printf("ClientRegionMessages::RemoveUser -> (%s) %d\n", userName.c_str(), sessionId);
     }
 
-    static void OnRenameUser(PacketReader &reader)
+    static void OnRenameUser(PacketReader &reader) // 1B9B7C0
     {
         auto sessionId = reader.ReadUint32();
         auto userName = reader.ReadString();
     }
 
-    static void OnChatMessageToServer(PacketReader &reader)
+    static void OnChatMessageToServer(PacketReader &reader) // 1B9B830
     {
         auto toSessionId = reader.ReadUint32();
         auto message = reader.ReadString();
     }
 
-    static void OnChatMessageToClient(PacketReader &reader)
+    static void OnChatMessageToClient(PacketReader &reader) // 1B9B8A0
     {
         auto fromSessionId = reader.ReadUint32();
         auto toSessionId = reader.ReadUint32();
@@ -213,14 +416,14 @@ public:
         printf("OnChatMessageToClient: (%s) %d -> %d: %s\n", username.c_str(), fromSessionId, toSessionId, message.c_str());
     }
 
-    static void OnVibrationPulseToClient(PacketReader &reader)
+    static void OnVibrationPulseToClient(PacketReader &reader) // 1B9B910
     {
         auto controlPointType = reader.ReadUint32();
         auto intensity = reader.ReadFloat();
         auto duration = reader.ReadFloat();
     }
 
-    static void OnSetAgentController(PacketReader &reader)
+    static void OnSetAgentController(PacketReader &reader) // 1B9B980
     {
         auto agentControllerId = reader.ReadUint32();
         auto frame = reader.ReadUint64();
@@ -231,31 +434,31 @@ public:
         );
     }
 
-    static void OnTeleportTo(PacketReader &reader)
+    static void OnTeleportTo(PacketReader &reader) // 1B9B9F0
     {
         auto personaHandle = reader.ReadString();
         auto locationHandle = reader.ReadString();
     }
 
-    static void OnTeleportToUri(PacketReader &reader)
+    static void OnTeleportToUri(PacketReader &reader) // 1B9BA60
     {
         auto sansarUri = reader.ReadString();
     }
 
-    static void OnTeleportToEditMode(PacketReader &reader)
+    static void OnTeleportToEditMode(PacketReader &reader) // 1B9BC10
     {
         auto returnSpawnPointName = reader.ReadString();
         auto workspaceEditView = reader.ReadUint8();
     }
 
-    static void OnDebugTimeChangeToServer(PacketReader &reader)
+    static void OnDebugTimeChangeToServer(PacketReader &reader) // 1B9BC80
     {
         auto requestId = reader.ReadUint32();
         auto clientDeltaTimeForced = reader.ReadFloat();
         auto clientDeltaTimeScale = reader.ReadFloat();
     }
 
-    static void OnDebugTimeChangeToClient(PacketReader &reader)
+    static void OnDebugTimeChangeToClient(PacketReader &reader) // 1B9BCF0
     {
         auto requestId = reader.ReadUint32();
         auto clientDeltaTimeForced = reader.ReadFloat();
@@ -264,14 +467,14 @@ public:
         auto errorMessage = reader.ReadString();
     }
 
-    static void OnVisualDebuggerCaptureToServer(PacketReader &reader)
+    static void OnVisualDebuggerCaptureToServer(PacketReader &reader) // 1B9BD60
     {
         auto startTimeFormatted = reader.ReadString();
         auto beginCapture = reader.ReadUint8();
         auto viewers = reader.ReadStringList();
     }
 
-    static void OnVisualDebuggerCaptureToClient(PacketReader &reader)
+    static void OnVisualDebuggerCaptureToClient(PacketReader &reader) // 1B9BDD0
     {
         auto startTimeFormatted = reader.ReadString();
         auto compressedHkmBytes = reader.ReadArray();
@@ -281,7 +484,7 @@ public:
         auto errorMessage = reader.ReadString();
     }
 
-    static void OnScriptModalDialog(PacketReader &reader)
+    static void OnScriptModalDialog(PacketReader &reader) // 1B9BE40
     {
         auto eventId = reader.ReadUint64();
         auto message = reader.ReadString();
@@ -289,29 +492,29 @@ public:
         auto rightButtonLabel = reader.ReadString();
     }
 
-    static void OnScriptModalDialogResponse(PacketReader &reader)
+    static void OnScriptModalDialogResponse(PacketReader &reader) // 1B9BEB0
     {
         auto eventId = reader.ReadUint64();
         auto response = reader.ReadString();
     }
 
-    static void OnTwitchEventSubscription(PacketReader &reader)
+    static void OnTwitchEventSubscription(PacketReader &reader) // 1B9BF20
     {
         auto eventMask = reader.ReadUint32();
     }
 
-    static void OnTwitchEvent(PacketReader &reader)
+    static void OnTwitchEvent(PacketReader &reader) // 1B9C0E0
     {
         auto eventType = reader.ReadUint32();
         auto intensity = reader.ReadFloat();
     }
 
-    static void OnClientStaticReady(PacketReader &reader)
+    static void OnClientStaticReady(PacketReader &reader) // 1B9C150
     {
         auto ready = reader.ReadUint8();
     }
 
-    static void OnClientDynamicReady(PacketReader &reader)
+    static void OnClientDynamicReady(PacketReader &reader) // 1B9C310
     {
         auto position = reader.ReadVectorF(3);
         auto orientation = reader.ReadVectorF(4);
@@ -322,64 +525,64 @@ public:
         auto ready = reader.ReadUint8();
     }
 
-    static void OnInitialChunkSubscribed(PacketReader &reader)
+    static void OnInitialChunkSubscribed(PacketReader &reader) // 1B9C380
     {
         auto unused = reader.ReadUint8();
     }
 
-    static void OnClientRegionCommandMessage(PacketReader &reader)
+    static void OnClientRegionCommandMessage(PacketReader &reader) // 1B9C540
     {
         auto commandLine = reader.ReadString(); // What's this suspicious looking thing
     }
 
-    static void OnClientKickNotification(PacketReader &reader)
+    static void OnClientKickNotification(PacketReader &reader) // 1B9C6F0
     {
         auto message = reader.ReadString();
     }
 
-    static void OnClientSmiteNotification(PacketReader &reader)
+    static void OnClientSmiteNotification(PacketReader &reader) // 1B9C8A0
     {
         auto message = reader.ReadString();
     }
 
-    static void OnClientMuteNotification(PacketReader &reader)
+    static void OnClientMuteNotification(PacketReader &reader) // 1B9CA50
     {
         auto message = reader.ReadString();
     }
 
-    static void OnClientvoiceBroadcastStartNotification(PacketReader &reader)
+    static void OnClientvoiceBroadcastStartNotification(PacketReader &reader) // 1B9CC00
     {
         auto message = reader.ReadString();
     }
 
-    static void OnClientVoiceBroadcastStopNotification(PacketReader &reader)
+    static void OnClientVoiceBroadcastStopNotification(PacketReader &reader) // 1B9CDB0
     {
         auto message = reader.ReadString();
     }
 
-    static void OnClientRuntimeInventoryUpdatedNotification(PacketReader &reader)
+    static void OnClientRuntimeInventoryUpdatedNotification(PacketReader &reader) // 1B9CF60
     {
         auto message = reader.ReadString();
     }
 
-    static void OnClientSetRegionBroadcasted(PacketReader &reader)
+    static void OnClientSetRegionBroadcasted(PacketReader &reader) // 1B9D110
     {
         auto broadcasted = reader.ReadUint8();
     }
 
-    static void OnSubscribeCommand(PacketReader &reader)
+    static void OnSubscribeCommand(PacketReader &reader) // 1B9D2D0
     {
         auto command = reader.ReadString();
         auto action = reader.ReadUint8();
     }
 
-    static void OnUnsubscribeCommand(PacketReader &reader)
+    static void OnUnsubscribeCommand(PacketReader &reader) // 1B9D340
     {
         auto action = reader.ReadUint8(); // yes, this is reverse from subscribecommand?
         auto command = reader.ReadString();
     }
 
-    static void OnClientCommand(PacketReader &reader)
+    static void OnClientCommand(PacketReader &reader) // 1B9D3B0
     {
         auto command = reader.ReadString();
         auto action = reader.ReadUint8();
@@ -394,28 +597,28 @@ public:
         auto isAimTarget = reader.ReadUint8();
     }
 
-    static void OnRequestDropPortal(PacketReader &reader)
+    static void OnRequestDropPortal(PacketReader &reader) // 1B9D420
     {
         auto sansarUri = reader.ReadString();
         auto sansarUriDescription = reader.ReadString();
     }
 
-    static void OnOpenStoreListing(PacketReader &reader)
+    static void OnOpenStoreListing(PacketReader &reader) // 1B9D490
     {
         auto listingId = reader.ReadUUID();
     }
 
-    static void OnOpenUserStore(PacketReader &reader)
+    static void OnOpenUserStore(PacketReader &reader) // 1B9D620
     {
         auto creatorHandle = reader.ReadString();
     }
 
-    static void OnOpenQuestCharcterDialog(PacketReader &reader)
+    static void OnOpenQuestCharcterDialog(PacketReader &reader) // 1B9D7D0
     {
         auto characterId = reader.ReadUUID();
     }
 
-    static void OnUIScriptableBarStart(PacketReader &reader)
+    static void OnUIScriptableBarStart(PacketReader &reader) // 1B9D960
     {
         auto barId = reader.ReadUint32();
         auto scriptEventId = reader.ReadUint64();
@@ -428,55 +631,55 @@ public:
         auto start = reader.ReadUint8();
     }
 
-    static void OnUIScriptableBarStopped(PacketReader &reader)
+    static void OnUIScriptableBarStopped(PacketReader &reader) // 1B9D9D0
     {
         auto barId = reader.ReadUint32();
         auto scriptEventId = reader.ReadUint64();
         auto completed = reader.ReadUint8();
     }
 
-    static void OnUIScriptableBarCancel(PacketReader &reader)
+    static void OnUIScriptableBarCancel(PacketReader &reader) // 1B9DA40
     {
         auto barId = reader.ReadUint32();
     }
 
-    static void OnUIHintTextUpdate(PacketReader &reader)
+    static void OnUIHintTextUpdate(PacketReader &reader) // 1B9DC00
     {
         auto text = reader.ReadString();
     }
 
-    static void OnQuestOfferResponse(PacketReader &reader)
+    static void OnQuestOfferResponse(PacketReader &reader) // 1B9DDB0
     {
         auto questId = reader.ReadUUID();
         auto questDefinitionId = reader.ReadUUID();
         auto accepted = reader.ReadUint8();
     }
 
-    static void OnQuestCompleted(PacketReader &reader)
+    static void OnQuestCompleted(PacketReader &reader) // 1B9DE20
     {
         auto questId = reader.ReadUUID();
         auto questDefinitionId = reader.ReadUUID();
         auto completedState = reader.ReadUint32();
     }
 
-    static void OnQuestRemoved(PacketReader &reader)
+    static void OnQuestRemoved(PacketReader &reader) // 1B9DE90
     {
         auto questId = reader.ReadUUID();
     }
 
-    static void OnShowWorldDetail(PacketReader &reader)
+    static void OnShowWorldDetail(PacketReader &reader) // 1B9E020
     {
         auto sansarUri = reader.ReadString();
         auto show = reader.ReadUint8();
     }
 
-    static void OnShowTutorialHints(PacketReader &reader)
+    static void OnShowTutorialHints(PacketReader &reader) // 1B9E090
     {
         auto tutorialHintEnum = reader.ReadUint32();
         auto variant = reader.ReadUint32();
     }
 
-    static void OnTutorialHintsEnabled(PacketReader &reader)
+    static void OnTutorialHintsEnabled(PacketReader &reader) // 1B9E100
     {
         auto enabled = reader.ReadUint8();
     }

@@ -4,7 +4,7 @@
 #include <string>
 #include <map>
 #include <vector>
-
+#include <functional>
 
 class PacketReader
 {
@@ -212,6 +212,21 @@ public:
     {
         return std::vector<uint8_t>();
     }
+
+    //template<typename T>
+    //std::vector<T> ReadList(std::function<T(PacketReader *)> func)
+    //{
+    //    auto numStrings = ReadUint32();
+    //    std::vector<T> result(numStrings);
+
+    //    for (size_t i = 0; i < numStrings; i++)
+    //    {
+    //        auto item = func();
+    //        result.push_back(item);
+    //    }
+
+    //    return result;
+    //}
 
     std::vector<std::string> ReadStringList()
     {

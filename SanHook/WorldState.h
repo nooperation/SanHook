@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "MessageHandler.h"
 #include "PacketReader.hpp"
 #include "Utils.hpp"
 
@@ -22,9 +23,74 @@
 //void OnWorldStateCreateAgentController(PacketReader &reader);
 //void OnWorldStateDestroyAgentController(PacketReader &reader);
 
-class WorldState 
+class WorldState : public MessageHandler
 {
 public:
+    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    {
+        if (messageId == WorldStateMessages::CreateWorld) // 1BB5960
+        {
+            WorldState::OnCreateWorld(reader);
+        }
+        else if (messageId == WorldStateMessages::DestroyWorld) // 1BB59D0
+        {
+            WorldState::OnDestroyWorld(reader);
+        }
+        else if (messageId == WorldStateMessages::RigidBodyComponentInitialState) // 1BB5B90
+        {
+            WorldState::OnRigidBodyComponentInitialState(reader);
+        }
+        else if (messageId == WorldStateMessages::AnimationComponentInitialState) // 1BB5C00
+        {
+            WorldState::OnAnimationComponentInitialState(reader);
+        }
+        else if (messageId == WorldStateMessages::LoadClusterDefinition) // 1BB5C70
+        {
+            WorldState::OnLoadClusterDefinition(reader);
+        }
+        else if (messageId == WorldStateMessages::ComponentRelativeTransform) // 1BB5CE0
+        {
+            WorldState::OnComponentRelativeTransform(reader);
+        }
+        else if (messageId == WorldStateMessages::InitiateCluster) // 1BB5D50
+        {
+            WorldState::OnInitiateCluster(reader);
+        }
+        else if (messageId == WorldStateMessages::CreateClusterViaDefinition) // 1BB5DC0
+        {
+            WorldState::OnCreateClusterViaDefinition(reader);
+        }
+        else if (messageId == WorldStateMessages::DestroyCluster) // 1BB5E30
+        {
+            WorldState::OnDestroyCluster(reader);
+        }
+        else if (messageId == WorldStateMessages::DestroyObject) // 1BB5EA0
+        {
+            WorldState::OnDestroyObject(reader);
+        }
+        else if (messageId == WorldStateMessages::DestroySourceIdSpace) // 1BB6060
+        {
+            WorldState::OnDestroySourceIdSpace(reader);
+        }
+        else if (messageId == WorldStateMessages::CreateCharacterNode) // 1BB6220
+        {
+            WorldState::OnCreateCharacterNode(reader);
+        }
+        else if (messageId == WorldStateMessages::CreateAgentController) // 1BB6290
+        {
+            WorldState::OnCreateAgentController(reader);
+        }
+        else if (messageId == WorldStateMessages::DestroyAgentController) // 1BB6300
+        {
+            WorldState::OnDestroyAgentController(reader);
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;;
+    }
 
     static void OnCreateWorld(PacketReader &reader) // 1BB5960
     {

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "MessageHandler.h"
 #include "PacketReader.hpp"
 #include "Utils.hpp"
 
@@ -15,9 +16,47 @@
 //void OnSimulationMessagesRigidBodyPropertyChanged(PacketReader &reader);
 //void OnSimulationMessagesRigidBodyDestroyed(PacketReader &reader);
 
-class Simulation
+class Simulation : public MessageHandler
 {
 public:
+    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    {
+        if (messageId == SimulationMessages::InitialTimestamp)  // 15733C0 
+        {
+            Simulation::OnInitialTimestamp(reader);
+        }
+        else if (messageId == SimulationMessages::Timestamp) // 1573430 
+        {
+            Simulation::OnTimestamp(reader);
+        }
+        else if (messageId == SimulationMessages::SetWorldGravityMagnitude)  // 15734A0
+        {
+            Simulation::OnSetWorldGravityMagnitude(reader);
+        }
+        else if (messageId == SimulationMessages::ActiveRigidBodyUpdate)  // 1573510
+        {
+            Simulation::OnActiveRigidBodyUpdate(reader);
+        }
+        else if (messageId == SimulationMessages::RigidBodyDeactivated)  // 1573580
+        {
+            Simulation::OnRigidBodyDeactivated(reader);
+        }
+        else if (messageId == SimulationMessages::RigidBodyPropertyChanged)  // 15735F0
+        {
+            Simulation::OnRigidBodyPropertyChanged(reader);
+        }
+        else if (messageId == SimulationMessages::RigidBodyDestroyed)  // 1573660
+        {
+            Simulation::OnRigidBodyDestroyed(reader);
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     static void OnInitialTimestamp(PacketReader &reader)  // 15733C0 
     {
         auto nanoseconds = reader.ReadUint64();

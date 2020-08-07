@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "MessageHandler.h"
 #include "PacketReader.hpp"
 #include "Utils.hpp"
 
@@ -25,9 +26,87 @@
 //void OnAnimationComponentBehaviorInitializationData(PacketReader &reader);
 
 
-class AnimationComponent
+class AnimationComponent : public MessageHandler
 {
 public:
+    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    {
+        if (messageId == AnimationComponentMessages::FloatVariable)  // 15809C0
+        {
+            AnimationComponent::OnFloatVariable(reader);
+        }
+        else if (messageId == AnimationComponentMessages::FloatNodeVariable)  // 1580A30
+        {
+            AnimationComponent::OnFloatNodeVariable(reader);
+        }
+        else if (messageId == AnimationComponentMessages::FloatRangeNodeVariable)  // 1580AA0
+        {
+            AnimationComponent::OnFloatRangeNodeVariable(reader);
+        }
+        else if (messageId == AnimationComponentMessages::VectorVariable)  // 1580B10
+        {
+            AnimationComponent::OnVectorVariable(reader);
+        }
+        else if (messageId == AnimationComponentMessages::QuaternionVariable)  // 1580B80
+        {
+            AnimationComponent::OnQuaternionVariable(reader);
+        }
+        else if (messageId == AnimationComponentMessages::Int8Variable)  // 1580BF0
+        {
+            AnimationComponent::OnInt8Variable(reader);
+        }
+        else if (messageId == AnimationComponentMessages::BoolVariable)  // 1580C60
+        {
+            AnimationComponent::OnBoolVariable(reader);
+        }
+        else if (messageId == AnimationComponentMessages::CharacterTransform) // 1580CD0
+        {
+            AnimationComponent::OnCharacterTransform(reader);
+        }
+        else if (messageId == AnimationComponentMessages::CharacterTransformPersistent) // 1580D40
+        {
+            AnimationComponent::OnCharacterTransformPersistent(reader);
+        }
+        else if (messageId == AnimationComponentMessages::CharacterAnimationDestroyed)  // 1580DB0
+        {
+            AnimationComponent::OnCharacterAnimationDestroyed(reader);
+        }
+        else if (messageId == AnimationComponentMessages::AnimationOverride)  // 1580F70
+        {
+            AnimationComponent::OnAnimationOverride(reader);
+        }
+        else if (messageId == AnimationComponentMessages::BehaviorInternalState) // 0xCE9B5148  // 1580FE0  (this is called by)
+        {
+            AnimationComponent::OnBehaviorInternalState(reader);
+        }
+        else if (messageId == AnimationComponentMessages::CharacterBehaviorInternalState)  // 1581050
+        {
+            AnimationComponent::OnCharacterBehaviorInternalState(reader);
+        }
+        else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 0x217192BE  // 15810C0
+        {
+            AnimationComponent::OnBehaviorStateUpdate(reader);
+        }
+        else if (messageId == AnimationComponentMessages::BehaviorInitializationData) // 0x7846436E // 1581130
+        {
+            AnimationComponent::OnBehaviorInitializationData(reader);
+        }
+        else if (messageId == AnimationComponentMessages::CharacterSetPosition)  // 15811A0
+        {
+            AnimationComponent::OnCharacterSetPosition(reader);
+        }
+        else if (messageId == AnimationComponentMessages::PlayAnimation)  // 1581210
+        {
+            AnimationComponent::OnPlayAnimation(reader);
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     static void OnFloatVariable(PacketReader &reader)  // 15809C0
     {
         auto internalId = reader.ReadUint16();
@@ -133,53 +212,46 @@ public:
         auto componentId = reader.ReadUint64();
         auto exceptAgentControllerId = reader.ReadUint32();
 
-        printf("AnimationComponentMessages::BehaviorStateUpdate:\n  frame = %llu\n  componentId = %llu\n  exceptAgentControllerId = %u\n",
-            frame,
-            componentId,
-            exceptAgentControllerId
-        );
-
         auto floatsLength = reader.ReadUint32();
         for (size_t i = 0; i < floatsLength; i++)
         {
-            auto nodeId = reader.ReadUint16();
-            auto value = reader.ReadFloat();
+            OnFloatNodeVariable(reader);
         }
 
         auto vectorsLength = reader.ReadUint32();
         for (size_t i = 0; i < vectorsLength; i++)
         {
-            auto internalId = reader.ReadUint16();
-            auto value = reader.ReadVectorF(3);
+            OnVectorVariable(reader);
         }
 
         auto quaternionsLength = reader.ReadUint32();
         for (size_t i = 0; i < quaternionsLength; i++)
         {
-            auto internalId = reader.ReadUint16();
-            auto value = reader.ReadVectorF(4);
+            OnQuaternionVariable(reader);
         }
 
         auto int8sLength = reader.ReadUint32();
         for (size_t i = 0; i < int8sLength; i++)
         {
-            auto internalId = reader.ReadUint16();
-            auto value = reader.ReadUint8();
+            OnInt8Variable(reader);
         }
 
         auto boolsLength = reader.ReadUint32();
         for (size_t i = 0; i < boolsLength; i++)
         {
-            auto internalId = reader.ReadUint16();
-            auto value = reader.ReadUint8();
+            OnBoolVariable(reader);
         }
 
-        auto internalEventIds = reader.ReadUint32();
-        for (size_t i = 0; i < internalEventIds; i++)
+       // auto internalEventIdsLength = reader.ReadList<uint16_t>(&PacketReader::ReadUint16);
+       
+        //auto internalEventIdsLength = reader.ReadList<uint16_t>([](PacketReader *reader) {
+        //    return reader->ReadUint16(); 
+        //});
+
+        auto internalEventIdsLength = reader.ReadUint32();
+        for (size_t i = 0; i < internalEventIdsLength; i++)
         {
-            // double check this one...
-            auto internalId = reader.ReadUint16();
-            auto value = reader.ReadUint8();
+            auto value = reader.ReadUint16();
         }
 
         auto animationAction = reader.ReadUint8();
@@ -187,17 +259,20 @@ public:
         auto nodeLocalTimesLength = reader.ReadUint32();
         for (size_t i = 0; i < nodeLocalTimesLength; i++)
         {
-            auto nodeId = reader.ReadUint16();
-            auto value = reader.ReadFloat();
+            OnFloatNodeVariable(reader);
         }
 
         auto nodeCropValuesLength = reader.ReadUint32();
         for (size_t i = 0; i < nodeCropValuesLength; i++)
         {
-            auto nodeId = reader.ReadUint16();
-            auto startValue = reader.ReadFloat();
-            auto endValue = reader.ReadFloat();
+            OnFloatRangeNodeVariable(reader);
         }
+
+        //printf("AnimationComponentMessages::BehaviorStateUpdate:\n  frame = %llu\n  componentId = %llu\n  exceptAgentControllerId = %u\n",
+        //    frame,
+        //    componentId,
+        //    exceptAgentControllerId
+        //);
     }
 
     static void OnBehaviorInitializationData(PacketReader &reader)// 1581130

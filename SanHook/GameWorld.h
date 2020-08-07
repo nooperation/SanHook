@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "MessageHandler.h"
 #include "PacketReader.hpp"
 #include "Utils.hpp"
 
@@ -20,9 +21,63 @@
 //void OnGameWorldMessageTimestamp(PacketReader &reader);
 
 
-class GameWorld
+class GameWorld : public MessageHandler
 {
 public:
+    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    {
+        if (messageId == GameWorldMessages::Timestamp)  // 16E9DC0
+        {
+            GameWorld::OnTimestamp(reader);
+        }
+        else if (messageId == GameWorldMessages::MoveEntity) // 0xEFC20B7F  // 16E9E30
+        {
+            GameWorld::OnMoveEntity(reader);
+        }
+        else if (messageId == GameWorldMessages::ChangeMaterialVectorParam)  // 16E9EA0
+        {
+            GameWorld::OnChangeMaterialVectorParam(reader);
+        }
+        else if (messageId == GameWorldMessages::ChangeMaterialFloatParam)  // 16E9F10
+        {
+            GameWorld::OnChangeMaterialFloatParam(reader);
+        }
+        else if (messageId == GameWorldMessages::ChangeMaterial)  // 16E9F80
+        {
+            GameWorld::OnChangeMaterial(reader);
+        }
+        else if (messageId == GameWorldMessages::StaticMeshFlagsChanged)  // 16E9FF0
+        {
+            GameWorld::OnStaticMeshFlagsChanged(reader);
+        }
+        else if (messageId == GameWorldMessages::StaticMeshScaleChanged)  // 16EA060
+        {
+            GameWorld::OnStaticMeshScaleChanged(reader);
+        }
+        else if (messageId == GameWorldMessages::RiggedMeshFlagsChange)  // 16EA0D0
+        {
+            GameWorld::OnRiggedMeshFlagsChange(reader);
+        }
+        else if (messageId == GameWorldMessages::RiggedMeshScaleChanged)  // 16EA140
+        {
+            GameWorld::OnRiggedMeshScaleChanged(reader);
+        }
+        else if (messageId == GameWorldMessages::ScriptCameraMessage)  // 16EA1B0
+        {
+            GameWorld::OnScriptCameraMessage(reader);
+        }
+        else if (messageId == GameWorldMessages::UpdateRuntimeInventorySettings)  // 16EA220
+        {
+            GameWorld::OnUpdateRuntimeInventorySettings(reader);
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     static void OnUpdateRuntimeInventorySettings(PacketReader &reader)
     {
         auto spawnSource = reader.ReadUint8();
@@ -116,13 +171,13 @@ public:
         //auto positionInterpMode = reader.ReadBits(4);
         //auto rotationInterpMode = reader.ReadBits(4);
 
-        printf("GameWorldMessages::MoveEntity:\n  startFrame = %llu\n  componentId = %llu\n startPosition = <%f, %f, %f>\n  targetPosition = <%f, %f, %f>\n  time = %u\n",
-            startFrame,
-            componentId,
-            startPosition[0], startPosition[1], startPosition[2],
-            targetPosition[0], targetPosition[1], targetPosition[2],
-            time
-        );
+        //printf("GameWorldMessages::MoveEntity:\n  startFrame = %llu\n  componentId = %llu\n startPosition = <%f, %f, %f>\n  targetPosition = <%f, %f, %f>\n  time = %u\n",
+        //    startFrame,
+        //    componentId,
+        //    startPosition[0], startPosition[1], startPosition[2],
+        //    targetPosition[0], targetPosition[1], targetPosition[2],
+        //    time
+        //);
     }
 
     static void OnTimestamp(PacketReader &reader)

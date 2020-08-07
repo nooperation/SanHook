@@ -42,36 +42,226 @@
 //void OnAgentControllerMessageRequestDeleteAllSpawns(PacketReader &reader);
 //void OnAgentControllerMessagePlayAnimation(PacketReader &reader);
 
-class AgentController
+class AgentController : public MessageHandler
 {
 public:
-    static void OnCharacterControllerInput(PacketReader &reader)
+    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    {
+        if (messageId == AgentControllerMessages::PlayAnimation) // 0x009385A0    // 1581210
+        {
+            AgentController::OnPlayAnimation(reader);
+        }
+        else if (messageId == AgentControllerMessages::ControlPoint)  // 170F790
+        {
+            AgentController::OnControlPoint(reader);
+        }
+        else if (messageId == AgentControllerMessages::WarpCharacter) // 170F800
+        {
+            AgentController::OnWarpCharacter(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestWarpCharacter)  // 170F870
+        {
+            AgentController::OnRequestWarpCharacter(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControlPointInput)  // 170F8E0
+        {
+            AgentController::OnCharacterControlPointInput(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControlPointInputReliable)  // 170F950
+        {
+            AgentController::OnCharacterControlPointInputReliable(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControllerInput) // 170F9C0
+        {
+            AgentController::OnCharacterControllerInput(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterControllerInputReliable) // 170FA30
+        {
+            AgentController::OnCharacterControllerInputReliable(reader);
+        }
+        else if (messageId == AgentControllerMessages::AgentPlayanimation)  // 170FAA0
+        {
+            AgentController::OnAgentPlayanimation(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestAgentPlayAnimation)  // 170FB10
+        {
+            AgentController::OnRequestAgentPlayAnimation(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestBehaviorStateUpdate)  // 170FB80
+        {
+            AgentController::OnRequestBehaviorStateUpdate(reader);
+        }
+        else if (messageId == AgentControllerMessages::AttachToCharacterNode)  // 170FBF0
+        {
+            AgentController::OnAttachToCharacterNode(reader);
+        }
+        else if (messageId == AgentControllerMessages::DetachFromCharacterNode)  // 170FC60
+        {
+            AgentController::OnDetachFromCharacterNode(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestDetachFromCharacterNode)  // 170FCD0
+        {
+            AgentController::OnRequestDetachFromCharacterNode(reader);
+        }
+        else if (messageId == AgentControllerMessages::SetCharacterNodePhysics)  // 170FD40
+        {
+            AgentController::OnSetCharacterNodePhysics(reader);
+        }
+        else if (messageId == AgentControllerMessages::WarpCharacterNode)  // 170FDB0
+        {
+            AgentController::OnWarpCharacterNode(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterIKBone)  // 170FE20
+        {
+            AgentController::OnCharacterIKBone(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterIKPose)  // 170FE90
+        {
+            AgentController::OnCharacterIKPose(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterIKBoneDelta)  // 1710040
+        {
+            AgentController::OnCharacterIKBoneDelta(reader);
+        }
+        else if (messageId == AgentControllerMessages::CharacterIKPoseDelta)  // 17100B0
+        {
+            AgentController::OnCharacterIKPoseDelta(reader);
+        }
+        else if (messageId == AgentControllerMessages::ObjectInteraction)  // 1710260
+        {
+            AgentController::OnObjectInteraction(reader);
+        }
+        else if (messageId == AgentControllerMessages::ObjectInteractionUpdate)  // 17102D0
+        {
+            AgentController::OnObjectInteractionUpdate(reader);
+        }
+        else if (messageId == AgentControllerMessages::ObjectInteractionPromptUpdate)  // 1710340
+        {
+            AgentController::OnObjectInteractionPromptUpdate(reader);
+        }
+        else if (messageId == AgentControllerMessages::ObjectInteractionCreate)  // 17103B0
+        {
+            AgentController::OnObjectInteractionCreate(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestSitOnObject)  // 1710420
+        {
+            AgentController::OnRequestSitOnObject(reader);
+        }
+        else if (messageId == AgentControllerMessages::SitOnObject)  // 1710490
+        {
+            AgentController::OnSitOnObject(reader);
+        }
+        else if (messageId == AgentControllerMessages::ExitSit)  // 1710500
+        {
+            AgentController::OnExitSit(reader);
+        }
+        else if (messageId == AgentControllerMessages::SetAgentFiltersBody)  // 1710570
+        {
+            AgentController::OnSetAgentFiltersBody(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestSetAgentFiltersBody)  // 17105E0
+        {
+            AgentController::OnRequestSetAgentfiltersBody(reader);
+        }
+        else if (messageId == AgentControllerMessages::SetCharacterUserProperty)  // 1710650
+        {
+            AgentController::OnSetCharacterUserProperty(reader);
+        }
+        else if (messageId == AgentControllerMessages::CreateSpeechGraphicsPlayer) // 0x158B2580  // 17106C0
+        {
+            AgentController::OnCreateSpeechGraphicsPlayer(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestSpawnItem)  // 1710730
+        {
+            AgentController::OnRequestSpawnItem(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestDeleteLatestSpawn)  // 17107A0
+        {
+            AgentController::OnRequestDeleteLatestSpawn(reader);
+        }
+        else if (messageId == AgentControllerMessages::RequestDeleteAllSpawns)  // 1710810
+        {
+            AgentController::OnRequestDeleteAllSpawns(reader);
+        }
+        else
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    static void OnCharacterControllerInput(PacketReader &reader) // 170F9C0
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto jumpState = reader.ReadUint8();
         auto jumpBtnPressed = reader.ReadUint8();
 
-        printf("OnCharacterControllerInput: Frame = %llu | Agent = %u | jumpState = %u | jump = %u\n",
-            frame,
-            agentControllerId,
-            jumpState,
-            jumpBtnPressed
-        );
+        auto moveRight = reader.ReadBits(12); //  - 2047) * 0.0004885197850512946
+        auto moveForward = reader.ReadBits(12); // - 2047) * 0.0004885197850512946
+        auto cameraYaw = reader.ReadBits(13); // - 4095) * 0.0002442002442002442
+        auto cameraPitch = reader.ReadBits(13); // - 4095) * 0.0002442002442002442
+        auto behaviorYawDelta = reader.ReadBits(11); // - 1023) * 0.0009775171065493646
+        auto behaviorPitchDelta = reader.ReadBits(11); // - 1023) * 0.0009775171065493646
+        auto characterForward = reader.ReadBits(15); // - 0x3FFF) * 0.00006103888176768602
+        auto cameraForward = reader.ReadBits(28);
+
         /*
-        auto moveRight = ;
-        auto moveForward = ;
-        auto cameraYaw = ;
-        auto cameraPitch = ;
-        auto cameraYaw = ;
-        auto cameraYaw = ;
-        auto cameraYaw = ;
-        auto cameraYaw = ;
-        ... TBD, weird packed float stuff again
+        auto v34 = reader.ReadBits(2);
+        auto v33 = reader.ReadBits(1);
+        auto v32 = reader.ReadBits(1);
+        
+        if(v32) {
+            v32 = (reader.readBits(12) - 2047) * 0.0004885197850512946 * 0.1;
+            v32 = (reader.readBits(12) - 2047) * 0.0004885197850512946 * 0.1;
+        }
+        else {
+            v32 = (reader.readBits(12) - 2047) * 0.0004885197850512946 * 0.70710802;
+            v32 = (reader.readBits(12) - 2047) * 0.0004885197850512946 * 0.70710802;
+        }
+
+        if(v33) {
+            shuffle -60
+        }
+
+        if(v34 == 0) {
+            // ??
+            shuffle -86
+            shuffle 0
+
+            xor (shuffle 85)
+            xor (shuffle -1)
+        }
+        else if(v34 == 1) {
+            // ??
+            shuffle -86
+            shuffle -1
+
+            xor (shuffle 85)
+            xor (shuffle 0)
+        }
+        else if(v34 == 2) {
+            shuffle -1
+            shuffle -86
+            shuffle 85
+            xor
+        }
+        else {
+            shuffle -1
+            
+        }
         */
+
+        //printf("OnCharacterControllerInput: Frame = %llu | Agent = %u | jumpState = %u | jump = %u\n",
+        //    frame,
+        //    agentControllerId,
+        //    jumpState,
+        //    jumpBtnPressed
+        //);
     }
 
-    static void OnObjectInteractionUpdate(PacketReader &reader)
+    static void OnObjectInteractionUpdate(PacketReader &reader)  // 17102D0
     {
         auto frame = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
@@ -86,7 +276,7 @@ public:
         );
     }
 
-    static void OnCreateSpeechGraphicsPlayer(PacketReader &reader)
+    static void OnCreateSpeechGraphicsPlayer(PacketReader &reader) // 17106C0
     {
         auto agentControllerId = reader.ReadUint32();
 
@@ -98,7 +288,7 @@ public:
         );
     }
 
-    static void OnCharacterIKPoseDelta(PacketReader &reader)
+    static void OnCharacterIKPoseDelta(PacketReader &reader)  // 17100B0
     {
         auto agentControllerId = reader.ReadUint32();
         auto frame = reader.ReadUint64();
@@ -119,7 +309,7 @@ public:
         );
     }
 
-    static void OnCharacterIKPose(PacketReader &reader)
+    static void OnCharacterIKPose(PacketReader &reader)   // 170FE90
     {
         // TODO: Nope, not handling this one
 
@@ -143,19 +333,17 @@ public:
         );
     }
 
-    static void OnCharacterControlPointInputReliable(PacketReader &reader)
+    static void OnCharacterControlPointInputReliable(PacketReader &reader)  // 170F950
     {
-        printf("AgentControllerMessages::CharacterControlPointInputReliable\n");
         OnCharacterControlPointInput(reader);
     }
 
-    static void OnCharacterControllerInputReliable(PacketReader &reader)
+    static void OnCharacterControllerInputReliable(PacketReader &reader) // 170FA30
     {
-        printf("AgentControllerMessages::CharacterControllerInputReliable\n");
         OnCharacterControllerInput(reader);
     }
 
-    static void OnCharacterControlPointInput(PacketReader &reader)
+    static void OnCharacterControlPointInput(PacketReader &reader)  // 170F8E0
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -178,7 +366,7 @@ public:
         );
     }
 
-    static void OnWarpCharacter(PacketReader &reader)
+    static void OnWarpCharacter(PacketReader &reader) // 170F800
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -203,8 +391,7 @@ public:
         );
     }
 
-
-    static void OnControlPoint(PacketReader &reader)
+    static void OnControlPoint(PacketReader &reader)  // 170F790
     {
         auto position = reader.ReadBits(0x30);
         auto orientation = reader.ReadBits(0x28);
@@ -212,30 +399,30 @@ public:
         auto controlPointType = reader.ReadBits(4);
     }
 
-    static void OnRequestWarpCharacter(PacketReader &reader)
+    static void OnRequestWarpCharacter(PacketReader &reader)  // 170F870
     {
         // double check...
         OnWarpCharacter(reader);
     }
 
-    static void OnAgentPlayanimation(PacketReader &reader)
+    static void OnAgentPlayanimation(PacketReader &reader)   // 170FAA0
     {
         auto agentControllerId = reader.ReadUint32();
     }
 
-    static void OnRequestAgentPlayAnimation(PacketReader &reader)
+    static void OnRequestAgentPlayAnimation(PacketReader &reader)  // 170FB10
     {
         // double check...
         OnAgentPlayanimation(reader);
     }
 
-    static void OnRequestBehaviorStateUpdate(PacketReader &reader)
+    static void OnRequestBehaviorStateUpdate(PacketReader &reader) // 170FB80
     {
         // double check...
         AnimationComponent::OnBehaviorStateUpdate(reader);
     }
 
-    static void OnAttachToCharacterNode(PacketReader &reader)
+    static void OnAttachToCharacterNode(PacketReader &reader)   // 170FBF0
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -247,7 +434,7 @@ public:
         auto broadcastToSelf = reader.ReadUint8();
     }
 
-    static void OnDetachFromCharacterNode(PacketReader &reader)
+    static void OnDetachFromCharacterNode(PacketReader &reader)  // 170FC60
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -259,12 +446,12 @@ public:
         auto nodeType = reader.ReadUint8();
     }
 
-    static void OnRequestDetachFromCharacterNode(PacketReader &reader)
+    static void OnRequestDetachFromCharacterNode(PacketReader &reader)  // 170FCD0
     {
         OnDetachFromCharacterNode(reader);
     }
 
-    static void OnSetCharacterNodePhysics(PacketReader &reader)
+    static void OnSetCharacterNodePhysics(PacketReader &reader)  // 170FD40
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -273,25 +460,25 @@ public:
         auto broadcastToSelf = reader.ReadUint8();
     }
 
-    static void OnWarpCharacterNode(PacketReader &reader)
+    static void OnWarpCharacterNode(PacketReader &reader) // 170FDB0
     {
         auto agentControllerId = reader.ReadUint32();
         auto nodeType = reader.ReadUint32(); /// why is this node type 4bytes?
     }
 
-    static void OnCharacterIKBone(PacketReader &reader)
+    static void OnCharacterIKBone(PacketReader &reader) // 170FE20
     {
         auto boneIndex = reader.ReadBits(6);
         auto localOrientation = reader.ReadBits(0x28);
     }
 
-    static void OnCharacterIKBoneDelta(PacketReader &reader)
+    static void OnCharacterIKBoneDelta(PacketReader &reader)  // 1710040
     {
         auto boneIndex = reader.ReadBits(6);
         auto localOrientation = reader.ReadBits(0x19);
     }
 
-    static void OnObjectInteraction(PacketReader &reader)
+    static void OnObjectInteraction(PacketReader &reader)   // 1710260
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -302,7 +489,7 @@ public:
         auto controlPointType = reader.ReadBits(4);
     }
 
-    static void OnObjectInteractionPromptUpdate(PacketReader &reader)
+    static void OnObjectInteractionPromptUpdate(PacketReader &reader)   // 1710340
     {
         auto frame = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
@@ -317,7 +504,7 @@ public:
         );
     }
 
-    static void OnObjectInteractionCreate(PacketReader &reader)
+    static void OnObjectInteractionCreate(PacketReader &reader)  // 17103B0
     {
         auto frame = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
@@ -334,14 +521,13 @@ public:
         );
     }
 
-    static void OnRequestSitOnObject(PacketReader &reader)
+    static void OnRequestSitOnObject(PacketReader &reader)  // 1710420
     {
         OnSitOnObject(reader);
     }
 
-    static void OnSitOnObject(PacketReader &reader)
+    static void OnSitOnObject(PacketReader &reader)  // 1710490
     {
-
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto componentId = reader.ReadUint64();
@@ -357,9 +543,8 @@ public:
         );
     }
 
-    static void OnExitSit(PacketReader &reader)
+    static void OnExitSit(PacketReader &reader)  // 1710500
     {
-
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto componentId = reader.ReadUint64();
@@ -373,9 +558,8 @@ public:
         );
     }
 
-    static void OnSetAgentFiltersBody(PacketReader &reader)
+    static void OnSetAgentFiltersBody(PacketReader &reader) // 1710570
     {
-
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto componentId = reader.ReadUint64();
@@ -389,14 +573,13 @@ public:
         );
     }
 
-    static void OnRequestSetAgentfiltersBody(PacketReader &reader)
+    static void OnRequestSetAgentfiltersBody(PacketReader &reader)  // 17105E0
     {
         OnSetAgentFiltersBody(reader);
     }
 
-    static void OnSetCharacterUserProperty(PacketReader &reader)
+    static void OnSetCharacterUserProperty(PacketReader &reader)  // 1710650
     {
-
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto value = reader.ReadFloat();
@@ -410,20 +593,25 @@ public:
         );
     }
 
-    static void OnRequestSpawnItem(PacketReader &reader)
+    static void OnRequestSpawnItem(PacketReader &reader) // 1710730
     {
-
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto resourceId = reader.ReadUUID();
         auto attachmentNode = reader.ReadUint8();
         auto spawnPosition = reader.ReadBits(0x4E);
         auto spawnOrientation = reader.ReadBits(0x2B);
+
+        printf("AgentControllerMessages::OnRequestSpawnItem\n  frame = %llu\n  agentControllerId = %u\n  resourceId = %s\n  attachmentNode = %u\n",
+            frame,
+            agentControllerId,
+            resourceId.c_str(),
+            attachmentNode
+        );
     }
 
-    static void OnRequestDeleteLatestSpawn(PacketReader &reader)
+    static void OnRequestDeleteLatestSpawn(PacketReader &reader)  // 17107A0
     {
-
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
 
@@ -433,7 +621,7 @@ public:
         );
     }
 
-    static void OnRequestDeleteAllSpawns(PacketReader &reader)
+    static void OnRequestDeleteAllSpawns(PacketReader &reader)  // 1710810
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
@@ -444,7 +632,7 @@ public:
         );
     }
 
-    static void OnPlayAnimation(PacketReader &reader)
+    static void OnPlayAnimation(PacketReader &reader) // 1581210
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -461,4 +649,3 @@ public:
         );
     }
 };
-
