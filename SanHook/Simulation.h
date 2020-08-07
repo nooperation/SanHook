@@ -21,37 +21,47 @@ class Simulation : public MessageHandler
 public:
     bool OnMessage(uint32_t messageId, PacketReader &reader)
     {
-        if (messageId == SimulationMessages::InitialTimestamp)  // 15733C0 
+        switch (messageId)
         {
-            Simulation::OnInitialTimestamp(reader);
-        }
-        else if (messageId == SimulationMessages::Timestamp) // 1573430 
-        {
-            Simulation::OnTimestamp(reader);
-        }
-        else if (messageId == SimulationMessages::SetWorldGravityMagnitude)  // 15734A0
-        {
-            Simulation::OnSetWorldGravityMagnitude(reader);
-        }
-        else if (messageId == SimulationMessages::ActiveRigidBodyUpdate)  // 1573510
-        {
-            Simulation::OnActiveRigidBodyUpdate(reader);
-        }
-        else if (messageId == SimulationMessages::RigidBodyDeactivated)  // 1573580
-        {
-            Simulation::OnRigidBodyDeactivated(reader);
-        }
-        else if (messageId == SimulationMessages::RigidBodyPropertyChanged)  // 15735F0
-        {
-            Simulation::OnRigidBodyPropertyChanged(reader);
-        }
-        else if (messageId == SimulationMessages::RigidBodyDestroyed)  // 1573660
-        {
-            Simulation::OnRigidBodyDestroyed(reader);
-        }
-        else
-        {
-            return false;
+            case SimulationMessages::InitialTimestamp:  // 15733C0 
+            {
+                Simulation::OnInitialTimestamp(reader);
+                break;
+            }
+            case SimulationMessages::Timestamp: // 1573430 
+            {
+                Simulation::OnTimestamp(reader);
+                break;
+            }
+            case SimulationMessages::SetWorldGravityMagnitude:  // 15734A0
+            {
+                Simulation::OnSetWorldGravityMagnitude(reader);
+                break;
+            }
+            case SimulationMessages::ActiveRigidBodyUpdate:  // 1573510
+            {
+                Simulation::OnActiveRigidBodyUpdate(reader);
+                break;
+            }
+            case SimulationMessages::RigidBodyDeactivated:  // 1573580
+            {
+                Simulation::OnRigidBodyDeactivated(reader);
+                break;
+            }
+            case SimulationMessages::RigidBodyPropertyChanged:  // 15735F0
+            {
+                Simulation::OnRigidBodyPropertyChanged(reader);
+                break;
+            }
+            case SimulationMessages::RigidBodyDestroyed:  // 1573660
+            {
+                Simulation::OnRigidBodyDestroyed(reader);
+                break;
+            }
+            default:
+            {
+                return false;
+            }
         }
 
         return true;

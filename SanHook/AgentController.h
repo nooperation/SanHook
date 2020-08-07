@@ -47,141 +47,177 @@ class AgentController : public MessageHandler
 public:
     bool OnMessage(uint32_t messageId, PacketReader &reader)
     {
-        if (messageId == AgentControllerMessages::ControlPoint)  // 170F790
+        switch (messageId)
         {
-            AgentController::OnControlPoint(reader);
-        }
-        else if (messageId == AgentControllerMessages::WarpCharacter) // 170F800
-        {
-            AgentController::OnWarpCharacter(reader);
-        }
-        else if (messageId == AgentControllerMessages::RequestWarpCharacter)  // 170F870
-        {
-            AgentController::OnRequestWarpCharacter(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterControlPointInput)  // 170F8E0
-        {
-            AgentController::OnCharacterControlPointInput(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterControlPointInputReliable)  // 170F950
-        {
-            AgentController::OnCharacterControlPointInputReliable(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterControllerInput) // 170F9C0
-        {
-            AgentController::OnCharacterControllerInput(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterControllerInputReliable) // 170FA30
-        {
-            AgentController::OnCharacterControllerInputReliable(reader);
-        }
-        else if (messageId == AgentControllerMessages::AgentPlayAnimation)  // 170FAA0
-        {
-            AgentController::OnAgentPlayAnimation(reader);
-        }
-        else if (messageId == AgentControllerMessages::RequestAgentPlayAnimation)  // 170FB10
-        {
-            AgentController::OnRequestAgentPlayAnimation(reader);
-        }
-        else if (messageId == AgentControllerMessages::RequestBehaviorStateUpdate)  // 170FB80
-        {
-            AgentController::OnRequestBehaviorStateUpdate(reader);
-        }
-        else if (messageId == AgentControllerMessages::AttachToCharacterNode)  // 170FBF0
-        {
-            AgentController::OnAttachToCharacterNode(reader);
-        }
-        else if (messageId == AgentControllerMessages::DetachFromCharacterNode)  // 170FC60
-        {
-            AgentController::OnDetachFromCharacterNode(reader);
-        }
-        else if (messageId == AgentControllerMessages::RequestDetachFromCharacterNode)  // 170FCD0
-        {
-            AgentController::OnRequestDetachFromCharacterNode(reader);
-        }
-        else if (messageId == AgentControllerMessages::SetCharacterNodePhysics)  // 170FD40
-        {
-            AgentController::OnSetCharacterNodePhysics(reader);
-        }
-        else if (messageId == AgentControllerMessages::WarpCharacterNode)  // 170FDB0
-        {
-            AgentController::OnWarpCharacterNode(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterIKBone)  // 170FE20
-        {
-            AgentController::OnCharacterIKBone(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterIKPose)  // 170FE90
-        {
-            AgentController::OnCharacterIKPose(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterIKBoneDelta)  // 1710040
-        {
-            AgentController::OnCharacterIKBoneDelta(reader);
-        }
-        else if (messageId == AgentControllerMessages::CharacterIKPoseDelta)  // 17100B0
-        {
-            AgentController::OnCharacterIKPoseDelta(reader);
-        }
-        else if (messageId == AgentControllerMessages::ObjectInteraction)  // 1710260
-        {
-            AgentController::OnObjectInteraction(reader);
-        }
-        else if (messageId == AgentControllerMessages::ObjectInteractionUpdate)  // 17102D0
-        {
-            AgentController::OnObjectInteractionUpdate(reader);
-        }
-        else if (messageId == AgentControllerMessages::ObjectInteractionPromptUpdate)  // 1710340
-        {
-            AgentController::OnObjectInteractionPromptUpdate(reader);
-        }
-        else if (messageId == AgentControllerMessages::ObjectInteractionCreate)  // 17103B0
-        {
-            AgentController::OnObjectInteractionCreate(reader);
-        }
-        else if (messageId == AgentControllerMessages::RequestSitOnObject)  // 1710420
-        {
-            AgentController::OnRequestSitOnObject(reader);
-        }
-        else if (messageId == AgentControllerMessages::SitOnObject)  // 1710490
-        {
-            AgentController::OnSitOnObject(reader);
-        }
-        else if (messageId == AgentControllerMessages::ExitSit)  // 1710500
-        {
-            AgentController::OnExitSit(reader);
-        }
-        else if (messageId == AgentControllerMessages::SetAgentFiltersBody)  // 1710570
-        {
-            AgentController::OnSetAgentFiltersBody(reader);
-        }
-        else if (messageId == AgentControllerMessages::RequestSetAgentFiltersBody)  // 17105E0
-        {
-            AgentController::OnRequestSetAgentfiltersBody(reader);
-        }
-        else if (messageId == AgentControllerMessages::SetCharacterUserProperty)  // 1710650
-        {
-            AgentController::OnSetCharacterUserProperty(reader);
-        }
-        else if (messageId == AgentControllerMessages::CreateSpeechGraphicsPlayer) // 0x158B2580  // 17106C0
-        {
-            AgentController::OnCreateSpeechGraphicsPlayer(reader);
-        }
-        else if (messageId == AgentControllerMessages::RequestSpawnItem)  // 1710730
-        {
-            AgentController::OnRequestSpawnItem(reader);
-        }
-        else if (messageId == AgentControllerMessages::RequestDeleteLatestSpawn)  // 17107A0
-        {
-            AgentController::OnRequestDeleteLatestSpawn(reader);
-        }
-        else if (messageId == AgentControllerMessages::RequestDeleteAllSpawns)  // 1710810
-        {
-            AgentController::OnRequestDeleteAllSpawns(reader);
-        }
-        else
-        {
+            case AgentControllerMessages::ControlPoint:  // 170F790
+            {
+                AgentController::OnControlPoint(reader);
+                break;
+            }
+            case AgentControllerMessages::WarpCharacter: // 170F800
+            {
+                AgentController::OnWarpCharacter(reader);
+                break;
+            }
+            case AgentControllerMessages::RequestWarpCharacter:  // 170F870
+            {
+                AgentController::OnRequestWarpCharacter(reader);
+                break;
+            }
+            case AgentControllerMessages::CharacterControlPointInput:  // 170F8E0
+            {
+                AgentController::OnCharacterControlPointInput(reader);
+                break;
+            }
+            case AgentControllerMessages::CharacterControlPointInputReliable:  // 170F950
+            {
+                AgentController::OnCharacterControlPointInputReliable(reader);
+                break;
+            }
+            case AgentControllerMessages::CharacterControllerInput: // 170F9C0
+            {
+                AgentController::OnCharacterControllerInput(reader);
+                break;
+            }
+            case AgentControllerMessages::CharacterControllerInputReliable: // 170FA30
+            {
+                AgentController::OnCharacterControllerInputReliable(reader);
+                break;
+            }
+            case AgentControllerMessages::AgentPlayAnimation:  // 170FAA0
+            {
+                AgentController::OnAgentPlayAnimation(reader);
+                break;
+            }
+            case AgentControllerMessages::RequestAgentPlayAnimation:  // 170FB10
+            {
+                AgentController::OnRequestAgentPlayAnimation(reader);
+                break;
+            }
+            case AgentControllerMessages::RequestBehaviorStateUpdate:  // 170FB80
+            {
+                AgentController::OnRequestBehaviorStateUpdate(reader);
+                break;
+            }
+            case AgentControllerMessages::AttachToCharacterNode:  // 170FBF0
+            {
+                AgentController::OnAttachToCharacterNode(reader);
+                break;
+            }
+            case AgentControllerMessages::DetachFromCharacterNode:  // 170FC60
+            {
+                AgentController::OnDetachFromCharacterNode(reader);
+                break;
+            }
+            case AgentControllerMessages::RequestDetachFromCharacterNode:  // 170FCD0
+            {
+                AgentController::OnRequestDetachFromCharacterNode(reader);
+                break;
+            }
+            case AgentControllerMessages::SetCharacterNodePhysics:  // 170FD40
+            {
+                AgentController::OnSetCharacterNodePhysics(reader);
+                break;
+            }
+            case AgentControllerMessages::WarpCharacterNode:  // 170FDB0
+            {
+                AgentController::OnWarpCharacterNode(reader);
+                break;
+            }
+            case AgentControllerMessages::CharacterIKBone:  // 170FE20
+            {
+                AgentController::OnCharacterIKBone(reader);
+                break;
+            }
+            case AgentControllerMessages::CharacterIKPose:  // 170FE90
+            {
+                AgentController::OnCharacterIKPose(reader);
+                break;
+            }
+            case AgentControllerMessages::CharacterIKBoneDelta:  // 1710040
+            {
+                AgentController::OnCharacterIKBoneDelta(reader);
+                break;
+            }
+            case AgentControllerMessages::CharacterIKPoseDelta:  // 17100B0
+            {
+                AgentController::OnCharacterIKPoseDelta(reader);
+                break;
+            }
+            case AgentControllerMessages::ObjectInteraction:  // 1710260
+            {
+                AgentController::OnObjectInteraction(reader);
+                break;
+            }
+            case AgentControllerMessages::ObjectInteractionUpdate:  // 17102D0
+            {
+                AgentController::OnObjectInteractionUpdate(reader);
+                break;
+            }
+            case AgentControllerMessages::ObjectInteractionPromptUpdate:  // 1710340
+            {
+                AgentController::OnObjectInteractionPromptUpdate(reader);
+                break;
+            }
+            case AgentControllerMessages::ObjectInteractionCreate:  // 17103B0
+            {
+                AgentController::OnObjectInteractionCreate(reader);
+                break;
+            }
+            case AgentControllerMessages::RequestSitOnObject:  // 1710420
+            {
+                AgentController::OnRequestSitOnObject(reader);
+                break;
+            }
+            case AgentControllerMessages::SitOnObject:  // 1710490
+            {
+                AgentController::OnSitOnObject(reader);
+                break;
+            }
+            case AgentControllerMessages::ExitSit:  // 1710500
+            {
+                AgentController::OnExitSit(reader);
+                break;
+            }
+            case AgentControllerMessages::SetAgentFiltersBody:  // 1710570
+            {
+                AgentController::OnSetAgentFiltersBody(reader);
+                break;
+            }
+            case AgentControllerMessages::RequestSetAgentFiltersBody:  // 17105E0
+            {
+                AgentController::OnRequestSetAgentfiltersBody(reader);
+                break;
+            }
+            case AgentControllerMessages::SetCharacterUserProperty:  // 1710650
+            {
+                AgentController::OnSetCharacterUserProperty(reader);
+                break;
+            }
+            case AgentControllerMessages::CreateSpeechGraphicsPlayer: // 0x158B2580  // 17106C0
+            {
+                AgentController::OnCreateSpeechGraphicsPlayer(reader);
+                break;
+            }
+            case AgentControllerMessages::RequestSpawnItem:  // 1710730
+            {
+                AgentController::OnRequestSpawnItem(reader);
+                break;
+            }
+            case AgentControllerMessages::RequestDeleteLatestSpawn:  // 17107A0
+            {
+                AgentController::OnRequestDeleteLatestSpawn(reader);
+                break;
+            }
+            case AgentControllerMessages::RequestDeleteAllSpawns:  // 1710810
+            {
+                AgentController::OnRequestDeleteAllSpawns(reader);
+                break;
+            }
+            default:
+            {
             return false;
+            }
         }
 
         return true;

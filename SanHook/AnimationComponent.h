@@ -31,77 +31,97 @@ class AnimationComponent : public MessageHandler
 public:
     bool OnMessage(uint32_t messageId, PacketReader &reader)
     {
-        if (messageId == AnimationComponentMessages::FloatVariable)  // 15809C0
+        switch (messageId)
         {
-            AnimationComponent::OnFloatVariable(reader);
-        }
-        else if (messageId == AnimationComponentMessages::FloatNodeVariable)  // 1580A30
-        {
-            AnimationComponent::OnFloatNodeVariable(reader);
-        }
-        else if (messageId == AnimationComponentMessages::FloatRangeNodeVariable)  // 1580AA0
-        {
-            AnimationComponent::OnFloatRangeNodeVariable(reader);
-        }
-        else if (messageId == AnimationComponentMessages::VectorVariable)  // 1580B10
-        {
-            AnimationComponent::OnVectorVariable(reader);
-        }
-        else if (messageId == AnimationComponentMessages::QuaternionVariable)  // 1580B80
-        {
-            AnimationComponent::OnQuaternionVariable(reader);
-        }
-        else if (messageId == AnimationComponentMessages::Int8Variable)  // 1580BF0
-        {
-            AnimationComponent::OnInt8Variable(reader);
-        }
-        else if (messageId == AnimationComponentMessages::BoolVariable)  // 1580C60
-        {
-            AnimationComponent::OnBoolVariable(reader);
-        }
-        else if (messageId == AnimationComponentMessages::CharacterTransform) // 1580CD0
-        {
-            AnimationComponent::OnCharacterTransform(reader);
-        }
-        else if (messageId == AnimationComponentMessages::CharacterTransformPersistent) // 1580D40
-        {
-            AnimationComponent::OnCharacterTransformPersistent(reader);
-        }
-        else if (messageId == AnimationComponentMessages::CharacterAnimationDestroyed)  // 1580DB0
-        {
-            AnimationComponent::OnCharacterAnimationDestroyed(reader);
-        }
-        else if (messageId == AnimationComponentMessages::AnimationOverride)  // 1580F70
-        {
-            AnimationComponent::OnAnimationOverride(reader);
-        }
-        else if (messageId == AnimationComponentMessages::BehaviorInternalState) // 0xCE9B5148  // 1580FE0  (this is called by)
-        {
-            AnimationComponent::OnBehaviorInternalState(reader);
-        }
-        else if (messageId == AnimationComponentMessages::CharacterBehaviorInternalState)  // 1581050
-        {
-            AnimationComponent::OnCharacterBehaviorInternalState(reader);
-        }
-        else if (messageId == AnimationComponentMessages::BehaviorStateUpdate)  // 0x217192BE  // 15810C0
-        {
-            AnimationComponent::OnBehaviorStateUpdate(reader);
-        }
-        else if (messageId == AnimationComponentMessages::BehaviorInitializationData) // 0x7846436E // 1581130
-        {
-            AnimationComponent::OnBehaviorInitializationData(reader);
-        }
-        else if (messageId == AnimationComponentMessages::CharacterSetPosition)  // 15811A0
-        {
-            AnimationComponent::OnCharacterSetPosition(reader);
-        }
-        else if (messageId == AnimationComponentMessages::PlayAnimation)  // 1581210
-        {
-            AnimationComponent::OnPlayAnimation(reader);
-        }
-        else
-        {
-            return false;
+            case AnimationComponentMessages::FloatVariable:  // 15809C0
+            {
+                AnimationComponent::OnFloatVariable(reader);
+                break;
+            }
+            case AnimationComponentMessages::FloatNodeVariable:  // 1580A30
+            {
+                AnimationComponent::OnFloatNodeVariable(reader);
+                break;
+            }
+            case AnimationComponentMessages::FloatRangeNodeVariable:  // 1580AA0
+            {
+                AnimationComponent::OnFloatRangeNodeVariable(reader);
+                break;
+            }
+            case AnimationComponentMessages::VectorVariable:  // 1580B10
+            {
+                AnimationComponent::OnVectorVariable(reader);
+                break;
+            }
+            case AnimationComponentMessages::QuaternionVariable:  // 1580B80
+            {
+                AnimationComponent::OnQuaternionVariable(reader);
+                break;
+            }
+            case AnimationComponentMessages::Int8Variable:  // 1580BF0
+            {
+                AnimationComponent::OnInt8Variable(reader);
+                break;
+            }
+            case AnimationComponentMessages::BoolVariable:  // 1580C60
+            {
+                AnimationComponent::OnBoolVariable(reader);
+                break;
+            }
+            case AnimationComponentMessages::CharacterTransform: // 1580CD0
+            {
+                AnimationComponent::OnCharacterTransform(reader);
+                break;
+            }
+            case AnimationComponentMessages::CharacterTransformPersistent: // 1580D40
+            {
+                AnimationComponent::OnCharacterTransformPersistent(reader);
+                break;
+            }
+            case AnimationComponentMessages::CharacterAnimationDestroyed:  // 1580DB0
+            {
+                AnimationComponent::OnCharacterAnimationDestroyed(reader);
+                break;
+            }
+            case AnimationComponentMessages::AnimationOverride:  // 1580F70
+            {
+                AnimationComponent::OnAnimationOverride(reader);
+                break;
+            }
+            case AnimationComponentMessages::BehaviorInternalState: // 0xCE9B5148  // 1580FE0  (this is called by)
+            {
+                AnimationComponent::OnBehaviorInternalState(reader);
+                break;
+            }
+            case AnimationComponentMessages::CharacterBehaviorInternalState:  // 1581050
+            {
+                AnimationComponent::OnCharacterBehaviorInternalState(reader);
+                break;
+            }
+            case AnimationComponentMessages::BehaviorStateUpdate:  // 0x217192BE  // 15810C0
+            {
+                AnimationComponent::OnBehaviorStateUpdate(reader);
+                break;
+            }
+            case AnimationComponentMessages::BehaviorInitializationData: // 0x7846436E // 1581130
+            {
+                AnimationComponent::OnBehaviorInitializationData(reader);
+                break;
+            }
+            case AnimationComponentMessages::CharacterSetPosition:  // 15811A0
+            {
+                AnimationComponent::OnCharacterSetPosition(reader);
+                break;
+            }
+            case AnimationComponentMessages::PlayAnimation:  // 1581210
+            {
+                AnimationComponent::OnPlayAnimation(reader);
+                break;
+            }
+            default:
+            {
+                return false;
+            }
         }
 
         return true;

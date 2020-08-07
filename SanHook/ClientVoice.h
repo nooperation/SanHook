@@ -30,73 +30,92 @@ class ClientVoice : public MessageHandler
 public:
     bool OnMessage(uint32_t messageId, PacketReader &reader)
     {
-        if (messageId == ClientVoiceMessages::Login)  // 1DF9BD0
+        switch (messageId)
         {
-            ClientVoice::OnLogin(reader);
-        }
-        else if (messageId == ClientVoiceMessages::LoginReply)  // 1DF9C40
-        {
-            ClientVoice::OnLoginReply(reader);
-        }
-        else if (messageId == ClientVoiceMessages::AudioData)  // 1DF9CB0
-        {
-            ClientVoice::OnAudioData(reader);
-        }
-        else if (messageId == ClientVoiceMessages::SpeechGraphicsData)  // 1DF9D20
-        {
-            ClientVoice::OnSpeechGraphicsData(reader);
-        }
-        else if (messageId == ClientVoiceMessages::LocalAudioData)  // 1DF9D90
-        {
-            ClientVoice::OnLocalAudioData(reader);
-        }
-        else if (messageId == ClientVoiceMessages::LocalAudioStreamState)  // 1DF9E00
-        {
-            ClientVoice::OnLocalAudioStreamState(reader);
-        }
-        else if (messageId == ClientVoiceMessages::LocalAudioPosition)  // 1DF9E70
-        {
-            ClientVoice::OnLocalAudioPosition(reader);
-        }
-        else if (messageId == ClientVoiceMessages::LocalAudioMute)  // 1DF9EE0
-        {
-            ClientVoice::OnLocalAudioMute(reader);
-        }
-        else if (messageId == ClientVoiceMessages::LocalSetRegionBroadcasted)  // 1DF9F50
-        {
-            ClientVoice::OnLocalSetRegionBroadcasted(reader);
-        }
-        else if (messageId == ClientVoiceMessages::LocalSetMuteAll)  // 1DFA110
-        {
-            ClientVoice::OnLocalSetMuteAll(reader);
-        }
-        else if (messageId == ClientVoiceMessages::GroupAudioData)  // 1DFA2D0
-        {
-            ClientVoice::OnGroupAudioData(reader);
-        }
-        else if (messageId == ClientVoiceMessages::LocalTextData)  // 1DFA340
-        {
-            ClientVoice::OnLocalTextData(reader);
-        }
-        else if (messageId == ClientVoiceMessages::MasterInstance)  // 1DFA3B0
-        {
-            ClientVoice::OnMasterInstance(reader);
-        }
-        else if (messageId == ClientVoiceMessages::VoiceModerationCommand)  // 1DFA540
-        {
-            ClientVoice::OnVoiceModerationCommand(reader);
-        }
-        else if (messageId == ClientVoiceMessages::VoiceModerationCommandResponse)  // 1DFA6F0
-        {
-            ClientVoice::OnVoiceModerationCommandResponse(reader);
-        }
-        else if (messageId == ClientVoiceMessages::VoiceNotification)  // 1DFA760
-        {
-            ClientVoice::OnVoiceNotification(reader);
-        }
-        else
-        {
-            return false;
+            case ClientVoiceMessages::Login:  // 1DF9BD0
+            {
+                ClientVoice::OnLogin(reader);
+                break;
+            }
+            case ClientVoiceMessages::LoginReply:  // 1DF9C40
+            {
+                ClientVoice::OnLoginReply(reader);
+                break;
+            }
+            case ClientVoiceMessages::AudioData:  // 1DF9CB0
+            {
+                ClientVoice::OnAudioData(reader);
+                break;
+            }
+            case ClientVoiceMessages::SpeechGraphicsData:  // 1DF9D20
+            {
+                ClientVoice::OnSpeechGraphicsData(reader);
+                break;
+            }
+            case ClientVoiceMessages::LocalAudioData:  // 1DF9D90
+            {
+                ClientVoice::OnLocalAudioData(reader);
+                break;
+            }
+            case ClientVoiceMessages::LocalAudioStreamState:  // 1DF9E00
+            {
+                ClientVoice::OnLocalAudioStreamState(reader);
+                break;
+            }
+            case ClientVoiceMessages::LocalAudioPosition:  // 1DF9E70
+            {
+                ClientVoice::OnLocalAudioPosition(reader);
+                break;
+            }
+            case ClientVoiceMessages::LocalAudioMute:  // 1DF9EE0
+            {
+                ClientVoice::OnLocalAudioMute(reader);
+                break;
+            }
+            case ClientVoiceMessages::LocalSetRegionBroadcasted:  // 1DF9F50
+            {
+                ClientVoice::OnLocalSetRegionBroadcasted(reader);
+                break;
+            }
+            case ClientVoiceMessages::LocalSetMuteAll:  // 1DFA110
+            {
+                ClientVoice::OnLocalSetMuteAll(reader);
+                break;
+            }
+            case ClientVoiceMessages::GroupAudioData:  // 1DFA2D0
+            {
+                ClientVoice::OnGroupAudioData(reader);
+                break;
+            }
+            case ClientVoiceMessages::LocalTextData:  // 1DFA340
+            {
+                ClientVoice::OnLocalTextData(reader);
+                break;
+            }
+            case ClientVoiceMessages::MasterInstance:  // 1DFA3B0
+            {
+                ClientVoice::OnMasterInstance(reader);
+                break;
+            }
+            case ClientVoiceMessages::VoiceModerationCommand:  // 1DFA540
+            {
+                ClientVoice::OnVoiceModerationCommand(reader);
+                break;
+            }
+            case ClientVoiceMessages::VoiceModerationCommandResponse:  // 1DFA6F0
+            {
+                ClientVoice::OnVoiceModerationCommandResponse(reader);
+                break;
+            }
+            case ClientVoiceMessages::VoiceNotification:  // 1DFA760
+            {
+                ClientVoice::OnVoiceNotification(reader);
+                break;
+            }
+            default:
+            {
+                return false;
+            }
         }
 
         return true;

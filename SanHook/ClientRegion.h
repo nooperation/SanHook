@@ -69,201 +69,252 @@ class ClientRegion : public MessageHandler
 public:
     bool OnMessage(uint32_t messageId, PacketReader &reader)
     {
-        if (messageId == ClientRegionMessages::UserLogin) // 1B9B360
+        switch (messageId)
         {
-            ClientRegion::OnUserLogin(reader);
-        }
-        else if (messageId == ClientRegionMessages::UserLoginReply) // 1B9B520
-        {
-            ClientRegion::OnUserLoginReply(reader);
-        }
-        else if (messageId == ClientRegionMessages::AddUser) // 1B9B590
-        {
-            ClientRegion::OnAddUser(reader);
-        }
-        else if (messageId == ClientRegionMessages::RemoveUser) // 1B9B600
-        {
-            ClientRegion::OnRemoveUser(reader);
-        }
-        else if (messageId == ClientRegionMessages::RenameUser) // 1B9B7C0
-        {
-            ClientRegion::OnRenameUser(reader);
-        }
-        else if (messageId == ClientRegionMessages::ChatMessageToServer) // 1B9B830
-        {
-            ClientRegion::OnChatMessageToServer(reader);
-        }
-        else if (messageId == ClientRegionMessages::ChatMessageToClient) // 1B9B8A0
-        {
-            ClientRegion::OnChatMessageToClient(reader);
-        }
-        else if (messageId == ClientRegionMessages::VibrationPulseToClient) // 1B9B910
-        {
-            ClientRegion::OnVibrationPulseToClient(reader);
-        }
-        else if (messageId == ClientRegionMessages::SetAgentController) // 1B9B980
-        {
-            ClientRegion::OnSetAgentController(reader);
-        }
-        else if (messageId == ClientRegionMessages::TeleportTo) // 1B9B9F0
-        {
-            ClientRegion::OnTeleportTo(reader);
-        }
-        else if (messageId == ClientRegionMessages::TeleportToUri) // 1B9BA60
-        {
-            ClientRegion::OnTeleportToUri(reader);
-        }
-        else if (messageId == ClientRegionMessages::TeleportToEditMode) // 1B9BC10
-        {
-            ClientRegion::OnTeleportToEditMode(reader);
-        }
-        else if (messageId == ClientRegionMessages::DebugTimeChangeToServer) // 1B9BC80
-        {
-            ClientRegion::OnDebugTimeChangeToServer(reader);
-        }
-        else if (messageId == ClientRegionMessages::DebugTimeChangeToClient) // 1B9BCF0
-        {
-            ClientRegion::OnDebugTimeChangeToClient(reader);
-        }
-        else if (messageId == ClientRegionMessages::VisualDebuggerCaptureToServer) // 1B9BD60
-        {
-            ClientRegion::OnVisualDebuggerCaptureToServer(reader);
-        }
-        else if (messageId == ClientRegionMessages::VisualDebuggerCaptureToClient) // 1B9BDD0
-        {
-            ClientRegion::OnVisualDebuggerCaptureToClient(reader);
-        }
-        else if (messageId == ClientRegionMessages::ScriptModalDialog) // 1B9BE40
-        {
-            ClientRegion::OnScriptModalDialog(reader);
-        }
-        else if (messageId == ClientRegionMessages::ScriptModalDialogResponse) // 1B9BEB0
-        {
-            ClientRegion::OnScriptModalDialogResponse(reader);
-        }
-        else if (messageId == ClientRegionMessages::TwitchEventSubscription) // 1B9BF20
-        {
-            ClientRegion::OnTwitchEventSubscription(reader);
-        }
-        else if (messageId == ClientRegionMessages::TwitchEvent) // 1B9C0E0
-        {
-            ClientRegion::OnTwitchEvent(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientStaticReady) // 1B9C150
-        {
-            ClientRegion::OnClientStaticReady(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientDynamicReady) // 1B9C310
-        {
-            ClientRegion::OnClientDynamicReady(reader);
-        }
-        else if (messageId == ClientRegionMessages::InitialChunkSubscribed) // 1B9C380
-        {
-            ClientRegion::OnInitialChunkSubscribed(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientRegionCommandMessage) // 1B9C540
-        {
-            ClientRegion::OnClientRegionCommandMessage(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientKickNotification) // 1B9C6F0
-        {
-            ClientRegion::OnClientKickNotification(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientSmiteNotification) // 1B9C8A0
-        {
-            ClientRegion::OnClientSmiteNotification(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientMuteNotification) // 1B9CA50
-        {
-            ClientRegion::OnClientMuteNotification(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientVoiceBroadcastStartNotification) // 1B9CC00
-        {
-            ClientRegion::OnClientvoiceBroadcastStartNotification(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientVoiceBroadcastStopNotification) // 1B9CDB0
-        {
-            ClientRegion::OnClientVoiceBroadcastStopNotification(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientRuntimeInventoryUpdatedNotification) // 1B9CF60
-        {
-            ClientRegion::OnClientRuntimeInventoryUpdatedNotification(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientSetRegionBroadcasted) // 1B9D110
-        {
-            ClientRegion::OnClientSetRegionBroadcasted(reader);
-        }
-        else if (messageId == ClientRegionMessages::SubscribeCommand) // 1B9D2D0
-        {
-            ClientRegion::OnSubscribeCommand(reader);
-        }
-        else if (messageId == ClientRegionMessages::UnsubscribeCommand) // 1B9D340
-        {
-            ClientRegion::OnUnsubscribeCommand(reader);
-        }
-        else if (messageId == ClientRegionMessages::ClientCommand) // 1B9D3B0
-        {
-            ClientRegion::OnClientCommand(reader);
-        }
-        else if (messageId == ClientRegionMessages::RequestDropPortal) // 1B9D420
-        {
-            ClientRegion::OnRequestDropPortal(reader);
-        }
-        else if (messageId == ClientRegionMessages::OpenStoreListing) // 1B9D490
-        {
-            ClientRegion::OnOpenStoreListing(reader);
-        }
-        else if (messageId == ClientRegionMessages::OpenUserStore) // 1B9D620
-        {
-            ClientRegion::OnOpenUserStore(reader);
-        }
-        else if (messageId == ClientRegionMessages::OpenQuestCharacterDialog) // 1B9D7D0
-        {
-            ClientRegion::OnOpenQuestCharcterDialog(reader);
-        }
-        else if (messageId == ClientRegionMessages::UIScriptableBarStart) // 1B9D960
-        {
-            ClientRegion::OnUIScriptableBarStart(reader);
-        }
-        else if (messageId == ClientRegionMessages::UIScriptableBarStopped) // 1B9D9D0
-        {
-            ClientRegion::OnUIScriptableBarStopped(reader);
-        }
-        else if (messageId == ClientRegionMessages::UIScriptableBarCancel) // 1B9DA40
-        {
-            ClientRegion::OnUIScriptableBarCancel(reader);
-        }
-        else if (messageId == ClientRegionMessages::UIHintTextUpdate) // 1B9DC00
-        {
-            ClientRegion::OnUIHintTextUpdate(reader);
-        }
-        else if (messageId == ClientRegionMessages::QuestOfferResponse) // 1B9DDB0
-        {
-            ClientRegion::OnQuestOfferResponse(reader);
-        }
-        else if (messageId == ClientRegionMessages::QuestCompleted) // 1B9DE20
-        {
-            ClientRegion::OnQuestCompleted(reader);
-        }
-        else if (messageId == ClientRegionMessages::QuestRemoved) // 1B9DE90
-        {
-            ClientRegion::OnQuestRemoved(reader);
-        }
-        else if (messageId == ClientRegionMessages::ShowWorldDetail) // 1B9E020
-        {
-            ClientRegion::OnShowWorldDetail(reader);
-        }
-        else if (messageId == ClientRegionMessages::ShowTutorialHint) // 1B9E090
-        {
-            ClientRegion::OnShowTutorialHints(reader);
-        }
-        else if (messageId == ClientRegionMessages::TutorialHintsSetEnabled) // 1B9E100
-        {
-            ClientRegion::OnTutorialHintsEnabled(reader);
-        }
-        else
-        {
-            return false;
+            case ClientRegionMessages::UserLogin: // 1B9B360
+            {
+                ClientRegion::OnUserLogin(reader);
+                break;
+            }
+            case ClientRegionMessages::UserLoginReply: // 1B9B520
+            {
+                ClientRegion::OnUserLoginReply(reader);
+                break;
+            }
+            case ClientRegionMessages::AddUser: // 1B9B590
+            {
+                ClientRegion::OnAddUser(reader);
+                break;
+            }
+            case ClientRegionMessages::RemoveUser: // 1B9B600
+            {
+                ClientRegion::OnRemoveUser(reader);
+                break;
+            }
+            case ClientRegionMessages::RenameUser: // 1B9B7C0
+            {
+                ClientRegion::OnRenameUser(reader);
+                break;
+            }
+            case ClientRegionMessages::ChatMessageToServer: // 1B9B830
+            {
+                ClientRegion::OnChatMessageToServer(reader);
+                break;
+            }
+            case ClientRegionMessages::ChatMessageToClient: // 1B9B8A0
+            {
+                ClientRegion::OnChatMessageToClient(reader);
+                break;
+            }
+            case ClientRegionMessages::VibrationPulseToClient: // 1B9B910
+            {
+                ClientRegion::OnVibrationPulseToClient(reader);
+                break;
+            }
+            case ClientRegionMessages::SetAgentController: // 1B9B980
+            {
+                ClientRegion::OnSetAgentController(reader);
+                break;
+            }
+            case ClientRegionMessages::TeleportTo: // 1B9B9F0
+            {
+                ClientRegion::OnTeleportTo(reader);
+                break;
+            }
+            case ClientRegionMessages::TeleportToUri: // 1B9BA60
+            {
+                ClientRegion::OnTeleportToUri(reader);
+                break;
+            }
+            case ClientRegionMessages::TeleportToEditMode: // 1B9BC10
+            {
+                ClientRegion::OnTeleportToEditMode(reader);
+                break;
+            }
+            case ClientRegionMessages::DebugTimeChangeToServer: // 1B9BC80
+            {
+                ClientRegion::OnDebugTimeChangeToServer(reader);
+                break;
+            }
+            case ClientRegionMessages::DebugTimeChangeToClient: // 1B9BCF0
+            {
+                ClientRegion::OnDebugTimeChangeToClient(reader);
+                break;
+            }
+            case ClientRegionMessages::VisualDebuggerCaptureToServer: // 1B9BD60
+            {
+                ClientRegion::OnVisualDebuggerCaptureToServer(reader);
+                break;
+            }
+            case ClientRegionMessages::VisualDebuggerCaptureToClient: // 1B9BDD0
+            {
+                ClientRegion::OnVisualDebuggerCaptureToClient(reader);
+                break;
+            }
+            case ClientRegionMessages::ScriptModalDialog: // 1B9BE40
+            {
+                ClientRegion::OnScriptModalDialog(reader);
+                break;
+            }
+            case ClientRegionMessages::ScriptModalDialogResponse: // 1B9BEB0
+            {
+                ClientRegion::OnScriptModalDialogResponse(reader);
+                break;
+            }
+            case ClientRegionMessages::TwitchEventSubscription: // 1B9BF20
+            {
+                ClientRegion::OnTwitchEventSubscription(reader);
+                break;
+            }
+            case ClientRegionMessages::TwitchEvent: // 1B9C0E0
+            {
+                ClientRegion::OnTwitchEvent(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientStaticReady: // 1B9C150
+            {
+                ClientRegion::OnClientStaticReady(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientDynamicReady: // 1B9C310
+            {
+                ClientRegion::OnClientDynamicReady(reader);
+                break;
+            }
+            case ClientRegionMessages::InitialChunkSubscribed: // 1B9C380
+            {
+                ClientRegion::OnInitialChunkSubscribed(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientRegionCommandMessage: // 1B9C540
+            {
+                ClientRegion::OnClientRegionCommandMessage(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientKickNotification: // 1B9C6F0
+            {
+                ClientRegion::OnClientKickNotification(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientSmiteNotification: // 1B9C8A0
+            {
+                ClientRegion::OnClientSmiteNotification(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientMuteNotification: // 1B9CA50
+            {
+                ClientRegion::OnClientMuteNotification(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientVoiceBroadcastStartNotification: // 1B9CC00
+            {
+                ClientRegion::OnClientvoiceBroadcastStartNotification(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientVoiceBroadcastStopNotification: // 1B9CDB0
+            {
+                ClientRegion::OnClientVoiceBroadcastStopNotification(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientRuntimeInventoryUpdatedNotification: // 1B9CF60
+            {
+                ClientRegion::OnClientRuntimeInventoryUpdatedNotification(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientSetRegionBroadcasted: // 1B9D110
+            {
+                ClientRegion::OnClientSetRegionBroadcasted(reader);
+                break;
+            }
+            case ClientRegionMessages::SubscribeCommand: // 1B9D2D0
+            {
+                ClientRegion::OnSubscribeCommand(reader);
+                break;
+            }
+            case ClientRegionMessages::UnsubscribeCommand: // 1B9D340
+            {
+                ClientRegion::OnUnsubscribeCommand(reader);
+                break;
+            }
+            case ClientRegionMessages::ClientCommand: // 1B9D3B0
+            {
+                ClientRegion::OnClientCommand(reader);
+                break;
+            }
+            case ClientRegionMessages::RequestDropPortal: // 1B9D420
+            {
+                ClientRegion::OnRequestDropPortal(reader);
+                break;
+            }
+            case ClientRegionMessages::OpenStoreListing: // 1B9D490
+            {
+                ClientRegion::OnOpenStoreListing(reader);
+                break;
+            }
+            case ClientRegionMessages::OpenUserStore: // 1B9D620
+            {
+                ClientRegion::OnOpenUserStore(reader);
+                break;
+            }
+            case ClientRegionMessages::OpenQuestCharacterDialog: // 1B9D7D0
+            {
+                ClientRegion::OnOpenQuestCharcterDialog(reader);
+                break;
+            }
+            case ClientRegionMessages::UIScriptableBarStart: // 1B9D960
+            {
+                ClientRegion::OnUIScriptableBarStart(reader);
+                break;
+            }
+            case ClientRegionMessages::UIScriptableBarStopped: // 1B9D9D0
+            {
+                ClientRegion::OnUIScriptableBarStopped(reader);
+                break;
+            }
+            case ClientRegionMessages::UIScriptableBarCancel: // 1B9DA40
+            {
+                ClientRegion::OnUIScriptableBarCancel(reader);
+                break;
+            }
+            case ClientRegionMessages::UIHintTextUpdate: // 1B9DC00
+            {
+                ClientRegion::OnUIHintTextUpdate(reader);
+                break;
+            }
+            case ClientRegionMessages::QuestOfferResponse: // 1B9DDB0
+            {
+                ClientRegion::OnQuestOfferResponse(reader);
+                break;
+            }
+            case ClientRegionMessages::QuestCompleted: // 1B9DE20
+            {
+                ClientRegion::OnQuestCompleted(reader);
+                break;
+            }
+            case ClientRegionMessages::QuestRemoved: // 1B9DE90
+            {
+                ClientRegion::OnQuestRemoved(reader);
+                break;
+            }
+            case ClientRegionMessages::ShowWorldDetail: // 1B9E020
+            {
+                ClientRegion::OnShowWorldDetail(reader);
+                break;
+            }
+            case ClientRegionMessages::ShowTutorialHint: // 1B9E090
+            {
+                ClientRegion::OnShowTutorialHints(reader);
+                break;
+            }
+            case ClientRegionMessages::TutorialHintsSetEnabled: // 1B9E100
+            {
+                ClientRegion::OnTutorialHintsEnabled(reader);
+                break;
+            }
+            default:
+            {
+                return false;
+            }
         }
 
         return true;

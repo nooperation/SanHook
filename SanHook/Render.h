@@ -16,13 +16,17 @@ class Render : public MessageHandler
 public:
     bool OnMessage(uint32_t messageId, PacketReader &reader)
     {
-        if (messageId == RenderMessages::LightStateChanged) // 1611170
+        switch (messageId)
         {
-            Render::OnLightStateChanged(reader);
-        }
-        else
-        {
-            return false;
+            case RenderMessages::LightStateChanged: // 1611170
+            {
+                Render::OnLightStateChanged(reader);
+                break;
+            }
+            default:
+            {
+                return false;
+            }
         }
 
         return true;

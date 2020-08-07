@@ -26,53 +26,67 @@ class GameWorld : public MessageHandler
 public:
     bool OnMessage(uint32_t messageId, PacketReader &reader)
     {
-        if (messageId == GameWorldMessages::Timestamp)  // 16E9DC0
+        switch (messageId)
         {
-            GameWorld::OnTimestamp(reader);
-        }
-        else if (messageId == GameWorldMessages::MoveEntity) // 0xEFC20B7F  // 16E9E30
-        {
-            GameWorld::OnMoveEntity(reader);
-        }
-        else if (messageId == GameWorldMessages::ChangeMaterialVectorParam)  // 16E9EA0
-        {
-            GameWorld::OnChangeMaterialVectorParam(reader);
-        }
-        else if (messageId == GameWorldMessages::ChangeMaterialFloatParam)  // 16E9F10
-        {
-            GameWorld::OnChangeMaterialFloatParam(reader);
-        }
-        else if (messageId == GameWorldMessages::ChangeMaterial)  // 16E9F80
-        {
-            GameWorld::OnChangeMaterial(reader);
-        }
-        else if (messageId == GameWorldMessages::StaticMeshFlagsChanged)  // 16E9FF0
-        {
-            GameWorld::OnStaticMeshFlagsChanged(reader);
-        }
-        else if (messageId == GameWorldMessages::StaticMeshScaleChanged)  // 16EA060
-        {
-            GameWorld::OnStaticMeshScaleChanged(reader);
-        }
-        else if (messageId == GameWorldMessages::RiggedMeshFlagsChange)  // 16EA0D0
-        {
-            GameWorld::OnRiggedMeshFlagsChange(reader);
-        }
-        else if (messageId == GameWorldMessages::RiggedMeshScaleChanged)  // 16EA140
-        {
-            GameWorld::OnRiggedMeshScaleChanged(reader);
-        }
-        else if (messageId == GameWorldMessages::ScriptCameraMessage)  // 16EA1B0
-        {
-            GameWorld::OnScriptCameraMessage(reader);
-        }
-        else if (messageId == GameWorldMessages::UpdateRuntimeInventorySettings)  // 16EA220
-        {
-            GameWorld::OnUpdateRuntimeInventorySettings(reader);
-        }
-        else
-        {
-            return false;
+            case GameWorldMessages::Timestamp:  // 16E9DC0
+            {
+                GameWorld::OnTimestamp(reader);
+                break;
+            }
+            case GameWorldMessages::MoveEntity: // 0xEFC20B7F  // 16E9E30
+            {
+                GameWorld::OnMoveEntity(reader);
+                break;
+            }
+            case GameWorldMessages::ChangeMaterialVectorParam:  // 16E9EA0
+            {
+                GameWorld::OnChangeMaterialVectorParam(reader);
+                break;
+            }
+            case GameWorldMessages::ChangeMaterialFloatParam:  // 16E9F10
+            {
+                GameWorld::OnChangeMaterialFloatParam(reader);
+                break;
+            }
+            case GameWorldMessages::ChangeMaterial:  // 16E9F80
+            {
+                GameWorld::OnChangeMaterial(reader);
+                break;
+            }
+            case GameWorldMessages::StaticMeshFlagsChanged:  // 16E9FF0
+            {
+                GameWorld::OnStaticMeshFlagsChanged(reader);
+                break;
+            }
+            case GameWorldMessages::StaticMeshScaleChanged:  // 16EA060
+            {
+                GameWorld::OnStaticMeshScaleChanged(reader);
+                break;
+            }
+            case GameWorldMessages::RiggedMeshFlagsChange:  // 16EA0D0
+            {
+                GameWorld::OnRiggedMeshFlagsChange(reader);
+                break;
+            }
+            case GameWorldMessages::RiggedMeshScaleChanged:  // 16EA140
+            {
+                GameWorld::OnRiggedMeshScaleChanged(reader);
+                break;
+            }
+            case GameWorldMessages::ScriptCameraMessage:  // 16EA1B0
+            {
+                GameWorld::OnScriptCameraMessage(reader);
+                break;
+            }
+            case GameWorldMessages::UpdateRuntimeInventorySettings:  // 16EA220
+            {
+                GameWorld::OnUpdateRuntimeInventorySettings(reader);
+                break;
+            }
+            default:
+            {
+                return false;
+            }
         }
 
         return true;

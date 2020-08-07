@@ -25,49 +25,62 @@ class Audio : public MessageHandler
 public:
     bool OnMessage(uint32_t messageId, PacketReader &reader)
     {
-        if (messageId == AudioMessages::LoadSound)  // 0x412484C4 // 15B6490
+        switch (messageId)
         {
-            Audio::OnLoadSound(reader);
-        }
-        else if (messageId == AudioMessages::PlaySound)  // 0x8FC77316 // 15B6620
-        {
-            Audio::OnPlaySound(reader);
-        }
-        else if (messageId == AudioMessages::PlayStream)  // 15B6690
-        {
-            Audio::OnPlayStream(reader);
-        }
-        else if (messageId == AudioMessages::StopBroadcastingSound)  // 15B6700
-        {
-            Audio::OnStopBroadcastingSound(reader);
-        }
-        else if (messageId == AudioMessages::SetAudioStream)  // 15B68C0
-        {
-            Audio::OnSetAudioStream(reader);
-        }
-        else if (messageId == AudioMessages::SetMediaSource)  // 15B6930
-        {
-            Audio::OnSetMediaSource(reader);
-        }
-        else if (messageId == AudioMessages::PerformMediaAction)  // 15B69A0
-        {
-            Audio::OnPerformMediaAction(reader);
-        }
-        else if (messageId == AudioMessages::StopSound)  // 15B6A10
-        {
-            Audio::OnStopSound(reader);
-        }
-        else if (messageId == AudioMessages::SetLoudness) // 0x20EDD0C4  // 15B6A80
-        {
-            Audio::OnSetLoudness(reader);
-        }
-        else if (messageId == AudioMessages::SetPitch) // 0x7BB86A5B  // 15B6AF0
-        {
-            Audio::OnSetPitch(reader);
-        }
-        else
-        {
-            return false;
+            case AudioMessages::LoadSound:  // 0x412484C4 // 15B6490
+            {
+                Audio::OnLoadSound(reader);
+                break;
+            }
+            case AudioMessages::PlaySound:  // 0x8FC77316 // 15B6620
+            {
+                Audio::OnPlaySound(reader);
+                break;
+            }
+            case AudioMessages::PlayStream:  // 15B6690
+            {
+                Audio::OnPlayStream(reader);
+                break;
+            }
+            case AudioMessages::StopBroadcastingSound:  // 15B6700
+            {
+                Audio::OnStopBroadcastingSound(reader);
+                break;
+            }
+            case AudioMessages::SetAudioStream:  // 15B68C0
+            {
+                Audio::OnSetAudioStream(reader);
+                break;
+            }
+            case AudioMessages::SetMediaSource:  // 15B6930
+            {
+                Audio::OnSetMediaSource(reader);
+                break;
+            }
+            case AudioMessages::PerformMediaAction:  // 15B69A0
+            {
+                Audio::OnPerformMediaAction(reader);
+                break;
+            }
+            case AudioMessages::StopSound:  // 15B6A10
+            {
+                Audio::OnStopSound(reader);
+                break;
+            }
+            case AudioMessages::SetLoudness: // 0x20EDD0C4  // 15B6A80
+            {
+                Audio::OnSetLoudness(reader);
+                break;
+            }
+            case AudioMessages::SetPitch: // 0x7BB86A5B  // 15B6AF0
+            {
+                Audio::OnSetPitch(reader);
+                break;
+            }
+            default:
+            {
+                return false;
+            }
         }
 
         return true;
