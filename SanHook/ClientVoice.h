@@ -127,6 +127,13 @@ public:
         auto secret = reader.ReadUint32();
         auto personaId = reader.ReadUUID();
         auto slave = reader.ReadUint8();
+
+        printf("ClientVoice::Login\n  instance = %s\n  secret = %u\n  personaId = %s\n  slave = %u\n",
+            instance.c_str(),
+            secret,
+            personaId.c_str(),
+            slave
+        );
     }
 
     static void OnLoginReply(PacketReader &reader)  // TAG: 1DF9C40
@@ -134,7 +141,7 @@ public:
         auto success = reader.ReadUint8();
         auto message = reader.ReadString();
 
-        printf("OnClientVoiceLoginReply: Success=%d: %s\n", success, message.c_str());
+        printf("OnClientVoiceLoginReply: Success=%u: message='%s'\n", success, message.c_str());
     }
 
     static void OnAudioData(PacketReader &reader)  // TAG: 1DF9CB0
@@ -160,10 +167,10 @@ public:
     {
         auto instance = reader.ReadString();
         auto agentControllerId = reader.ReadUint32();
-        auto broadcast = reader.ReadUint8();
+        auto broadcast = reader.ReadUint8();   // TODO: Maybe an okay place to set everyone to broadcast locally, would this work though?
         auto mute = reader.ReadUint8();
 
-        printf("OnClientVoiceLoginReply:\n  instance=%s\n  agentControllerId = %u\n  broacast = %u\n  mute = %u\n",
+        printf("OnLocalAudioStreamState:\n  instance=%s\n  agentControllerId = %u\n  broacast = %u\n  mute = %u\n",
             instance.c_str(),
             agentControllerId,
             broadcast,
@@ -177,6 +184,13 @@ public:
         auto instance = reader.ReadString();
         auto position = reader.ReadVectorF(3);
         auto agentControllerId = reader.ReadUint32();
+
+        printf("OnLocalAudioPosition\n  sequence = %llu\n  instance = %s\n  position = <%f, %f, %f>\n  agentControllerId = %u\n",
+            sequence,
+            instance.c_str(),
+            position[0], position[1], position[2],
+            agentControllerId
+        );
     }
 
     static void OnLocalAudioMute(PacketReader &reader) // TAG: 1DF9EE0
@@ -199,6 +213,11 @@ public:
     {
         auto group = reader.ReadString();
         auto user = reader.ReadString();
+
+        printf("OnGroupAudioData\n  group = %s\n  user = %s\n",
+            group.c_str(),
+            user.c_str()
+        );
     }
 
     static void OnLocalTextData(PacketReader &reader)  // TAG: 1DFA340
@@ -206,26 +225,49 @@ public:
         auto instance = reader.ReadString();
         auto agentControllerId = reader.ReadUint32();
         auto data = reader.ReadString();
+
+        printf("OnLocalTextData\n  instance = %s\n  agentControllerId = %u\n  data = %s\n",
+            instance.c_str(),
+            agentControllerId,
+            data.c_str()
+        );
     }
 
     static void OnMasterInstance(PacketReader &reader) // TAG: 1DFA3B0
     {
         auto instance = reader.ReadUUID();
+
+        printf("OnMasterInstance\n  instance = %s\n",
+            instance.c_str()
+        );
     }
 
     static void OnVoiceModerationCommand(PacketReader &reader)  // TAG: 1DFA540
     {
         auto commandLine = reader.ReadString();
+
+        printf("OnVoiceModerationCommand\n  commandLine = %s\n",
+            commandLine.c_str()
+        );
     }
 
     static void OnVoiceModerationCommandResponse(PacketReader &reader)  // TAG: 1DFA6F0
     {
         auto message = reader.ReadString();
         auto success = reader.ReadUint8();
+
+        printf("OnVoiceNotification\n  message = %s\n  success = %u\n",
+            message.c_str(),
+            success
+        );
     }
 
     static void OnVoiceNotification(PacketReader &reader)  // TAG: 1DFA760
     {
         auto notification = reader.ReadString();
+
+        printf("OnVoiceNotification\n  notification = %s\n",
+            notification.c_str()
+        );
     }
 };

@@ -91,9 +91,9 @@ public:
     {
         auto resourceId = reader.ReadUUID();
 
-        printf("AudioMessages::LoadSound:\n  resourceId = %s\n",
-            resourceId.c_str()
-        );
+        //printf("AudioMessages::LoadSound:\n  resourceId = %s\n",
+        //    resourceId.c_str()
+        //);
     }
 
     static void OnPlaySound(PacketReader &reader) // TAG: 15B6620
@@ -108,17 +108,17 @@ public:
         auto playOffset = reader.ReadUint32();
         auto flags = reader.ReadUint8();
 
-        printf("AudioMessages::PlaySound:\n  resourceId = %s\n  createPlayHandleId = %llu\n  frame = %llu\n  componentId = %llu\n  position = <%f, %f, %f>\n  loudness = %f\n  pitch = %f\n  playOffset = %u\n  flags = %u\n",
-            resourceId.c_str(),
-            createPlayHandleId,
-            frame,
-            componentId,
-            position[0], position[1], position[2],
-            loudness,
-            pitch,
-            playOffset,
-            flags
-        );
+        //printf("AudioMessages::PlaySound:\n  resourceId = %s\n  createPlayHandleId = %llu\n  frame = %llu\n  componentId = %llu\n  position = <%f, %f, %f>\n  loudness = %f\n  pitch = %f\n  playOffset = %u\n  flags = %u\n",
+        //    resourceId.c_str(),
+        //    createPlayHandleId,
+        //    frame,
+        //    componentId,
+        //    position[0], position[1], position[2],
+        //    loudness,
+        //    pitch,
+        //    playOffset,
+        //    flags
+        //);
     }
 
     static void OnPlayStream(PacketReader &reader) // TAG: 15B6690
@@ -168,10 +168,10 @@ public:
         auto playHandleId = reader.ReadUint32();
         auto loudness = reader.ReadUint32();
 
-        printf("AudioMessages::SetLoudness:\n  playHandleId = %u\n  loudness = %d\n",
-            playHandleId,
-            loudness
-        );
+        //printf("AudioMessages::SetLoudness:\n  playHandleId = %u\n  loudness = %d\n",
+        //    playHandleId,
+        //    loudness
+        //);
     }
 
     static void OnSetPitch(PacketReader &reader) // TAG: 15B6AF0
@@ -179,9 +179,9 @@ public:
         auto playHandleId = reader.ReadUint32();
         auto pitch = reader.ReadUint32();
 
-        printf("AudioMessages::SetPitch:\n  playHandleId = %u\n  pitch = %d\n",
-            playHandleId,
-            pitch
-        );
+        //printf("AudioMessages::SetPitch:\n  playHandleId = %u\n  pitch = %d\n",
+        //    playHandleId,
+        //    pitch
+        //);
     }
 };

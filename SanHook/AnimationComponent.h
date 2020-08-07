@@ -178,11 +178,11 @@ public:
         auto position = reader.ReadBits(0x48);
         auto orientationQuat = reader.ReadBits(0x28);
 
-        printf("OnCharacterTransform:\n  componentId = %llu\n  serverFrame = %llu\n  groundComponentId = %llu\n",
-            componentId,
-            serverFrame,
-            groundComponentId
-        );
+        //printf("OnCharacterTransform:\n  componentId = %llu\n  serverFrame = %llu\n  groundComponentId = %llu\n",
+        //    componentId,
+        //    serverFrame,
+        //    groundComponentId
+        //);
     }
 
     static void OnCharacterTransformPersistent(PacketReader &reader) // TAG: 1580D40
@@ -202,14 +202,16 @@ public:
 
     static void OnBehaviorInternalState(PacketReader &reader) // TAG: 1580FE0
     {
+        /*
         auto componentId = reader.ReadUint64();
         auto frame = reader.ReadUint64();
-        auto overrides = reader.ReadArray();
+
+        auto overrides = ; // this is something else, containing a call to OnPlayAnimation(reader);? or was that below. either way not handling this mess
 
         auto numSlotStates = reader.ReadUint32();
         for (size_t i = 0; i < numSlotStates; i++)
         {
-            auto slotState = reader.ReadUint8();
+            auto slotIndex = reader.ReadUint8();
         }
 
         auto stateData = reader.ReadArray();
@@ -219,6 +221,7 @@ public:
             componentId,
             frame
         );
+        */
     }
 
     static void OnCharacterBehaviorInternalState(PacketReader &reader)  // TAG: 1581050
@@ -300,10 +303,10 @@ public:
         auto behaviorStateUpdatesLength = reader.ReadUint32();
         auto animationUpdatesLength = reader.ReadUint32();
 
-        printf("AnimationComponentMessages::BehaviorInitializationData:\n  behaviorStateUpdatesLength = %u\n  animationUpdatesLength = %u\n",
-            behaviorStateUpdatesLength,
-            animationUpdatesLength
-        );
+        //printf("AnimationComponentMessages::BehaviorInitializationData:\n  behaviorStateUpdatesLength = %u\n  animationUpdatesLength = %u\n",
+        //    behaviorStateUpdatesLength,
+        //    animationUpdatesLength
+        //);
     }
 
     static void OnCharacterSetPosition(PacketReader &reader)  // TAG: 15811A0

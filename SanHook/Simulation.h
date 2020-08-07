@@ -80,13 +80,18 @@ public:
         auto nanoseconds = reader.ReadUint64();
         auto frame = reader.ReadUint64();
 
-        printf("OnTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
+        //printf("OnTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
     }
 
     static void OnSetWorldGravityMagnitude(PacketReader &reader) // TAG: 15734A0
     {
         auto frame = reader.ReadUint64();
         auto magnitude = reader.ReadFloat();
+
+        printf("OnSetWorldGravityMagnitude\n  frame = %llu\n  magnitude = %f\n",
+            frame,
+            magnitude
+        );
     }
 
     static void OnActiveRigidBodyUpdate(PacketReader &reader)  // TAG: 1573510
@@ -101,13 +106,13 @@ public:
         // auto linearVeolcity // 39bit
         // auto angularVelocity  // 36bit
 
-        printf("SimulationMessages::ActiveRigidBodyUpdate:\n  componentId = %llu\n  frame = %llu\n  ownerId = %u\n  ownershipWatermark = %u\n  authority = %u\n",
-            componentId,
-            frame,
-            ownerId,
-            ownershipWatermark,
-            authority
-        );
+        //printf("SimulationMessages::ActiveRigidBodyUpdate:\n  componentId = %llu\n  frame = %llu\n  ownerId = %u\n  ownershipWatermark = %u\n  authority = %u\n",
+        //    componentId,
+        //    frame,
+        //    ownerId,
+        //    ownershipWatermark,
+        //    authority
+        //);
     }
 
     static void OnRigidBodyDeactivated(PacketReader &reader) // TAG: 1573580
@@ -118,11 +123,11 @@ public:
         //position = reader.   78bit floats
         // orientationQuat  43bit floats
 
-        printf("SimulationManager::OnRigidBodyDeactivated:\n  componentId = %llu\n  frame = %llu\n  ownershipWatermark = %u\n",
-            componentId,
-            frame,
-            ownershipWatermark
-        );
+        //printf("SimulationManager::OnRigidBodyDeactivated:\n  componentId = %llu\n  frame = %llu\n  ownershipWatermark = %u\n",
+        //    componentId,
+        //    frame,
+        //    ownershipWatermark
+        //);
     }
 
     static void OnRigidBodyPropertyChanged(PacketReader &reader) // TAG: 15735F0

@@ -315,9 +315,9 @@ public:
         auto numElements = reader.ReadUint32();
         auto sinkConfigData = reader.ReadBytes(numElements);
 
-        printf("OnCreateSpeechGraphicsPlayer:\n  sinkConfigData = Array[%u]\n",
-            numElements
-        );
+        //printf("OnCreateSpeechGraphicsPlayer:\n  sinkConfigData = Array[%u]\n",
+        //    numElements
+        //);
     }
 
     static void OnCharacterIKPoseDelta(PacketReader &reader)  // TAG: 17100B0
@@ -334,11 +334,11 @@ public:
 
         //auto rootBoneTranslationDelta = reader.ReadBits(27);
 
-        printf("AgentControllerMessages::CharacterIKPoseDelta:\n  agentControllerId = %u\n  frame = %llu\n  boneRotationsLength = Array[%u]\n  rootBoneTranslationDelta = Array[27]\n",
-            agentControllerId,
-            frame,
-            boneRotationsLength
-        );
+        //printf("AgentControllerMessages::CharacterIKPoseDelta:\n  agentControllerId = %u\n  frame = %llu\n  boneRotationsLength = Array[%u]\n  rootBoneTranslationDelta = Array[27]\n",
+        //    agentControllerId,
+        //    frame,
+        //    boneRotationsLength
+        //);
     }
 
     static void OnCharacterIKPose(PacketReader &reader)   // TAG: 170FE90
@@ -359,10 +359,10 @@ public:
         auto rootBoneTranslation = reader.ReadBits(42);
         */
 
-        printf("AgentControllerMessages::CharacterIKPose:\n  agentControllerId = %u\n  frame = %llu\n",
-            agentControllerId,
-            frame
-        );
+        //printf("AgentControllerMessages::CharacterIKPose:\n  agentControllerId = %u\n  frame = %llu\n",
+        //    agentControllerId,
+        //    frame
+        //);
     }
 
     static void OnCharacterControlPointInputReliable(PacketReader &reader)  // TAG: 170F950
@@ -392,10 +392,10 @@ public:
         //auto leftHandIsHolding = reader.ReadBits(1);
         //auto rightHandIsHolding = reader.ReadBits(1);
 
-        printf("AgentControllerMessages::CharacterControlPointInput:\n  frame = %llu\n  agentControllerId = %u\n",
-            frame,
-            agentControllerId
-        );
+        //printf("AgentControllerMessages::CharacterControlPointInput:\n  frame = %llu\n  agentControllerId = %u\n",
+        //    frame,
+        //    agentControllerId
+        //);
     }
 
     static void OnWarpCharacter(PacketReader &reader) // TAG: 170F800
@@ -544,13 +544,13 @@ public:
         auto prompt = reader.ReadString();
         auto enabled = reader.ReadUint8();
 
-        printf("AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n  enabled = %u\n",
-            frame,
-            clusterId,
-            objectId,
-            prompt.c_str(),
-            enabled
-        );
+        //printf("AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n  enabled = %u\n",
+        //    frame,
+        //    clusterId,
+        //    objectId,
+        //    prompt.c_str(),
+        //    enabled
+        //);
     }
 
     static void OnRequestSitOnObject(PacketReader &reader)  // TAG: 1710420

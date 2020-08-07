@@ -323,18 +323,20 @@ public:
     static void OnUserLogin(PacketReader &reader)// TAG: 1B9B360
     {
         auto secret = reader.ReadUint32();
+
+        printf("ClientRegionMessages::OnUserLogin\n  secret = %u\n",
+            secret
+        );
     }
 
     static void OnUserLoginReply(PacketReader &reader)// TAG: 1B9B520
     {
-        printf("ClientRegionMessages::UserLoginReply\n");
-
         auto success = reader.ReadUint8();
         auto sessionId = reader.ReadUint32();
         auto regionServerVersion = reader.ReadString();
         auto privileges = reader.ReadStringList();
 
-        printf("LoginReply:\n Success: %d\n SessionId: %d\n RegionServerVersion: %s\n Privileges: \n", success, sessionId, regionServerVersion.c_str());
+        printf("ClientRegionMessages::UserLoginReply:\n Success: %d\n SessionId: %d\n RegionServerVersion: %s\n Privileges: \n", success, sessionId, regionServerVersion.c_str());
         for (const auto &item : privileges)
         {
             printf("   %s\n", item.c_str());
@@ -344,8 +346,6 @@ public:
     static void OnAddUser(PacketReader &reader) // TAG: 1B9B590
     {
         static const std::regex kPatternAvatarType("avatarAssetId = \"([^\"]+)\"[^a]+avatarInventoryId = \"([^\"]+)\"");
-
-        printf("ClientRegionMessages::AddUser\n");
 
         auto sessionId = reader.ReadUint32();
         auto userName = reader.ReadString();
@@ -404,7 +404,7 @@ public:
         );
         fclose(outFile);
 
-        printf("  SessionID: %d\n  Username: %s\n  Handle: %s\n  PersonaId: %s [%s]\n  avatarAssetId: %s [%s]\n  AvatarType: '%s'\n",
+        printf("ClientRegionMessages::AddUser\n  SessionID: %d\n  Username: %s\n  Handle: %s\n  PersonaId: %s [%s]\n  avatarAssetId: %s [%s]\n  AvatarType: '%s'\n",
             sessionId,
             userName.c_str(),
             handle.c_str(),
@@ -438,12 +438,30 @@ public:
     {
         auto sessionId = reader.ReadUint32();
         auto userName = reader.ReadString();
+
+        auto previousUsername = std::string();
+        auto foundName = sessionIdToNameMap.find(sessionId);
+        if (foundName != sessionIdToNameMap.end())
+        {
+            previousUsername = foundName->second;
+        }
+        else
+        {
+            previousUsername = "UNKNOWN";
+        }
+
+        printf("ClientRegionMessages::RenameUser -> (%s) %d was renamed to %s\n", previousUsername.c_str(), sessionId, userName.c_str());
     }
 
     static void OnChatMessageToServer(PacketReader &reader) // TAG: 1B9B830
     {
         auto toSessionId = reader.ReadUint32();
         auto message = reader.ReadString();
+
+        printf("ClientRegionMessages::ChatMessageToServer -> (%u) %s\n", 
+            toSessionId,
+            message.c_str()
+        );
     }
 
     static void OnChatMessageToClient(PacketReader &reader) // TAG: 1B9B8A0
@@ -489,17 +507,31 @@ public:
     {
         auto personaHandle = reader.ReadString();
         auto locationHandle = reader.ReadString();
+
+        printf("OnTeleportTo:\n  personaHandle = %s\n  locationHandle = %s\n",
+            personaHandle.c_str(),
+            locationHandle.c_str()
+        );
     }
 
     static void OnTeleportToUri(PacketReader &reader) // TAG: 1B9BA60
     {
         auto sansarUri = reader.ReadString();
+
+        printf("OnTeleportToUri:\n  sansarUri = %s\n",
+            sansarUri.c_str()
+        );
     }
 
     static void OnTeleportToEditMode(PacketReader &reader) // TAG: 1B9BC10
     {
         auto returnSpawnPointName = reader.ReadString();
         auto workspaceEditView = reader.ReadUint8();
+
+        printf("OnTeleportToEditMode:\n  returnSpawnPointName = %s\n  workspaceEditView = %u\n",
+            returnSpawnPointName.c_str(),
+            workspaceEditView
+        );
     }
 
     static void OnDebugTimeChangeToServer(PacketReader &reader) // TAG: 1B9BC80
@@ -507,6 +539,12 @@ public:
         auto requestId = reader.ReadUint32();
         auto clientDeltaTimeForced = reader.ReadFloat();
         auto clientDeltaTimeScale = reader.ReadFloat();
+
+        printf("OnDebugTimeChangeToServer:\n  requestId = %u\n  clientDeltaTimeForced = %f\n  clientDeltaTimeScale = %f\n",
+            requestId,
+            clientDeltaTimeForced,
+            clientDeltaTimeScale
+        );
     }
 
     static void OnDebugTimeChangeToClient(PacketReader &reader) // TAG: 1B9BCF0
@@ -516,6 +554,14 @@ public:
         auto clientDeltaTimeScale = reader.ReadFloat();
         auto requestAccepted = reader.ReadUint8();
         auto errorMessage = reader.ReadString();
+
+        printf("OnDebugTimeChangeToServer:\n  requestId = %u\n  clientDeltaTimeForced = %f\n  clientDeltaTimeScale = %f\n  requestAccepted = %u\n  errorMessage = %s\n",
+            requestId,
+            clientDeltaTimeForced,
+            clientDeltaTimeScale,
+            requestAccepted,
+            errorMessage.c_str()
+        );
     }
 
     static void OnVisualDebuggerCaptureToServer(PacketReader &reader) // TAG: 1B9BD60
@@ -523,6 +569,16 @@ public:
         auto startTimeFormatted = reader.ReadString();
         auto beginCapture = reader.ReadUint8();
         auto viewers = reader.ReadStringList();
+
+        printf("OnVisualDebuggerCaptureToServer:\n  startTimeFormatted = %s\n  beginCapture = %u\n  viewers =\n",
+            startTimeFormatted.c_str(),
+            beginCapture
+        );
+
+        for (auto &item: viewers)
+        {
+            printf("    %s\n", item.c_str());
+        }
     }
 
     static void OnVisualDebuggerCaptureToClient(PacketReader &reader) // TAG: 1B9BDD0
@@ -541,12 +597,24 @@ public:
         auto message = reader.ReadString();
         auto leftButtonLabel = reader.ReadString();
         auto rightButtonLabel = reader.ReadString();
+
+        printf("OnScriptModalDialog:\n  eventId = %llu\n  message = %s\n  leftButtonLabel = %s\n  rightButtonLabel = %s\n",
+            eventId,
+            message.c_str(),
+            leftButtonLabel.c_str(),
+            rightButtonLabel.c_str()
+        );
     }
 
     static void OnScriptModalDialogResponse(PacketReader &reader) // TAG: 1B9BEB0
     {
         auto eventId = reader.ReadUint64();
         auto response = reader.ReadString();
+
+        printf("OnScriptModalDialogResponse:\n  eventId = %llu\n  response = %s\n",
+            eventId,
+            response.c_str()
+        );
     }
 
     static void OnTwitchEventSubscription(PacketReader &reader) // TAG: 1B9BF20
@@ -584,36 +652,65 @@ public:
     static void OnClientRegionCommandMessage(PacketReader &reader) // TAG: 1B9C540
     {
         auto commandLine = reader.ReadString(); // What's this suspicious looking thing
+
+        printf("OnClientRegionCommandMessage:\n  commandLine = %s\n",
+            commandLine.c_str()
+        );
     }
 
     static void OnClientKickNotification(PacketReader &reader) // TAG: 1B9C6F0
     {
         auto message = reader.ReadString();
+
+        printf("OnClientKickNotification:\n  message = %s\n",
+            message.c_str()
+        );
     }
 
     static void OnClientSmiteNotification(PacketReader &reader) // TAG: 1B9C8A0
     {
         auto message = reader.ReadString();
+
+        printf("OnClientSmiteNotification:\n  message = %s\n",
+            message.c_str()
+        );
     }
 
     static void OnClientMuteNotification(PacketReader &reader) // TAG: 1B9CA50
     {
         auto message = reader.ReadString();
+
+        printf("OnClientMuteNotification:\n  message = %s\n",
+            message.c_str()
+        );
     }
 
     static void OnClientvoiceBroadcastStartNotification(PacketReader &reader) // TAG: 1B9CC00
     {
         auto message = reader.ReadString();
+
+        printf("OnClientvoiceBroadcastStartNotification:\n  message = %s\n",
+            message.c_str()
+        );
     }
 
     static void OnClientVoiceBroadcastStopNotification(PacketReader &reader) // TAG: 1B9CDB0
     {
         auto message = reader.ReadString();
+
+
+        printf("OnClientVoiceBroadcastStopNotification:\n  message = %s\n",
+            message.c_str()
+        );
     }
 
     static void OnClientRuntimeInventoryUpdatedNotification(PacketReader &reader) // TAG: 1B9CF60
     {
         auto message = reader.ReadString();
+
+        printf("OnClientRuntimeInventoryUpdatedNotification:\n  message = %s\n",
+            message.c_str()
+        );
     }
 
     static void OnClientSetRegionBroadcasted(PacketReader &reader) // TAG: 1B9D110
@@ -625,12 +722,22 @@ public:
     {
         auto command = reader.ReadString();
         auto action = reader.ReadUint8();
+
+        printf("OnSubscribeCommand:\n  command = %s\n  action = %u\n",
+            command.c_str(),
+            action
+        );
     }
 
     static void OnUnsubscribeCommand(PacketReader &reader) // TAG: 1B9D340
     {
         auto action = reader.ReadUint8(); // yes, this is reverse from subscribecommand?
         auto command = reader.ReadString();
+
+        printf("OnUnsubscribeCommand:\n  command = %s\n  action = %u\n",
+            command.c_str(),
+            action
+        );
     }
 
     static void OnClientCommand(PacketReader &reader) // TAG: 1B9D3B0
@@ -646,27 +753,51 @@ public:
         auto mouseLook = reader.ReadUint8();
         auto controlMode = reader.ReadUint8();
         auto isAimTarget = reader.ReadUint8();
+
+        printf("OnClientCommand:\n  command = %s\n  action = %u\n  origin = <%f, %f, %f>\n  targetPosition = <%f, %f, %f>\n",
+            command.c_str(),
+            action,
+            origin[0], origin[1], origin[2],
+            targetPosition[0], targetPosition[1], targetPosition[2]
+        );
     }
 
     static void OnRequestDropPortal(PacketReader &reader) // TAG: 1B9D420
     {
         auto sansarUri = reader.ReadString();
         auto sansarUriDescription = reader.ReadString();
+
+        printf("OnRequestDropPortal:\n  sansarUri = %s\n  sansarUriDescription = %s\n",
+            sansarUri.c_str(),
+            sansarUriDescription.c_str()
+        );
     }
 
     static void OnOpenStoreListing(PacketReader &reader) // TAG: 1B9D490
     {
         auto listingId = reader.ReadUUID();
+
+        printf("OnOpenStoreListing:\n  listingId = %s\n",
+            listingId.c_str()
+        );
     }
 
     static void OnOpenUserStore(PacketReader &reader) // TAG: 1B9D620
     {
         auto creatorHandle = reader.ReadString();
+
+        printf("OnOpenUserStore:\n  creatorHandle = %s\n",
+            creatorHandle.c_str()
+        );
     }
 
     static void OnOpenQuestCharcterDialog(PacketReader &reader) // TAG: 1B9D7D0
     {
         auto characterId = reader.ReadUUID();
+
+        printf("OnOpenQuestCharcterDialog:\n  characterId = %s\n",
+            characterId.c_str()
+        );
     }
 
     static void OnUIScriptableBarStart(PacketReader &reader) // TAG: 1B9D960
@@ -722,6 +853,11 @@ public:
     {
         auto sansarUri = reader.ReadString();
         auto show = reader.ReadUint8();
+
+        printf("OnShowWorldDetail:\n  sansarUri = %s\n  show = %u\n",
+            sansarUri.c_str(),
+            show
+        );
     }
 
     static void OnShowTutorialHints(PacketReader &reader) // TAG: 1B9E090

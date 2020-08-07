@@ -215,6 +215,11 @@ public:
     {
         auto authorization = reader.ReadString();
         auto secret = reader.ReadUint32();
+
+        printf("EditServer::OnUserLogin\n  authorization = %s\n  secret = %u\n",
+            authorization.c_str(),
+            secret
+        );
     }
 
     static void OnUserLoginReply(PacketReader &reader) // TAG: 19B8220
@@ -457,6 +462,13 @@ public:
         auto personaId = reader.ReadUUID(); // what's this message, from server or to server?
         auto serial = reader.ReadUint32();
         auto inventoryName = reader.ReadString();
+
+        printf("EditServer::OnBeginEditServerSpawn\n  inventoryId = %s\n  personaId = %s\n  serial = %u\n inventoryName = %s\n",
+            inventoryId.c_str(),
+            personaId.c_str(),
+            serial,
+            inventoryName.c_str()
+        );
     }
 
     static void OnEditServerSpawnReady(PacketReader &reader) // TAG: 19B9440

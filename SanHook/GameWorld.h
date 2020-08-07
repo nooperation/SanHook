@@ -198,5 +198,13 @@ public:
         auto totalSpawnLimit = reader.ReadUint16();
         auto perUserSpawnLimit = reader.ReadUint16();
         auto spawnTimeout = reader.ReadUint32();
+
+        printf("OnUpdateRuntimeInventorySettings\n  spawnSource = %u\n  spawnLifetimePolicy = %u\n  totalSpawnLimit = %u\n  perUserSpawnLimit = %u\n  spawnTimeout = %u\n",
+            spawnSource,
+            spawnLifetimePolicy,
+            totalSpawnLimit,
+            perUserSpawnLimit,
+            spawnTimeout
+        );
     }
 };

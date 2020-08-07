@@ -146,10 +146,10 @@ public:
         auto resourceId = reader.ReadUUID();
         auto clusterId = reader.ReadUint32();
 
-        printf("OnLoadClusterDefinition:\n  resourceId = %s\n  clusterId = %d\n",
-            resourceId.c_str(),
-            clusterId
-        );
+        //printf("OnLoadClusterDefinition:\n  resourceId = %s\n  clusterId = %d\n",
+        //    resourceId.c_str(),
+        //    clusterId
+        //);
     }
 
     static void OnComponentRelativeTransform(PacketReader &reader) // TAG: 1BB5CE0
@@ -175,12 +175,12 @@ public:
             OnAnimationComponentInitialState(reader);
         }
 
-        printf("OnInitiateCluster:\n  clusterId = %d\n  frame = %llu\n  rigidBodyInitialStatesLength = %u\n  animationInitialStatesLength = %u\n",
-            clusterId,
-            frame,
-            rigidBodyInitialStatesLength,
-            animationInitialStatesLength
-        );
+        //printf("OnInitiateCluster:\n  clusterId = %d\n  frame = %llu\n  rigidBodyInitialStatesLength = %u\n  animationInitialStatesLength = %u\n",
+        //    clusterId,
+        //    frame,
+        //    rigidBodyInitialStatesLength,
+        //    animationInitialStatesLength
+        //);
     }
 
     static void OnCreateClusterViaDefinition(PacketReader &reader) // TAG: 1BB5DC0
@@ -192,11 +192,11 @@ public:
         auto spawnPosition = reader.ReadVectorF(3);
         auto spawnRotation = reader.ReadVectorF(4);
 
-        printf("OnCreateClusterViaDefinition:\n  clusterId = %u\n  startingObjectId = %u\n  resourceId = %s\n",
-            clusterId,
-            startingObjectId,
-            resourceId.c_str()
-        );
+        //printf("OnCreateClusterViaDefinition:\n  clusterId = %u\n  startingObjectId = %u\n  resourceId = %s\n",
+        //    clusterId,
+        //    startingObjectId,
+        //    resourceId.c_str()
+        //);
     }
 
     static void OnDestroyCluster(PacketReader &reader) // TAG: 1BB5E30
@@ -204,10 +204,10 @@ public:
         auto frame = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
 
-        printf("WorldStateMessages::DestroyCluster\n  frame = %llu\n  clusterId = %u\n",
-            frame,
-            clusterId
-        );
+        //printf("WorldStateMessages::DestroyCluster\n  frame = %llu\n  clusterId = %u\n",
+        //    frame,
+        //    clusterId
+        //);
     }
 
     static void OnDestroyObject(PacketReader &reader) // TAG: 1BB5EA0
