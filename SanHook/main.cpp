@@ -353,156 +353,6 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sock
         return result;
     }
 
-    if (buff == nullptr || len < 3)
-    {
-        return result;
-    }
-
-    auto packetType = *((uint8_t *)&buff[0]);
-    auto sequence = *((uint16_t *)&buff[1]);
-
-    if (packetType != 0x07)
-    {
-        return result;
-    }
-
-    // std::unique_lock<std::mutex> lck(recvLock);
-
-    PacketReader &reader = readers[s];
-    lastProcessedSequence[s] = reader.getPreviousSequence();
-
-    if (sequence <= lastProcessedSequence[s])
-    {
-        //  printf("Ignoring old packet sequence %d\n", sequence);
-        return result;
-    }
-
-    //printf("[%d] Sequence = %d | Len = %d\n", s, sequence, len);
-
-    //Utils::DumpPacket(buff, result, false);
-
-
-    // |Type (1)|Sequence (2)|<packet>[1..N]|Checksum
-
-    // <packet>:
-    //   If <= 512 bytes
-    //      |Length|Message ID|<Payload>
-    //   Else
-    //      |0xFF|2-byte Length|MessageId|<Payload>
-
-    // NOTE: <Payload> may be split between multiple packets, so |Length| may refer to all of the remaining data
-    //       in the current packet (excluding the two byte checksum and 4-byte message id) and the next N bytes
-    //       in the next packets (excluding their headers and checksums)
-
-    // For each chunk:
-    //   Confirm first byte is 0x07
-    //   Ignore sequence (second two bytes)
-    //   Copy the packet to the PacketReader buffer (excluding 3-byte header and 2-byte checksum footer)
-    //   Attempt to process packets (if we're done waiting for more data)
-    //   
-    // For each packet...
-    //   Read the length.
-    //        If the length is within the packet, process the packet.
-    //        If the length exceeds the packet, un-read the length and                          [wait for the packet reader buffer to fill with the next packet(s)]
-    //        If the length is 0xFF, read the full length and store it. Un-read the lengths and [Wait for the packet reader buffer to fill with the next packet(s)]
-    //
-
-    // |Type(1)|Sequence(2)|Len-0(1)|Id-0(4)
-    // |Type(1)|Sequence(2)|Len-0(1)|Id-0(4)|<payload 0>|Len-1(1)|Id-1(4)|<payload 1>|...|Len-N(1)|Id-N(4)|<payload N>
-    // |Type(1)|Sequence(2)|Len-0(1)|Id-0(4)
-
-
-    // Copy the packet to the PacketReader buffer (excluding 3-byte header and 2-byte checksum footer)
-    reader.Add(sequence, (const uint8_t *)(buff + 3), result - 5);
-
-    try
-    {
-        // Attempt to process packets (if we're done waiting for more data)
-        while (reader.GetBytesRemaining() > 0)
-        {
-
-            // For each packet...
-            //   Read the length.
-            //        If the length is within the packet, process the packet.
-            //        If the length exceeds the packet, un-read the length and                          [wait for the packet reader buffer to fill with the next packet(s)]
-            //        If the length is 0xFF, read the full length and store it. Un-read the lengths and [Wait for the packet reader buffer to fill with the next packet(s)]
-            //
-
-            uint64_t packetLength = reader.ReadUint8();
-            if (packetLength == 0xFF)
-            {
-                packetLength = reader.ReadUint16();
-                if (packetLength == 0xFFFF)
-                {
-                    // 32-bit length
-
-                    packetLength = reader.ReadUint32();
-
-                    //printf("This is a huge message. We need to wait for %d more bytes. Our buffer currently has %d bytes remaining. So in total we need %d bytes.\n", packetLength, reader.GetBytesRemaining(), packetLength - reader.GetBytesRemaining());
-
-                    if (reader.GetBytesRemaining() - (int64_t)packetLength < 0)
-                    {
-                        reader.Skip(-7); // Un-read the 1bit, 2bit, 4bit lengths
-                        return result;
-                    }
-                }
-                else
-                {
-                    // TAG: 16-bit length
-
-                   // printf("This is a big message. We need to wait for %d more bytes. Our buffer currently has %d bytes remaining. So in total we need %d bytes.\n", packetLength, reader.GetBytesRemaining(), packetLength - reader.GetBytesRemaining());
-
-                    if (reader.GetBytesRemaining() - (int64_t)packetLength < 0)
-                    {
-                        reader.Skip(-3); // Un-read the 1bit,2bit lengths
-                        return result;
-                    }
-
-                }
-
-                //   printf("Ignore the previous message. We're actually done waiting and can now process this %d byte message with %d bytes to spare in the buffer.\n", packetLength, (reader.GetBytesRemaining() - packetLength));
-            }
-            else if ((int64_t)packetLength > reader.GetBytesRemaining())
-            {
-                // printf("This is a small message split between two packets. We need to wait for %d more bytes. Our buffer currently has %d bytes remaining. So in total we need %d bytes.\n", packetLength, reader.GetBytesRemaining(), packetLength - reader.GetBytesRemaining());
-
-                if (reader.GetBytesRemaining() - (int64_t)packetLength < 0)
-                {
-                    reader.Skip(-1); // Un-read the length
-                    return result;
-                }
-
-                // printf("Ignore the previous message. We're actually done waiting and can now process this message with %d bytes to spare in the buffer.\n", packetLength, (reader.GetBytesRemaining() - packetLength));
-            }
-
-            auto messageId = reader.ReadUint32();
-            //printf("MessageId = %08X\n", messageId);
-
-            if (messageId == ClientRegionMessages::UserLoginReply)
-            {
-                ClientRegion::OnUserLoginReply(reader);
-            }
-            else if (messageId == ClientRegionMessages::AddUser)
-            {
-                ClientRegion::OnAddUser(reader);
-            }
-            else
-            {
-                reader.Skip(packetLength - 4);
-            }
-        }
-
-        reader.Reset();
-    }
-    catch (std::exception &)
-    {
-        printf("Shit hit the fan. Clearning reader on socket %lld.\n", s);
-        reader.Reset();
-
-        lastProcessedSequence.erase(s);
-        readers.erase(s);
-    }
-
     return result;
 }
 
@@ -1061,6 +911,7 @@ int WINAPI Hooked_Send(SOCKET s, const char *buf, int len, int flags)
 
 #include "Magic.h"
 unsigned long long ReturnPoint_ProcessPacketRecv = 0;
+unsigned long long ReturnPoint_ProcessPacketSend = 0;
 
 void RewriteCode(void *targetAddress, uint8_t *newCode, std::size_t newCodeLength)
 {
@@ -1079,6 +930,52 @@ void RewriteCode(void *targetAddress, uint8_t *newCode, std::size_t newCodeLengt
     }
 }
 
+
+void ProcessPacketSend(uint8_t *packet, uint64_t length)
+{
+    //printf("ProcessPacketSend: Length = %lld | packet = %llX\n", length, (uint64_t)packet);
+
+    std::vector<std::unique_ptr<MessageHandler>> messageHandlers;
+    messageHandlers.emplace_back(std::make_unique<AgentController>());
+    messageHandlers.emplace_back(std::make_unique<AnimationComponent>());
+    messageHandlers.emplace_back(std::make_unique<Audio>());
+    messageHandlers.emplace_back(std::make_unique<ClientKafka>());
+    messageHandlers.emplace_back(std::make_unique<ClientRegion>());
+    messageHandlers.emplace_back(std::make_unique<ClientVoice>());
+    messageHandlers.emplace_back(std::make_unique<EditServer>());
+    messageHandlers.emplace_back(std::make_unique<GameWorld>());
+    messageHandlers.emplace_back(std::make_unique<RegionRegion>());
+    messageHandlers.emplace_back(std::make_unique<Render>());
+    messageHandlers.emplace_back(std::make_unique<Simulation>());
+    messageHandlers.emplace_back(std::make_unique<WorldState>());
+    
+    try
+    {
+        PacketReader reader;
+        reader.Add(0, packet, length);
+        auto messageId = reader.ReadUint32();
+    
+        auto handled_packet = false;
+    
+        for (auto &item : messageHandlers)
+        {
+            if (item->OnMessage(messageId, reader))
+            {
+                handled_packet = true;
+                break;
+            }
+        }
+    
+        if (!handled_packet)
+        {
+            printf("ProcessPacketSend: Unhandled message %llX\n", messageId);
+        }
+    }
+    catch (std::exception ex)
+    {
+        printf("!!! ProcessPacketSend Caught exception -> %s\n", ex.what());
+    }
+}
 
 
 
@@ -1167,18 +1064,20 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             // call qword ptr ds : [rax + 8] | call our packet handler
             //
 
-
             /*
                 mov RDX, <address>
-                call RDX
+                jmp RDX
                 nop
                 nop
                 nop
                 nop
             */
             uint8_t hijack_ProcessPacketRecv[] = {
-                0x48, 0xBA, 0xC1, 0x25, 0x85, 0xAF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE2,
-                0x90, 0x90, 0x90, 0x90
+                0x48, 0xBA, 0xC1, 0x25, 0x85, 0xAF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE2, // mov rdx, N
+                0x90, // nop
+                0x90, // nop
+                0x90, // nop
+                0x90  // nop
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
@@ -1187,7 +1086,35 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
             ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DB161);
         }
+       // system("pause");
 
+        if (true)
+        {
+            // Search for "OutgoingPacket"
+            // next call, call qword ptr[rax+18] or whatever
+
+            /*
+                push rdx
+                mov RDX, <address>
+                jmp RDX
+                nop
+                sub rsp, 50 <-- ret here
+            */
+
+            uint8_t hijack_ProcessPacketSend[] = {
+                 0x52,  // push rdx
+                 0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rdx, N
+                 0xFF, 0xE2, // jmp rdx
+                 0x90        // nop
+            };
+
+            *((uint64_t *)&hijack_ProcessPacketSend[3]) = (uint64_t)intercept_ProcessPacketSend;
+            RewriteCode(base + 0x1353650, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+
+            // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1353650 + sizeof(hijack_ProcessPacketSend));
+        }
+        
 
         DetourRestoreAfterWith();
 

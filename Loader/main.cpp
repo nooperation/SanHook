@@ -118,6 +118,7 @@ uint64_t GetBaseAddress(DWORD process_id)
     return 0;
 }
 
+#include <filesystem>
 int main()
 {
     PROCESS_INFORMATION process_info = {};
@@ -144,12 +145,15 @@ int main()
         printf("Failed to create process: %d\n", GetLastError()); 
         return 0;
     }
+    
+
+    auto dllPath = std::filesystem::current_path() / "SanHook.dll";
 
     printf("Injecting dll...\n");
 #ifndef _DEBUG
-    auto injection_was_successful = InjectDll("R:\\cpp\\SanHook\\SanHook\\x64\\Release\\SanHook.dll", process_info.hProcess);
+    auto injection_was_successful = InjectDll(dllPath.c_str(), process_info.hProcess);
 #else
-    auto injection_was_successful = InjectDll("R:\\cpp\\SanHook\\SanHook\\x64\\Debug\\SanHook.dll", process_info.hProcess);
+    auto injection_was_successful = InjectDll(dllPath.c_str(), process_info.hProcess);
 #endif
 
     if(injection_was_successful == false)
