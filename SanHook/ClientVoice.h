@@ -34,82 +34,82 @@ public:
         {
             case ClientVoiceMessages::Login:  // TAG: 1DF9BD0
             {
-                ClientVoice::OnLogin(reader);
+                this->OnLogin(reader);
                 break;
             }
             case ClientVoiceMessages::LoginReply:  // TAG: 1DF9C40
             {
-                ClientVoice::OnLoginReply(reader);
+                this->OnLoginReply(reader);
                 break;
             }
             case ClientVoiceMessages::AudioData:  // TAG: 1DF9CB0
             {
-                ClientVoice::OnAudioData(reader);
+                this->OnAudioData(reader);
                 break;
             }
             case ClientVoiceMessages::SpeechGraphicsData:  // TAG: 1DF9D20
             {
-                ClientVoice::OnSpeechGraphicsData(reader);
+                this->OnSpeechGraphicsData(reader);
                 break;
             }
             case ClientVoiceMessages::LocalAudioData:  // TAG: 1DF9D90
             {
-                ClientVoice::OnLocalAudioData(reader);
+                this->OnLocalAudioData(reader);
                 break;
             }
             case ClientVoiceMessages::LocalAudioStreamState:  // TAG: 1DF9E00
             {
-                ClientVoice::OnLocalAudioStreamState(reader);
+                this->OnLocalAudioStreamState(reader);
                 break;
             }
             case ClientVoiceMessages::LocalAudioPosition:  // TAG: 1DF9E70
             {
-                ClientVoice::OnLocalAudioPosition(reader);
+                this->OnLocalAudioPosition(reader);
                 break;
             }
             case ClientVoiceMessages::LocalAudioMute:  // TAG: 1DF9EE0
             {
-                ClientVoice::OnLocalAudioMute(reader);
+                this->OnLocalAudioMute(reader);
                 break;
             }
             case ClientVoiceMessages::LocalSetRegionBroadcasted:  // TAG: 1DF9F50
             {
-                ClientVoice::OnLocalSetRegionBroadcasted(reader);
+                this->OnLocalSetRegionBroadcasted(reader);
                 break;
             }
             case ClientVoiceMessages::LocalSetMuteAll:  // TAG: 1DFA110
             {
-                ClientVoice::OnLocalSetMuteAll(reader);
+                this->OnLocalSetMuteAll(reader);
                 break;
             }
             case ClientVoiceMessages::GroupAudioData:  // TAG: 1DFA2D0
             {
-                ClientVoice::OnGroupAudioData(reader);
+                this->OnGroupAudioData(reader);
                 break;
             }
             case ClientVoiceMessages::LocalTextData:  // TAG: 1DFA340
             {
-                ClientVoice::OnLocalTextData(reader);
+                this->OnLocalTextData(reader);
                 break;
             }
             case ClientVoiceMessages::MasterInstance:  // TAG: 1DFA3B0
             {
-                ClientVoice::OnMasterInstance(reader);
+                this->OnMasterInstance(reader);
                 break;
             }
             case ClientVoiceMessages::VoiceModerationCommand:  // TAG: 1DFA540
             {
-                ClientVoice::OnVoiceModerationCommand(reader);
+                this->OnVoiceModerationCommand(reader);
                 break;
             }
             case ClientVoiceMessages::VoiceModerationCommandResponse:  // TAG: 1DFA6F0
             {
-                ClientVoice::OnVoiceModerationCommandResponse(reader);
+                this->OnVoiceModerationCommandResponse(reader);
                 break;
             }
             case ClientVoiceMessages::VoiceNotification:  // TAG: 1DFA760
             {
-                ClientVoice::OnVoiceNotification(reader);
+                this->OnVoiceNotification(reader);
                 break;
             }
             default:
@@ -121,14 +121,15 @@ public:
         return true;
     }
 
-    static void OnLogin(PacketReader &reader)  // TAG: 1DF9BD0
+    void OnLogin(PacketReader &reader)  // TAG: 1DF9BD0
     {
         auto instance = reader.ReadString();
         auto secret = reader.ReadUint32();
         auto personaId = reader.ReadUUID();
         auto slave = reader.ReadUint8();
 
-        printf("ClientVoice::Login\n  instance = %s\n  secret = %u\n  personaId = %s\n  slave = %u\n",
+        printf("[%s] ClientVoice::Login\n  instance = %s\n  secret = %u\n  personaId = %s\n  slave = %u\n",
+            _isSender ? "OUT" : "IN",
             instance.c_str(),
             secret,
             personaId.c_str(),
@@ -136,26 +137,30 @@ public:
         );
     }
 
-    static void OnLoginReply(PacketReader &reader)  // TAG: 1DF9C40
+    void OnLoginReply(PacketReader &reader)  // TAG: 1DF9C40
     {
         auto success = reader.ReadUint8();
         auto message = reader.ReadString();
 
-        printf("OnClientVoiceLoginReply: Success=%u: message='%s'\n", success, message.c_str());
+        printf("[%s] OnClientVoiceLoginReply: Success=%u: message='%s'\n",
+            _isSender ? "OUT" : "IN",
+            success,
+            message.c_str()
+        );
     }
 
-    static void OnAudioData(PacketReader &reader)  // TAG: 1DF9CB0
+    void OnAudioData(PacketReader &reader)  // TAG: 1DF9CB0
     {
         auto volume = reader.ReadUint16();
         auto data = reader.ReadArray();
     }
 
-    static void OnSpeechGraphicsData(PacketReader &reader) // TAG: 1DF9D20
+    void OnSpeechGraphicsData(PacketReader &reader) // TAG: 1DF9D20
     {
         auto data = reader.ReadArray();
     }
 
-    static void OnLocalAudioData(PacketReader &reader) // TAG: 1DF9D90
+    void OnLocalAudioData(PacketReader &reader) // TAG: 1DF9D90
     {
         auto sequence = reader.ReadUint64();
         auto instance = reader.ReadString();
@@ -163,14 +168,15 @@ public:
         auto broadcast = reader.ReadUint8();
     }
 
-    static void OnLocalAudioStreamState(PacketReader &reader) // TAG: 1DF9E00
+    void OnLocalAudioStreamState(PacketReader &reader) // TAG: 1DF9E00
     {
         auto instance = reader.ReadString();
         auto agentControllerId = reader.ReadUint32();
         auto broadcast = reader.ReadUint8();   // TODO: Maybe an okay place to set everyone to broadcast locally, would this work though?
         auto mute = reader.ReadUint8();
 
-        printf("OnLocalAudioStreamState:\n  instance=%s\n  agentControllerId = %u\n  broacast = %u\n  mute = %u\n",
+        printf("[%s] OnLocalAudioStreamState:\n  instance=%s\n  agentControllerId = %u\n  broacast = %u\n  mute = %u\n",
+            _isSender ? "OUT" : "IN",
             instance.c_str(),
             agentControllerId,
             broadcast,
@@ -178,14 +184,15 @@ public:
         );
     }
 
-    static void OnLocalAudioPosition(PacketReader &reader) // TAG: 1DF9E70
+    void OnLocalAudioPosition(PacketReader &reader) // TAG: 1DF9E70
     {
-        auto sequence = reader.ReadUint64();
+        auto sequence = reader.ReadUint32();
         auto instance = reader.ReadString();
         auto position = reader.ReadVectorF(3);
         auto agentControllerId = reader.ReadUint32();
 
-        printf("OnLocalAudioPosition\n  sequence = %llu\n  instance = %s\n  position = <%f, %f, %f>\n  agentControllerId = %u\n",
+        printf("[%s] OnLocalAudioPosition\n  sequence = %u\n  instance = %s\n  position = <%f, %f, %f>\n  agentControllerId = %u\n",
+            _isSender ? "OUT" : "IN",
             sequence,
             instance.c_str(),
             position[0], position[1], position[2],
@@ -193,80 +200,86 @@ public:
         );
     }
 
-    static void OnLocalAudioMute(PacketReader &reader) // TAG: 1DF9EE0
+    void OnLocalAudioMute(PacketReader &reader) // TAG: 1DF9EE0
     {
         auto agentControllerId = reader.ReadUint32();
         auto shouldMute = reader.ReadUint8();
     }
 
-    static void OnLocalSetRegionBroadcasted(PacketReader &reader) // TAG: 1DF9F50
+    void OnLocalSetRegionBroadcasted(PacketReader &reader) // TAG: 1DF9F50
     {
         auto broadcasted = reader.ReadUint8();
     }
 
-    static void OnLocalSetMuteAll(PacketReader &reader)  // TAG: 1DFA110
+    void OnLocalSetMuteAll(PacketReader &reader)  // TAG: 1DFA110
     {
         auto muteAll = reader.ReadUint8();
     }
 
-    static void OnGroupAudioData(PacketReader &reader) // TAG: 1DFA2D0
+    void OnGroupAudioData(PacketReader &reader) // TAG: 1DFA2D0
     {
         auto group = reader.ReadString();
         auto user = reader.ReadString();
 
-        printf("OnGroupAudioData\n  group = %s\n  user = %s\n",
+        printf("[%s] OnGroupAudioData\n  group = %s\n  user = %s\n",
+            _isSender ? "OUT" : "IN",
             group.c_str(),
             user.c_str()
         );
     }
 
-    static void OnLocalTextData(PacketReader &reader)  // TAG: 1DFA340
+    void OnLocalTextData(PacketReader &reader)  // TAG: 1DFA340
     {
         auto instance = reader.ReadString();
         auto agentControllerId = reader.ReadUint32();
         auto data = reader.ReadString();
 
-        printf("OnLocalTextData\n  instance = %s\n  agentControllerId = %u\n  data = %s\n",
+        printf("[%s] OnLocalTextData\n  instance = %s\n  agentControllerId = %u\n  data = %s\n",
+            _isSender ? "OUT" : "IN",
             instance.c_str(),
             agentControllerId,
             data.c_str()
         );
     }
 
-    static void OnMasterInstance(PacketReader &reader) // TAG: 1DFA3B0
+    void OnMasterInstance(PacketReader &reader) // TAG: 1DFA3B0
     {
         auto instance = reader.ReadUUID();
 
-        printf("OnMasterInstance\n  instance = %s\n",
+        printf("[%s] OnMasterInstance\n  instance = %s\n",
+            _isSender ? "OUT" : "IN",
             instance.c_str()
         );
     }
 
-    static void OnVoiceModerationCommand(PacketReader &reader)  // TAG: 1DFA540
+    void OnVoiceModerationCommand(PacketReader &reader)  // TAG: 1DFA540
     {
         auto commandLine = reader.ReadString();
 
-        printf("OnVoiceModerationCommand\n  commandLine = %s\n",
+        printf("[%s] OnVoiceModerationCommand\n  commandLine = %s\n",
+            _isSender ? "OUT" : "IN",
             commandLine.c_str()
         );
     }
 
-    static void OnVoiceModerationCommandResponse(PacketReader &reader)  // TAG: 1DFA6F0
+    void OnVoiceModerationCommandResponse(PacketReader &reader)  // TAG: 1DFA6F0
     {
         auto message = reader.ReadString();
         auto success = reader.ReadUint8();
 
-        printf("OnVoiceNotification\n  message = %s\n  success = %u\n",
+        printf("[%s] OnVoiceNotification\n  message = %s\n  success = %u\n",
+            _isSender ? "OUT" : "IN",
             message.c_str(),
             success
         );
     }
 
-    static void OnVoiceNotification(PacketReader &reader)  // TAG: 1DFA760
+    void OnVoiceNotification(PacketReader &reader)  // TAG: 1DFA760
     {
         auto notification = reader.ReadString();
 
-        printf("OnVoiceNotification\n  notification = %s\n",
+        printf("[%s] OnVoiceNotification\n  notification = %s\n",
+            _isSender ? "OUT" : "IN",
             notification.c_str()
         );
     }

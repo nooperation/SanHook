@@ -32,72 +32,72 @@ public:
         {
             case WorldStateMessages::CreateWorld: // TAG: 1BB5960
             {
-                WorldState::OnCreateWorld(reader);
+                this->OnCreateWorld(reader);
                 break;
             }
             case WorldStateMessages::DestroyWorld: // TAG: 1BB59D0
             {
-                WorldState::OnDestroyWorld(reader);
+                this->OnDestroyWorld(reader);
                 break;
             }
             case WorldStateMessages::RigidBodyComponentInitialState: // TAG: 1BB5B90
             {
-                WorldState::OnRigidBodyComponentInitialState(reader);
+                this->OnRigidBodyComponentInitialState(reader);
                 break;
             }
             case WorldStateMessages::AnimationComponentInitialState: // TAG: 1BB5C00
             {
-                WorldState::OnAnimationComponentInitialState(reader);
+                this->OnAnimationComponentInitialState(reader);
                 break;
             }
             case WorldStateMessages::LoadClusterDefinition: // TAG: 1BB5C70
             {
-                WorldState::OnLoadClusterDefinition(reader);
+                this->OnLoadClusterDefinition(reader);
                 break;
             }
             case WorldStateMessages::ComponentRelativeTransform: // TAG: 1BB5CE0
             {
-                WorldState::OnComponentRelativeTransform(reader);
+                this->OnComponentRelativeTransform(reader);
                 break;
             }
             case WorldStateMessages::InitiateCluster: // TAG: 1BB5D50
             {
-                WorldState::OnInitiateCluster(reader);
+                this->OnInitiateCluster(reader);
                 break;
             }
             case WorldStateMessages::CreateClusterViaDefinition: // TAG: 1BB5DC0
             {
-                WorldState::OnCreateClusterViaDefinition(reader);
+                this->OnCreateClusterViaDefinition(reader);
                 break;
             }
             case WorldStateMessages::DestroyCluster: // TAG: 1BB5E30
             {
-                WorldState::OnDestroyCluster(reader);
+                this->OnDestroyCluster(reader);
                 break;
             }
             case WorldStateMessages::DestroyObject: // TAG: 1BB5EA0
             {
-                WorldState::OnDestroyObject(reader);
+                this->OnDestroyObject(reader);
                 break;
             }
             case WorldStateMessages::DestroySourceIdSpace: // TAG: 1BB6060
             {
-                WorldState::OnDestroySourceIdSpace(reader);
+                this->OnDestroySourceIdSpace(reader);
                 break;
             }
             case WorldStateMessages::CreateCharacterNode: // TAG: 1BB6220
             {
-                WorldState::OnCreateCharacterNode(reader);
+                this->OnCreateCharacterNode(reader);
                 break;
             }
             case WorldStateMessages::CreateAgentController: // TAG: 1BB6290
             {
-                WorldState::OnCreateAgentController(reader);
+                this->OnCreateAgentController(reader);
                 break;
             }
             case WorldStateMessages::DestroyAgentController: // TAG: 1BB6300
             {
-                WorldState::OnDestroyAgentController(reader);
+                this->OnDestroyAgentController(reader);
                 break;
             }
             default:
@@ -109,57 +109,59 @@ public:
         return true;;
     }
 
-    static void OnCreateWorld(PacketReader &reader) // TAG: 1BB5960
+    void OnCreateWorld(PacketReader &reader) // TAG: 1BB5960
     {
         auto worldDefinition = reader.ReadUUID();
         auto startingClusterId = reader.ReadUint32();
         auto startingObjectId = reader.ReadUint32();
 
-        printf("OnCreateWorld:\n  worldDefinition = %s\n  unk1 = %d\n  startingObjectId = %d\n",
+        printf("[%s] OnCreateWorld:\n  worldDefinition = %s\n  unk1 = %d\n  startingObjectId = %d\n",
+            _isSender ? "OUT" : "IN",
             worldDefinition.c_str(),
             startingClusterId,
             startingObjectId
         );
     }
 
-    static void OnDestroyWorld(PacketReader &reader) // TAG: 1BB59D0
+    void OnDestroyWorld(PacketReader &reader) // TAG: 1BB59D0
     {
         auto worldId = reader.ReadUint32();
     }
 
-    static void OnRigidBodyComponentInitialState(PacketReader &reader) // TAG: 1BB5B90
+    void OnRigidBodyComponentInitialState(PacketReader &reader) // TAG: 1BB5B90
     {
         auto relativeComponentId = reader.ReadUint32();
         auto linearVelocity = reader.ReadVectorF(3);
         auto angularVelocity = reader.ReadVectorF(3);
     }
 
-    static void OnAnimationComponentInitialState(PacketReader &reader) // TAG: 1BB5C00
+    void OnAnimationComponentInitialState(PacketReader &reader) // TAG: 1BB5C00
     {
         auto relativeComponentId = reader.ReadUint32();
         auto velocity = reader.ReadVectorF(3);
         auto behaviorState = reader.ReadArray();
     }
 
-    static void OnLoadClusterDefinition(PacketReader &reader) // TAG: 1BB5C70
+    void OnLoadClusterDefinition(PacketReader &reader) // TAG: 1BB5C70
     {
         auto resourceId = reader.ReadUUID();
         auto clusterId = reader.ReadUint32();
 
-        //printf("OnLoadClusterDefinition:\n  resourceId = %s\n  clusterId = %d\n",
+        //printf("[%s] OnLoadClusterDefinition:\n  resourceId = %s\n  clusterId = %d\n",
+        // _isSender ? "OUT" : "IN",
         //    resourceId.c_str(),
         //    clusterId
         //);
     }
 
-    static void OnComponentRelativeTransform(PacketReader &reader) // TAG: 1BB5CE0
+    void OnComponentRelativeTransform(PacketReader &reader) // TAG: 1BB5CE0
     {
         auto relativePosition = reader.ReadVectorF(3);
         auto relativeRotation = reader.ReadVectorF(4);
         auto componentId = reader.ReadUint64();
     }
 
-    static void OnInitiateCluster(PacketReader &reader) // TAG: 1BB5D50
+    void OnInitiateCluster(PacketReader &reader) // TAG: 1BB5D50
     {
         auto clusterId = reader.ReadUint32();
         auto frame = reader.ReadUint64();
@@ -175,7 +177,8 @@ public:
             OnAnimationComponentInitialState(reader);
         }
 
-        //printf("OnInitiateCluster:\n  clusterId = %d\n  frame = %llu\n  rigidBodyInitialStatesLength = %u\n  animationInitialStatesLength = %u\n",
+        //printf("[%s] OnInitiateCluster:\n  clusterId = %d\n  frame = %llu\n  rigidBodyInitialStatesLength = %u\n  animationInitialStatesLength = %u\n",
+        //_isSender ? "OUT" : "IN",
         //    clusterId,
         //    frame,
         //    rigidBodyInitialStatesLength,
@@ -183,7 +186,7 @@ public:
         //);
     }
 
-    static void OnCreateClusterViaDefinition(PacketReader &reader) // TAG: 1BB5DC0
+    void OnCreateClusterViaDefinition(PacketReader &reader) // TAG: 1BB5DC0
     {
         auto clusterId = reader.ReadUint32();
         auto startingObjectId = reader.ReadUint32();
@@ -192,42 +195,44 @@ public:
         auto spawnPosition = reader.ReadVectorF(3);
         auto spawnRotation = reader.ReadVectorF(4);
 
-        //printf("OnCreateClusterViaDefinition:\n  clusterId = %u\n  startingObjectId = %u\n  resourceId = %s\n",
+        //printf("[%s] OnCreateClusterViaDefinition:\n  clusterId = %u\n  startingObjectId = %u\n  resourceId = %s\n",
+        //_isSender ? "OUT" : "IN",
         //    clusterId,
         //    startingObjectId,
         //    resourceId.c_str()
         //);
     }
 
-    static void OnDestroyCluster(PacketReader &reader) // TAG: 1BB5E30
+    void OnDestroyCluster(PacketReader &reader) // TAG: 1BB5E30
     {
         auto frame = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
 
-        //printf("WorldStateMessages::DestroyCluster\n  frame = %llu\n  clusterId = %u\n",
+        //printf("[%s] WorldStateMessages::DestroyCluster\n  frame = %llu\n  clusterId = %u\n",
+        //_isSender ? "OUT" : "IN",
         //    frame,
         //    clusterId
         //);
     }
 
-    static void OnDestroyObject(PacketReader &reader) // TAG: 1BB5EA0
+    void OnDestroyObject(PacketReader &reader) // TAG: 1BB5EA0
     {
         auto objectId = reader.ReadUint32();
     }
 
-    static void OnDestroySourceIdSpace(PacketReader &reader) // TAG: 1BB6060
+    void OnDestroySourceIdSpace(PacketReader &reader) // TAG: 1BB6060
     {
         auto sourceIdSpace = reader.ReadUint32();
     }
 
-    static void OnCreateCharacterNode(PacketReader &reader) // TAG: 1BB6220
+    void OnCreateCharacterNode(PacketReader &reader) // TAG: 1BB6220
     {
         auto nodeType = reader.ReadUint8();
         auto controllerNodetype = reader.ReadUint8();
         auto flags = reader.ReadUint8();
     }
 
-    static void OnCreateAgentController(PacketReader &reader) // TAG: 1BB6290
+    void OnCreateAgentController(PacketReader &reader) // TAG: 1BB6290
     {
         auto sessionId = reader.ReadUint32();
         auto clusterId = reader.ReadUint32();
@@ -244,7 +249,8 @@ public:
         auto personaId = reader.ReadUUID();
         auto isRemoteAgent = reader.ReadUint8();
 
-        printf("OnCreateAgentController:\n  sessionId = %d\n  clusterId = %u\n  agentControllerId = %u\n  characterObjectId = %u\n  characterNodesLength = %u\n  frame = %llu\n  personaId = %s\n  isRemoteAgent = %d\n",
+        printf("[%s] OnCreateAgentController:\n  sessionId = %d\n  clusterId = %u\n  agentControllerId = %u\n  characterObjectId = %u\n  characterNodesLength = %u\n  frame = %llu\n  personaId = %s\n  isRemoteAgent = %d\n",
+            _isSender ? "OUT" : "IN",
             sessionId,
             clusterId,
             agentControllerId,
@@ -256,12 +262,13 @@ public:
         );
     }
 
-    static void OnDestroyAgentController(PacketReader &reader) // TAG: 1BB6300
+    void OnDestroyAgentController(PacketReader &reader) // TAG: 1BB6300
     {
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
 
-        printf("WorldStateMessages::DestroyAgentController:\n  frame = %llu\n  agentControllerId = %u\n",
+        printf("[%s] WorldStateMessages::DestroyAgentController:\n  frame = %llu\n  agentControllerId = %u\n",
+            _isSender ? "OUT" : "IN",
             frame,
             agentControllerId
         );

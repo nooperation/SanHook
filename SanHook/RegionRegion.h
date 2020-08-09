@@ -22,22 +22,22 @@ public:
         {
             case RegionRegionMessages::DynamicSubscribe: // TAG: 1BB19B0
             {
-                RegionRegion::OnDynamicSubscribe(reader);
+                this->OnDynamicSubscribe(reader);
                 break;
             }
             case RegionRegionMessages::DynamicPlayback: // TAG: 1BB1B00
             {
-                RegionRegion::OnDynamicPlayback(reader);
+                this->OnDynamicPlayback(reader);
                 break;
             }
             case RegionRegionMessages::MasterFrameSync: // TAG: 1BB1C50
             {
-                RegionRegion::OnMasterFrameSync(reader);
+                this->OnMasterFrameSync(reader);
                 break;
             }
             case RegionRegionMessages::AgentControllerMapping: // TAG: 1BB1E10
             {
-                RegionRegion::OnAgentControllerMapping(reader);
+                this->OnAgentControllerMapping(reader);
                 break;
             }
             default:
@@ -49,22 +49,22 @@ public:
         return true;
     }
 
-    static void OnDynamicSubscribe(PacketReader &reader)  // TAG: 1BB19B0
+    void OnDynamicSubscribe(PacketReader &reader)  // TAG: 1BB19B0
     {
         // No payload
     }
 
-    static void OnDynamicPlayback(PacketReader &reader) // TAG: 1BB1B00
+    void OnDynamicPlayback(PacketReader &reader) // TAG: 1BB1B00
     {
         // No payload
     }
 
-    static void OnMasterFrameSync(PacketReader &reader) // TAG: 1BB1C50
+    void OnMasterFrameSync(PacketReader &reader) // TAG: 1BB1C50
     {
         auto masterFrame = reader.ReadUint64();
     }
 
-    static void OnAgentControllerMapping(PacketReader &reader)  // TAG: 1BB1E10
+    void OnAgentControllerMapping(PacketReader &reader)  // TAG: 1BB1E10
     {
         auto agentControllerId = reader.ReadUint32();
         auto animationComponentId = reader.ReadUint64();

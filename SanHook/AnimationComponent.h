@@ -35,87 +35,87 @@ public:
         {
             case AnimationComponentMessages::FloatVariable:  // TAG: 15809C0
             {
-                AnimationComponent::OnFloatVariable(reader);
+                this->OnFloatVariable(reader);
                 break;
             }
             case AnimationComponentMessages::FloatNodeVariable:  // TAG: 1580A30
             {
-                AnimationComponent::OnFloatNodeVariable(reader);
+                this->OnFloatNodeVariable(reader);
                 break;
             }
             case AnimationComponentMessages::FloatRangeNodeVariable:  // TAG: 1580AA0
             {
-                AnimationComponent::OnFloatRangeNodeVariable(reader);
+                this->OnFloatRangeNodeVariable(reader);
                 break;
             }
             case AnimationComponentMessages::VectorVariable:  // TAG: 1580B10
             {
-                AnimationComponent::OnVectorVariable(reader);
+                this->OnVectorVariable(reader);
                 break;
             }
             case AnimationComponentMessages::QuaternionVariable:  // TAG: 1580B80
             {
-                AnimationComponent::OnQuaternionVariable(reader);
+                this->OnQuaternionVariable(reader);
                 break;
             }
             case AnimationComponentMessages::Int8Variable:  // TAG: 1580BF0
             {
-                AnimationComponent::OnInt8Variable(reader);
+                this->OnInt8Variable(reader);
                 break;
             }
             case AnimationComponentMessages::BoolVariable:  // TAG: 1580C60
             {
-                AnimationComponent::OnBoolVariable(reader);
+                this->OnBoolVariable(reader);
                 break;
             }
             case AnimationComponentMessages::CharacterTransform: // TAG: 1580CD0
             {
-                AnimationComponent::OnCharacterTransform(reader);
+                this->OnCharacterTransform(reader);
                 break;
             }
             case AnimationComponentMessages::CharacterTransformPersistent: // TAG: 1580D40
             {
-                AnimationComponent::OnCharacterTransformPersistent(reader);
+                this->OnCharacterTransformPersistent(reader);
                 break;
             }
             case AnimationComponentMessages::CharacterAnimationDestroyed:  // TAG: 1580DB0
             {
-                AnimationComponent::OnCharacterAnimationDestroyed(reader);
+                this->OnCharacterAnimationDestroyed(reader);
                 break;
             }
             case AnimationComponentMessages::AnimationOverride:  // TAG: 1580F70
             {
-                AnimationComponent::OnAnimationOverride(reader);
+                this->OnAnimationOverride(reader);
                 break;
             }
             case AnimationComponentMessages::BehaviorInternalState: // TAG: 1580FE0
             {
-                AnimationComponent::OnBehaviorInternalState(reader);
+                this->OnBehaviorInternalState(reader);
                 break;
             }
             case AnimationComponentMessages::CharacterBehaviorInternalState:  // TAG: 1581050
             {
-                AnimationComponent::OnCharacterBehaviorInternalState(reader);
+                this->OnCharacterBehaviorInternalState(reader);
                 break;
             }
             case AnimationComponentMessages::BehaviorStateUpdate: // TAG: 15810C0
             {
-                AnimationComponent::OnBehaviorStateUpdate(reader);
+                this->OnBehaviorStateUpdate(reader);
                 break;
             }
             case AnimationComponentMessages::BehaviorInitializationData: // TAG: 1581130
             {
-                AnimationComponent::OnBehaviorInitializationData(reader);
+                this->OnBehaviorInitializationData(reader);
                 break;
             }
             case AnimationComponentMessages::CharacterSetPosition:  // TAG: 15811A0
             {
-                AnimationComponent::OnCharacterSetPosition(reader);
+                this->OnCharacterSetPosition(reader);
                 break;
             }
             case AnimationComponentMessages::PlayAnimation:  // TAG: 1581210
             {
-                AnimationComponent::OnPlayAnimation(reader);
+                this->OnPlayAnimation(reader);
                 break;
             }
             default:
@@ -127,50 +127,50 @@ public:
         return true;
     }
 
-    static void OnFloatVariable(PacketReader &reader)  // TAG: 15809C0
+    void OnFloatVariable(PacketReader &reader)  // TAG: 15809C0
     {
         auto internalId = reader.ReadUint16();
         auto value = reader.ReadFloat();
     }
 
-    static void OnFloatNodeVariable(PacketReader &reader)  // TAG: 1580A30
+    void OnFloatNodeVariable(PacketReader &reader)  // TAG: 1580A30
     {
         auto nodeId = reader.ReadUint16();
         auto value = reader.ReadFloat();
     }
 
-    static void OnFloatRangeNodeVariable(PacketReader &reader)  // TAG: 1580AA0
+    void OnFloatRangeNodeVariable(PacketReader &reader)  // TAG: 1580AA0
     {
         auto nodeId = reader.ReadUint16();
         auto startValue = reader.ReadFloat();
         auto endValue = reader.ReadFloat();
     }
 
-    static void OnVectorVariable(PacketReader &reader)  // TAG: 1580B10
+    void OnVectorVariable(PacketReader &reader)  // TAG: 1580B10
     {
         auto internalId = reader.ReadUint16();
         auto value = reader.ReadVectorF(3);
     }
 
-    static void OnQuaternionVariable(PacketReader &reader) // TAG: 1580B80
+    void OnQuaternionVariable(PacketReader &reader) // TAG: 1580B80
     {
         auto internalId = reader.ReadUint16();
         auto value = reader.ReadVectorF(4);
     }
 
-    static void OnInt8Variable(PacketReader &reader) // TAG: 1580BF0
+    void OnInt8Variable(PacketReader &reader) // TAG: 1580BF0
     {
         auto internalId = reader.ReadUint16();
         auto value = reader.ReadUint8();
     }
 
-    static void OnBoolVariable(PacketReader &reader) // TAG: 1580C60
+    void OnBoolVariable(PacketReader &reader) // TAG: 1580C60
     {
         auto internalId = reader.ReadUint16();
         auto value = reader.ReadUint8();
     }
 
-    static void OnCharacterTransform(PacketReader &reader) // TAG: 1580CD0
+    void OnCharacterTransform(PacketReader &reader) // TAG: 1580CD0
     {
         auto componentId = reader.ReadUint64();
         auto serverFrame = reader.ReadUint64();
@@ -178,29 +178,30 @@ public:
         auto position = reader.ReadBits(0x48);
         auto orientationQuat = reader.ReadBits(0x28);
 
-        //printf("OnCharacterTransform:\n  componentId = %llu\n  serverFrame = %llu\n  groundComponentId = %llu\n",
+        //printf("[%s] OnCharacterTransform:\n  componentId = %llu\n  serverFrame = %llu\n  groundComponentId = %llu\n",
+        //_isSender ? "OUT" : "IN",
         //    componentId,
         //    serverFrame,
         //    groundComponentId
         //);
     }
 
-    static void OnCharacterTransformPersistent(PacketReader &reader) // TAG: 1580D40
+    void OnCharacterTransformPersistent(PacketReader &reader) // TAG: 1580D40
     {
         OnCharacterTransform(reader);
     }
 
-    static void OnCharacterAnimationDestroyed(PacketReader &reader) // TAG: 1580DB0
+    void OnCharacterAnimationDestroyed(PacketReader &reader) // TAG: 1580DB0
     {
         auto componentId = reader.ReadUint64();
     }
 
-    static void OnAnimationOverride(PacketReader &reader)  // TAG: 1580F70
+    void OnAnimationOverride(PacketReader &reader)  // TAG: 1580F70
     {
         auto slotIndex = reader.ReadUint8();
     }
 
-    static void OnBehaviorInternalState(PacketReader &reader) // TAG: 1580FE0
+    void OnBehaviorInternalState(PacketReader &reader) // TAG: 1580FE0
     {
         /*
         auto componentId = reader.ReadUint64();
@@ -217,19 +218,20 @@ public:
         auto stateData = reader.ReadArray();
         auto isPlaying = reader.ReadUint8();
 
-        printf("AnimationComponentMessages::BehaviorInternalState:\n  componentId = %llu\n  frame = %llu\n",
+        printf("[%s] AnimationComponentMessages::BehaviorInternalState:\n  componentId = %llu\n  frame = %llu\n",
+            _isSender ? "OUT" : "IN",
             componentId,
             frame
         );
         */
     }
 
-    static void OnCharacterBehaviorInternalState(PacketReader &reader)  // TAG: 1581050
+    void OnCharacterBehaviorInternalState(PacketReader &reader)  // TAG: 1581050
     {
         OnBehaviorInternalState(reader);
     }
 
-    static void OnBehaviorStateUpdate(PacketReader &reader) // TAG: 15810C0
+    void OnBehaviorStateUpdate(PacketReader &reader) // TAG: 15810C0
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -291,25 +293,27 @@ public:
             OnFloatRangeNodeVariable(reader);
         }
 
-        //printf("AnimationComponentMessages::BehaviorStateUpdate:\n  frame = %llu\n  componentId = %llu\n  exceptAgentControllerId = %u\n",
+        //printf("[%s] AnimationComponentMessages::BehaviorStateUpdate:\n  frame = %llu\n  componentId = %llu\n  exceptAgentControllerId = %u\n",
+        //_isSender ? "OUT" : "IN",
         //    frame,
         //    componentId,
         //    exceptAgentControllerId
         //);
     }
 
-    static void OnBehaviorInitializationData(PacketReader &reader)// TAG: 1581130
+    void OnBehaviorInitializationData(PacketReader &reader)// TAG: 1581130
     {
         auto behaviorStateUpdatesLength = reader.ReadUint32();
         auto animationUpdatesLength = reader.ReadUint32();
 
-        //printf("AnimationComponentMessages::BehaviorInitializationData:\n  behaviorStateUpdatesLength = %u\n  animationUpdatesLength = %u\n",
+        //printf("[%s] AnimationComponentMessages::BehaviorInitializationData:\n  behaviorStateUpdatesLength = %u\n  animationUpdatesLength = %u\n",
+        //_isSender ? "OUT" : "IN",
         //    behaviorStateUpdatesLength,
         //    animationUpdatesLength
         //);
     }
 
-    static void OnCharacterSetPosition(PacketReader &reader)  // TAG: 15811A0
+    void OnCharacterSetPosition(PacketReader &reader)  // TAG: 15811A0
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -317,7 +321,7 @@ public:
         auto position = reader.ReadBits(0x48);
     }
 
-    static void OnPlayAnimation(PacketReader &reader)  // TAG: 1581210
+    void OnPlayAnimation(PacketReader &reader)  // TAG: 1581210
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -332,10 +336,13 @@ public:
         auto animationType = reader.ReadBits(3);
         auto playbackMode = reader.ReadBits(3);
 
-        printf("AnimationComponentMessages::PlayAnimation:\n  frame = %llu\n  componentId = %llu\n  resourceId = %s\n",
+        printf("[%s] AnimationComponentMessages::PlayAnimation:\n  frame = %llu\n  componentId = %llu\n  resourceId = %s\n",
+            _isSender ? "OUT" : "IN",
             frame,
             componentId,
             resourceId.c_str()
         );
     }
+
+
 };

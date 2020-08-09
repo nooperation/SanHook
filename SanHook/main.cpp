@@ -363,7 +363,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
         last_chat_server_sequence = *((uint16_t *)&buf[1]);
         //printf("** last_chat_server_sequence = %X\n", last_chat_server_sequence);
     }
-    //  Utils::DumpPacket(buf, len, true);
+     Utils::DumpPacket(buf, len, true);
 
     if (buf == nullptr || len < 8)
     {
@@ -371,10 +371,21 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
     }
 
     // (1:ID) (2:sequence) (1:payload length) (N: payload) (2: checksum)
+    /*
+
+    if (buf[0] == 0x07)
+    {
+        auto messageId = *((uint32_t *)&buf[6]);
+        printf("[0x07] hooked_sendto: messageId = %X\n", messageId);
+    }
+    else if (buf[0] == 0x08)
+    {
+        auto messageId = *((uint32_t *)&buf[6]);
+        printf("[0x08] hooked_sendto: messageId = %X\n", messageId);
+    }*/
 
     last_sent_sequence = *((uint16_t *)&buf[1]);
     auto messageId = *((uint32_t *)&buf[4]);
-
 
     if (messageId == ClientKafkaMessages::Login)
     {
@@ -935,6 +946,35 @@ void ProcessPacketSend(uint8_t *packet, uint64_t length)
 {
     //printf("ProcessPacketSend: Length = %lld | packet = %llX\n", length, (uint64_t)packet);
 
+
+    /*
+    SEND: messageid = C0C9D81
+    [OUT] ClientKafka::OnLogin :
+        accountId = a0f8dfcfd3154b5c9a6aadd9ce57d51a
+        personaId = f1c87cfd1c394f1c8fa3a9810460f89a
+        secret = 778017728
+        inventoryOffset = 26928
+    */
+    if (*((uint32_t *)&packet[0]) == ClientKafkaMessages::Login)
+    {
+        FILE *inFile = nullptr;
+        fopen_s(&inFile, "u:\\sanhook_config.txt", "rb");
+        if (inFile != nullptr)
+        {
+            uint8_t personaId[16] = {};
+            auto enabled = fgetc(inFile);
+
+            auto bytesRead = fread_s(personaId, sizeof(personaId), sizeof(personaId[0]), 16, inFile);
+            fclose(inFile);
+
+            if (bytesRead == 16)
+            {
+                auto otherPersona = packet + 4 + 16;
+                memcpy(otherPersona, personaId, 16);
+            }
+        }
+    }
+
     std::vector<std::unique_ptr<MessageHandler>> messageHandlers;
     messageHandlers.emplace_back(std::make_unique<AgentController>());
     messageHandlers.emplace_back(std::make_unique<AnimationComponent>());
@@ -948,13 +988,21 @@ void ProcessPacketSend(uint8_t *packet, uint64_t length)
     messageHandlers.emplace_back(std::make_unique<Render>());
     messageHandlers.emplace_back(std::make_unique<Simulation>());
     messageHandlers.emplace_back(std::make_unique<WorldState>());
+    for (auto &item : messageHandlers)
+    {
+        item->SetIsSending(true);
+    }
     
     try
     {
         PacketReader reader;
         reader.Add(0, packet, length);
         auto messageId = reader.ReadUint32();
+
+
     
+        printf("SEND: messageid = %X\n", messageId);
+
         auto handled_packet = false;
     
         for (auto &item : messageHandlers)
@@ -968,7 +1016,7 @@ void ProcessPacketSend(uint8_t *packet, uint64_t length)
     
         if (!handled_packet)
         {
-            printf("ProcessPacketSend: Unhandled message %llX\n", messageId);
+            printf("ProcessPacketSend: Unhandled message %X\n", messageId);
         }
     }
     catch (std::exception ex)
@@ -1051,8 +1099,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         printf("++++++++++++++++++++++++++++++++++\n");
         printf("++++++++++++++++++++++++++++++++++\n");
 
-
-
         auto base = Utils::GetBaseAddress();
 
         if (true)
@@ -1084,37 +1130,26 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             RewriteCode(base + 0x14DADAA, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
+           // ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DB161);
             ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DB161);
         }
-       // system("pause");
 
         if (true)
         {
             // Search for "OutgoingPacket"
             // next call, call qword ptr[rax+18] or whatever
 
-            /*
-                push rdx
-                mov RDX, <address>
-                jmp RDX
-                nop
-                sub rsp, 50 <-- ret here
-            */
-
             uint8_t hijack_ProcessPacketSend[] = {
-                 0x52,  // push rdx
-                 0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // mov rdx, N
-                 0xFF, 0xE2, // jmp rdx
-                 0x90        // nop
+                0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
+                0xFF, 0xE2                                                   // JMP RDX           
             };
 
-            *((uint64_t *)&hijack_ProcessPacketSend[3]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x1353650, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
+            RewriteCode(base + 0x1353696, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
             // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1353650 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1353696 + sizeof(hijack_ProcessPacketSend));
         }
-        
 
         DetourRestoreAfterWith();
 

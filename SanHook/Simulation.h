@@ -25,37 +25,37 @@ public:
         {
             case SimulationMessages::InitialTimestamp:  // TAG: 15733C0 
             {
-                Simulation::OnInitialTimestamp(reader);
+                this->OnInitialTimestamp(reader);
                 break;
             }
             case SimulationMessages::Timestamp: // TAG: 1573430 
             {
-                Simulation::OnTimestamp(reader);
+                this->OnTimestamp(reader);
                 break;
             }
             case SimulationMessages::SetWorldGravityMagnitude:  // TAG: 15734A0
             {
-                Simulation::OnSetWorldGravityMagnitude(reader);
+                this->OnSetWorldGravityMagnitude(reader);
                 break;
             }
             case SimulationMessages::ActiveRigidBodyUpdate:  // TAG: 1573510
             {
-                Simulation::OnActiveRigidBodyUpdate(reader);
+                this->OnActiveRigidBodyUpdate(reader);
                 break;
             }
             case SimulationMessages::RigidBodyDeactivated:  // TAG: 1573580
             {
-                Simulation::OnRigidBodyDeactivated(reader);
+                this->OnRigidBodyDeactivated(reader);
                 break;
             }
             case SimulationMessages::RigidBodyPropertyChanged:  // TAG: 15735F0
             {
-                Simulation::OnRigidBodyPropertyChanged(reader);
+                this->OnRigidBodyPropertyChanged(reader);
                 break;
             }
             case SimulationMessages::RigidBodyDestroyed:  // TAG: 1573660
             {
-                Simulation::OnRigidBodyDestroyed(reader);
+                this->OnRigidBodyDestroyed(reader);
                 break;
             }
             default:
@@ -67,7 +67,7 @@ public:
         return true;
     }
 
-    static void OnInitialTimestamp(PacketReader &reader)  // TAG: 15733C0 
+    void OnInitialTimestamp(PacketReader &reader)  // TAG: 15733C0 
     {
         auto nanoseconds = reader.ReadUint64();
         auto frame = reader.ReadUint64();
@@ -75,7 +75,7 @@ public:
         printf("OnInitialTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
     }
 
-    static void OnTimestamp(PacketReader &reader) // TAG: 1573430 
+    void OnTimestamp(PacketReader &reader) // TAG: 1573430 
     {
         auto nanoseconds = reader.ReadUint64();
         auto frame = reader.ReadUint64();
@@ -83,7 +83,7 @@ public:
         //printf("OnTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
     }
 
-    static void OnSetWorldGravityMagnitude(PacketReader &reader) // TAG: 15734A0
+    void OnSetWorldGravityMagnitude(PacketReader &reader) // TAG: 15734A0
     {
         auto frame = reader.ReadUint64();
         auto magnitude = reader.ReadFloat();
@@ -94,7 +94,7 @@ public:
         );
     }
 
-    static void OnActiveRigidBodyUpdate(PacketReader &reader)  // TAG: 1573510
+    void OnActiveRigidBodyUpdate(PacketReader &reader)  // TAG: 1573510
     {
         auto componentId = reader.ReadUint64();
         auto frame = reader.ReadUint64();
@@ -115,7 +115,7 @@ public:
         //);
     }
 
-    static void OnRigidBodyDeactivated(PacketReader &reader) // TAG: 1573580
+    void OnRigidBodyDeactivated(PacketReader &reader) // TAG: 1573580
     {
         auto componentId = reader.ReadUint64();
         auto frame = reader.ReadUint64();
@@ -130,7 +130,7 @@ public:
         //);
     }
 
-    static void OnRigidBodyPropertyChanged(PacketReader &reader) // TAG: 15735F0
+    void OnRigidBodyPropertyChanged(PacketReader &reader) // TAG: 15735F0
     {
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
@@ -138,7 +138,7 @@ public:
         //auto propertyType = reader.ReadBits(5);
     }
 
-    static void OnRigidBodyDestroyed(PacketReader &reader)  // TAG: 1573660
+    void OnRigidBodyDestroyed(PacketReader &reader)  // TAG: 1573660
     {
         auto componentId = reader.ReadUint64();
     }

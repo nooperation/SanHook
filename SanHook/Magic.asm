@@ -91,9 +91,10 @@ EXTERN ProcessPacketSend:PROC
 	intercept_ProcessPacketRecv ENDP
 
 	intercept_ProcessPacketSend PROC
-		pop rdx ; restore RDX, which we stored our jmp address in
+		;;;; pop rdx ; restore RDX, which we stored our jmp address in
 
-		; RDX = [packet including messageIdPrefix]
+
+		; R14 = [packet including messageIdPrefix]
 		; R8 = packetLength
 		
 		push rax
@@ -132,10 +133,10 @@ EXTERN ProcessPacketSend:PROC
 		
 		sub rsp, 24
 		
-		; RDX = packet
+		; R14 = packet
 		; R8 = packetLength
 		
-		mov rcx, rdx  ; arg1 = packet
+		mov rcx, r14  ; arg1 = packet
 		mov rdx, r8   ; arg2 = packetLength
 		call ProcessPacketSend ; ProcessPacketSend(packet, packetLength)
 		
@@ -174,12 +175,10 @@ EXTERN ProcessPacketSend:PROC
 		pop rcx
 		pop rbx
 		pop rax
-		
-		mov qword ptr [rsp+18h], rbx
-		mov qword ptr [rsp+20h], rbp
-		push rsi
-		push rdi
-		push r15
+
+		mov qword ptr [rsp+78h], r15
+		lea rcx, qword ptr [rax+1788h]
+
 		jmp ReturnPoint_ProcessPacketSend ; Jump back to where we left off
 	intercept_ProcessPacketSend ENDP
 end

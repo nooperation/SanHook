@@ -20,7 +20,7 @@ public:
         {
             case RenderMessages::LightStateChanged: // TAG: 1611170
             {
-                Render::OnLightStateChanged(reader);
+                this->OnLightStateChanged(reader);
                 break;
             }
             default:
@@ -32,7 +32,7 @@ public:
         return true;
     }
 
-    static void OnLightStateChanged(PacketReader &reader)  // TAG: 1611170
+    void OnLightStateChanged(PacketReader &reader)  // TAG: 1611170
     {
         auto componentId = reader.ReadUint64();
         auto frame = reader.ReadUint64();

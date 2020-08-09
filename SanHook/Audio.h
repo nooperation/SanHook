@@ -29,52 +29,52 @@ public:
         {
             case AudioMessages::LoadSound:  // TAG: 15B6490
             {
-                Audio::OnLoadSound(reader);
+                this->OnLoadSound(reader);
                 break;
             }
             case AudioMessages::PlaySound:  // TAG: 15B6620
             {
-                Audio::OnPlaySound(reader);
+                this->OnPlaySound(reader);
                 break;
             }
             case AudioMessages::PlayStream:  // TAG: 15B6690
             {
-                Audio::OnPlayStream(reader);
+                this->OnPlayStream(reader);
                 break;
             }
             case AudioMessages::StopBroadcastingSound:  // TAG: 15B6700
             {
-                Audio::OnStopBroadcastingSound(reader);
+                this->OnStopBroadcastingSound(reader);
                 break;
             }
             case AudioMessages::SetAudioStream:  // TAG: 15B68C0
             {
-                Audio::OnSetAudioStream(reader);
+                this->OnSetAudioStream(reader);
                 break;
             }
             case AudioMessages::SetMediaSource:  // TAG: 15B6930
             {
-                Audio::OnSetMediaSource(reader);
+                this->OnSetMediaSource(reader);
                 break;
             }
             case AudioMessages::PerformMediaAction:  // TAG: 15B69A0
             {
-                Audio::OnPerformMediaAction(reader);
+                this->OnPerformMediaAction(reader);
                 break;
             }
             case AudioMessages::StopSound:  // TAG: 15B6A10
             {
-                Audio::OnStopSound(reader);
+                this->OnStopSound(reader);
                 break;
             }
             case AudioMessages::SetLoudness: // TAG: 15B6A80
             {
-                Audio::OnSetLoudness(reader);
+                this->OnSetLoudness(reader);
                 break;
             }
             case AudioMessages::SetPitch: // TAG: 15B6AF0
             {
-                Audio::OnSetPitch(reader);
+                this->OnSetPitch(reader);
                 break;
             }
             default:
@@ -87,16 +87,17 @@ public:
     }
 
 
-    static void OnLoadSound(PacketReader &reader) // TAG: 15B6490
+    void OnLoadSound(PacketReader &reader) // TAG: 15B6490
     {
         auto resourceId = reader.ReadUUID();
 
-        //printf("AudioMessages::LoadSound:\n  resourceId = %s\n",
+        //printf("[%s] AudioMessages::LoadSound:\n  resourceId = %s\n",
+        //_isSender ? "OUT" : "IN",
         //    resourceId.c_str()
         //);
     }
 
-    static void OnPlaySound(PacketReader &reader) // TAG: 15B6620
+    void OnPlaySound(PacketReader &reader) // TAG: 15B6620
     {
         auto resourceId = reader.ReadUUID();
         auto createPlayHandleId = reader.ReadUint64();
@@ -108,7 +109,8 @@ public:
         auto playOffset = reader.ReadUint32();
         auto flags = reader.ReadUint8();
 
-        //printf("AudioMessages::PlaySound:\n  resourceId = %s\n  createPlayHandleId = %llu\n  frame = %llu\n  componentId = %llu\n  position = <%f, %f, %f>\n  loudness = %f\n  pitch = %f\n  playOffset = %u\n  flags = %u\n",
+        //printf("[%s] AudioMessages::PlaySound:\n  resourceId = %s\n  createPlayHandleId = %llu\n  frame = %llu\n  componentId = %llu\n  position = <%f, %f, %f>\n  loudness = %f\n  pitch = %f\n  playOffset = %u\n  flags = %u\n",
+        //_isSender ? "OUT" : "IN",
         //    resourceId.c_str(),
         //    createPlayHandleId,
         //    frame,
@@ -121,7 +123,7 @@ public:
         //);
     }
 
-    static void OnPlayStream(PacketReader &reader) // TAG: 15B6690
+    void OnPlayStream(PacketReader &reader) // TAG: 15B6690
     {
         auto streamChannel = reader.ReadUint8();
         auto createPlayHandleId = reader.ReadUint64();
@@ -132,18 +134,18 @@ public:
         auto flags = reader.ReadUint8();
     }
 
-    static void OnStopBroadcastingSound(PacketReader &reader) // TAG: 15B6700
+    void OnStopBroadcastingSound(PacketReader &reader) // TAG: 15B6700
     {
         auto playHandleId = reader.ReadUint64();
     }
 
-    static void OnSetAudioStream(PacketReader &reader) // TAG: 15B68C0
+    void OnSetAudioStream(PacketReader &reader) // TAG: 15B68C0
     {
         auto url = reader.ReadString();
         auto rebroadcast = reader.ReadUint8();
     }
 
-    static void OnSetMediaSource(PacketReader &reader)  // TAG: 15B6930
+    void OnSetMediaSource(PacketReader &reader)  // TAG: 15B6930
     {
         auto url = reader.ReadString();
         auto mediaWidth = reader.ReadUint32();
@@ -151,35 +153,37 @@ public:
         auto rebroadcast = reader.ReadUint8();
     }
 
-    static void OnPerformMediaAction(PacketReader &reader)  // TAG: 15B69A0
+    void OnPerformMediaAction(PacketReader &reader)  // TAG: 15B69A0
     {
         auto mediaAction = reader.ReadUint32();
         auto rebroadcast = reader.ReadUint8();
     }
 
-    static void OnStopSound(PacketReader &reader) // TAG: 15B6A10
+    void OnStopSound(PacketReader &reader) // TAG: 15B6A10
     {
         auto playHandleId = reader.ReadUint64();
         auto immediate = reader.ReadUint8();
     }
 
-    static void OnSetLoudness(PacketReader &reader) // TAG: 15B6A80
+    void OnSetLoudness(PacketReader &reader) // TAG: 15B6A80
     {
         auto playHandleId = reader.ReadUint32();
         auto loudness = reader.ReadUint32();
 
-        //printf("AudioMessages::SetLoudness:\n  playHandleId = %u\n  loudness = %d\n",
+        //printf("[%s] AudioMessages::SetLoudness:\n  playHandleId = %u\n  loudness = %d\n",
+        //_isSender ? "OUT" : "IN",
         //    playHandleId,
         //    loudness
         //);
     }
 
-    static void OnSetPitch(PacketReader &reader) // TAG: 15B6AF0
+    void OnSetPitch(PacketReader &reader) // TAG: 15B6AF0
     {
         auto playHandleId = reader.ReadUint32();
         auto pitch = reader.ReadUint32();
 
-        //printf("AudioMessages::SetPitch:\n  playHandleId = %u\n  pitch = %d\n",
+        //printf("[%s] AudioMessages::SetPitch:\n  playHandleId = %u\n  pitch = %d\n",
+        //_isSender ? "OUT" : "IN",
         //    playHandleId,
         //    pitch
         //);
