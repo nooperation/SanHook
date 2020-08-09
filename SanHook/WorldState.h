@@ -26,8 +26,10 @@
 class WorldState : public MessageHandler
 {
 public:
-    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    bool OnMessage(uint32_t messageId, PacketReader &reader, bool isSending)
     {
+        this->_isSender = isSending; // todo: get rid of this garbage
+
         switch (messageId)
         {
             case WorldStateMessages::CreateWorld: // TAG: 1BB5960

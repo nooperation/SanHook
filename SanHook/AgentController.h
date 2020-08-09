@@ -45,8 +45,10 @@
 class AgentController : public MessageHandler
 {
 public:
-    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    bool OnMessage(uint32_t messageId, PacketReader &reader, bool isSending)
     {
+        this->_isSender = isSending; // todo: get rid of this garbage
+
         switch (messageId)
         {
             case AgentControllerMessages::ControlPoint:  // TAG: 170F790
@@ -634,6 +636,78 @@ public:
 
     void OnRequestSpawnItem(PacketReader &reader) // TAG: 1710730
     {
+        if (_isSender)
+        {
+            //  MsgId         Frame                     AgentId       ResourceId                            AttachmentNode   SpawnPosition(78bit)|height?(32bit)|SpawnOrientation(43bit)         Checksum
+            // [31 0D 85 21] [C6 6D 00 00 00 00 00 00] [05 00 00 00] [37 7F 61 06 51 D3 9B EF 5F B0 FB 67 89 AD EE 79] [FF] [EB AE 00 F2 3A 02 48 2A A0 C0 FE BF FF F7 FE 51] [77 96]
+
+            auto buffer = reader.GetBuffer();
+
+            BitReader br((uint8_t *)&buffer[33], 10);
+            auto positionX = br.ReadFloat(26, false);
+            auto positionY = br.ReadFloat(26, false);
+            auto positionZ = br.ReadFloat(26, true);
+
+            auto camrez_enabled = false;
+            FILE *inFileCamRez = nullptr;
+            fopen_s(&inFileCamRez, "u:\\sanhook_config_camrez.txt", "rb");
+            if (inFileCamRez != nullptr)
+            {
+                camrez_enabled = fgetc(inFileCamRez);
+                fclose(inFileCamRez);
+            }
+            if (camrez_enabled)
+            {
+                auto base = Utils::GetBaseAddress();
+
+                // We got this constant from memory.
+                // Search for "no-input-source".
+                // Between "room scale" and "no-input-source"
+                // Right below a call to RotMatrix, enter that call
+                // rcx+30 = our pointer
+                // Function above it with a bunch of xmm stuff going on (see screenshots)
+                //const static auto kCameraPositionOffset = 0x4AAB1C0;
+                const static auto kCameraPositionOffset = 0x4AAB1C0;
+
+                positionX = *((float *)(base + kCameraPositionOffset + 0));
+                positionY = *((float *)(base + kCameraPositionOffset + 4));
+                positionZ = *((float *)(base + kCameraPositionOffset + 8));
+
+                br.Reset();
+                br.WriteFloat(positionX, 26, false);
+                br.WriteFloat(positionY, 26, false);
+                br.WriteFloat(positionZ, 26, true);
+
+                br.Reset();
+                positionX = br.ReadFloat(26, false);
+                positionY = br.ReadFloat(26, false);
+                positionZ = br.ReadFloat(26, true);
+
+                // do not attach this item...
+                auto attachmentNodePtr = &buffer[32];
+                *attachmentNodePtr = 255;
+            }
+
+            uint8_t newResourceId[16] = {};
+            bool enabled = false;
+            FILE *inFile = nullptr;
+            fopen_s(&inFile, "u:\\sanhook_config_rez.txt", "rb");
+            if (inFile != nullptr)
+            {
+                auto resourceIdPtr = &buffer[16];
+
+                enabled = fgetc(inFile);
+
+                auto bytesRead = fread_s(newResourceId, sizeof(newResourceId), sizeof(newResourceId[0]), 16, inFile);
+                fclose(inFile);
+
+                if (bytesRead == 16 && enabled)
+                {
+                    memcpy(resourceIdPtr, newResourceId, 16);
+                }
+            }
+        }
+
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto resourceId = reader.ReadUUID();

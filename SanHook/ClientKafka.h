@@ -50,8 +50,10 @@
 class ClientKafka : public MessageHandler
 {
 public:
-    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    bool OnMessage(uint32_t messageId, PacketReader &reader, bool isSending)
     {
+        this->_isSender = isSending; // todo: get rid of this garbage
+
         switch (messageId)
         {
             case ClientKafkaMessages::RegionChat: // TAG: 17A16D0
@@ -362,6 +364,32 @@ public:
 
     void OnRegionChat(PacketReader &reader)  // TAG: 17A16D0
     {
+        if (_isSender)
+        {
+            auto buffer = reader.GetBuffer();
+            auto fromPersonaIdptr = &buffer[4];
+
+            FILE *inFile = nullptr;
+            fopen_s(&inFile, "u:\\sanhook_config.txt", "rb");
+
+            if (inFile != nullptr)
+            {
+                uint8_t personaId[16] = {};
+                bool enabled = fgetc(inFile);
+                auto bytesRead = fread_s(personaId, sizeof(personaId), sizeof(personaId[0]), 16, inFile);
+                fclose(inFile);
+
+                if (enabled)
+                {
+                    if (bytesRead == 16)
+                    {
+                        memcpy(fromPersonaIdptr, personaId, sizeof(personaId) / sizeof(personaId[0]));
+                    }
+                }
+            }
+        }
+
+
         auto fromPersonaId = reader.ReadUUID();
         auto toPersonaId = reader.ReadUUID();
         auto instanceAddress = reader.ReadString();

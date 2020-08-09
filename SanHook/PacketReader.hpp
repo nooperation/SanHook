@@ -9,37 +9,10 @@
 class PacketReader
 {
 private:
-    std::vector<uint8_t> buffer;
+    uint8_t *buffer;
+    uint64_t bufferSize;
     std::size_t bufferIndex = 0;
 
-    bool previousSequenceIsValid = false;
-    uint16_t previousSequence = 0;
-
-    std::map<uint16_t, std::vector<uint8_t> > outOfOrderPackets;
-
-    void ProcessOutOfOrderPackets()
-    {
-        while (!outOfOrderPackets.empty())
-        {
-            auto nextPacket = outOfOrderPackets.find(previousSequence + 1);
-            if (nextPacket == outOfOrderPackets.end())
-            {
-                break;
-            }
-
-            auto &outOfOrderBuffer = nextPacket->second;
-            auto &outOfOrderSequence = nextPacket->first;
-
-            buffer.insert(buffer.end(), outOfOrderBuffer.begin(), outOfOrderBuffer.end());
-
-            previousSequenceIsValid = true;
-            previousSequence = outOfOrderSequence;
-
-            //printf("Next packet %d found in out of order packet collection.\n", outOfOrderSequence);
-
-            outOfOrderPackets.erase(nextPacket);
-        }
-    }
 
 public:
     PacketReader()
@@ -47,9 +20,11 @@ public:
 
     }
 
-    PacketReader(uint16_t sequence, const uint8_t *packet, uint64_t size)
+    PacketReader(uint8_t *packet, uint64_t size) :
+        buffer(packet),
+        bufferSize(size)
     {
-        Add(sequence, packet, size);
+     
     }
 
     void Dump() const
@@ -61,7 +36,7 @@ public:
         char output_buffer[65536 * 3 + 1] = {};
         std::size_t output_index = 0;
 
-        for (int i = 0; i < this->buffer.size(); ++i)
+        for (int i = 0; i < bufferSize; ++i)
         {
             auto low = ((uint8_t)this->buffer[i] & 0xF0) >> 4;
             auto high = (uint8_t)this->buffer[i] & 0x0F;
@@ -77,55 +52,30 @@ public:
         }
         else
         {
-            printf("DUMP [%zd] %s\n", this->buffer.size(), output_buffer);
+            printf("DUMP [%zd] %s\n", bufferSize, output_buffer);
         }
     }
 
-    uint16_t getPreviousSequence() const {
-        return previousSequence;
+    uint8_t *GetBuffer()
+    {
+        return buffer;
     }
-
+    uint64_t GetBufferSize()
+    {
+        return bufferSize;
+    }
     void Reset()
     {
-        //printf("PacketReader::Reset()\n");
-        buffer.clear();
         bufferIndex = 0;
-        previousSequenceIsValid = false;
-        previousSequence = 0;
-
-        outOfOrderPackets.clear();
-    }
-
-    void Add(uint16_t sequence, const uint8_t *packet, uint64_t size)
-    {
-        if (previousSequenceIsValid)
-        {
-            if (sequence != previousSequence + 1)
-            {
-                //printf("Packet %d found, expected %d. Added it to our out of order packet collection.", sequence, previousSequence + 1);
-                outOfOrderPackets[sequence] = std::vector<uint8_t>(packet, packet + size);
-                return;
-            }
-        }
-
-        buffer.insert(buffer.end(), packet, packet + size);
-
-        previousSequenceIsValid = true;
-        previousSequence = sequence;
-        //printf("Added packet %d to buffer\n", sequence);
-
-        ProcessOutOfOrderPackets();
     }
 
     void CheckOutOfBoundsRead(std::size_t numBytes) const
     {
-        if (bufferIndex + numBytes > buffer.size())
+        if (bufferIndex + numBytes > bufferSize)
         {
             printf("\n--------------------------\nAttempt to read out of bounds\n--------------------------\n");
             throw std::exception("Attempt to read out of bounds");
         }
-
-
     }
 
     template<typename T>
@@ -145,7 +95,6 @@ public:
         auto result = ReadGeneric<uint64_t>();
         return result;
     }
-
 
     uint8_t ReadUint8()
     {
@@ -302,8 +251,8 @@ public:
 
     int64_t GetBytesRemaining() const
     {
-        //printf("GetBytesRemaining --> Buffer size = %lld | bufferIndex = %lld\n", buffer.size(), bufferIndex);
-        return (buffer.size() - bufferIndex);
+        //printf("GetBytesRemaining --> Buffer size = %lld | bufferIndex = %lld\n", bufferSize, bufferIndex);
+        return (bufferSize - bufferIndex);
     }
 
 };

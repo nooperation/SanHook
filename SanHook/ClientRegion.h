@@ -67,8 +67,10 @@ private:
     std::map<uint32_t, std::string> sessionIdToNameMap = std::map<uint32_t, std::string>();
 
 public:
-    bool OnMessage(uint32_t messageId, PacketReader &reader)
+    bool OnMessage(uint32_t messageId, PacketReader &reader, bool isSending)
     {
+        this->_isSender = isSending; // todo: get rid of this garbage
+
         switch (messageId)
         {
             case ClientRegionMessages::UserLogin: // TAG: 1B9B360

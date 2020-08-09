@@ -15,5 +15,5 @@ public:
         this->_isSender = isSender;
     }
 
-    virtual bool OnMessage(uint32_t messageId, PacketReader &reader) = 0;
+    virtual bool OnMessage(uint32_t messageId, PacketReader &reader, bool isSending) = 0;
 };
