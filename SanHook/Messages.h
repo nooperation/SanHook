@@ -51,7 +51,7 @@ public:
     static const uint32_t SetAgentFiltersBody = 0x09DD53F6;
     static const uint32_t RequestSetAgentFiltersBody = 0x2B87F09D;
     static const uint32_t SetCharacterUserProperty = 0x31D1EC43;
-    static const uint32_t CreateSpeechGraphicsPlayer = 0x158B2580;
+    static const uint32_t CreateSpeechGraphicsPlayer = 0x158B2580;  /* REMOVED 2020-08-13 */
     static const uint32_t RequestSpawnItem = 0x2C21850D;
     static const uint32_t RequestDeleteLatestSpawn = 0xEB3C4296;
     static const uint32_t RequestDeleteAllSpawns = 0x3EB3EDF7;
@@ -79,7 +79,6 @@ public:
 
 class GameWorldMessages {
 public:
-    // static const uint32_t = 0x;
     static const uint32_t StaticMeshFlagsChanged = 0xAE522F17;
     static const uint32_t StaticMeshScaleChanged = 0xCA6CCC08;
     static const uint32_t Timestamp = 0xD22C9D73;
@@ -334,6 +333,7 @@ Packet versions (38):
   A356B3ED = 1
   B4AB87F5 = 1
   5915FBFE = 1
+-----------------------
 
 
 
@@ -361,7 +361,7 @@ Packet versions (16):
 
 -----------------------
 Channel: ClientRegionChannel
-Packet versions (141):
+Packet versions (140):
   CA6CCC08 = 1
   3902800A = 1
   58003034 = 1
@@ -414,7 +414,6 @@ Packet versions (141):
   D22C9D73 = 1
   645C4976 = 1
   5C1A8D7D = 1
-  158B2580 = 1
   20C45982 = 1
   17B7D18A = 1
   C33DE58B = 1
@@ -504,5 +503,7 @@ Packet versions (141):
   09DD53F6 = 1
   706F63FB = 1
 -----------------------
+
+
 
 */

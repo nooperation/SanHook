@@ -758,11 +758,6 @@ public:
         auto spawnPosition = reader.ReadBits(0x4E);
         auto spawnOrientation = reader.ReadBits(0x2B);
 
-        if (_isSender)
-        {
-             myControllerId = agentControllerId;
-        }
-
         printf("[%s] AgentControllerMessages::OnRequestSpawnItem\n  frame = %llu\n  agentControllerId = %u\n  resourceId = %s\n  attachmentNode = %u\n",
             _isSender ? "OUT" : "IN",
             frame,
