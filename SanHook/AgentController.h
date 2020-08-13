@@ -313,6 +313,8 @@ public:
 
     void OnCreateSpeechGraphicsPlayer(PacketReader &reader) // TAG: 17106C0
     {
+        // REMOVED 40.11.0.1810696  (2020-08-13)
+
         auto agentControllerId = reader.ReadUint32();
 
         auto numElements = reader.ReadUint32();
@@ -667,7 +669,7 @@ public:
                 // rcx+30 = our pointer
                 // Function above it with a bunch of xmm stuff going on (see screenshots)
                 //const static auto kCameraPositionOffset = 0x4AAB1C0;
-                const static auto kCameraPositionOffset = 0x4AAB1C0;
+                const static auto kCameraPositionOffset = 0x4ABE960;
 
                 positionX = *((float *)(base + kCameraPositionOffset + 0));
                 positionY = *((float *)(base + kCameraPositionOffset + 4));

@@ -190,17 +190,20 @@ int main()
         };
         *((float*)&gravityHack[1]) = 2.0f;
 
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175366A), gravityHack, sizeof(gravityHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x175366A, written);
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175580A), gravityHack, sizeof(gravityHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x175580A, written);
 
 
+        ///////////////////////////////////
+        /// COLLISION - ALWAYS COLLIDE AVATARS (right above freecam hack, look for "skyCubemap")
+        ///////////////////////////////////
 
         uint8_t collisionHack[] = {
            // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
              0xB0, 0x01, 0x90
         };
-        //WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17536B3), collisionHack, sizeof(collisionHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x17536B3, written);
+       // WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175589E), collisionHack, sizeof(collisionHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x1755853, written);
     
 
         ///////////////////////////////////
@@ -210,16 +213,21 @@ int main()
             0xB0, 0x01, 0x90
         };
         written = 0;
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17536FE), freecamHack, sizeof(freecamHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x17536FE, written);
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175589E), freecamHack, sizeof(freecamHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x175589E, written);
 
 
+    
+        ///////////////////////////////////
+        // updated for 2020-05-23
+        /// INVENTORY - ALLOW ALWAYS (search for 'exposureBias', function just above that) 
+        ///////////////////////////////////
         uint8_t inventoryAlwaysHack[] = {
            0xB0, 0x01, 0x88, 0x07
         };
         written = 0;
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1759CF5), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x1759CF5, written);
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175AE85), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x175AE85, written);
 
 
 
@@ -242,7 +250,7 @@ int main()
         uint8_t no1minTelemetry[] = {
             0xEB, 0x08
         };
-        auto telemetryCallerAddress = 0x1165D9B;
+        auto telemetryCallerAddress = 0x1166A7B;
         written = 0;
         //WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
         printf("Written to %X: %d bytes\n", base + telemetryCallerAddress, written);

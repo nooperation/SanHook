@@ -721,6 +721,11 @@ public:
         auto other = reader.ReadUUID();
         auto operation = reader.ReadUint32();
 
+        // 0 = friend request / friend accept
+        // 1 = ignore / remove friend
+        // 2 = block
+        // 3 = unblock
+
         printf("[%s] ClientKafkaMessages::RelationshipOperation:\n  other = %s\n  operation = %u\n",
             _isSender ? "OUT" : "IN",
             other.c_str(),

@@ -298,17 +298,17 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x14DADAA, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + 0x14DD5AA, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
-           // ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DB161);
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DB161);
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DD961);
         }
 
         if (true)
         {
             // Search for "OutgoingPacket"
             // next call, call qword ptr[rax+18] or whatever
+            // not immediately at the entrypoint with the two movs and setting up the stackframe, but rather down 3 jumps (mov [rsp+78], r15)
 
             uint8_t hijack_ProcessPacketSend[] = {
                 0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
@@ -316,10 +316,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x1353696, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + 0x1354AD6, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
-            // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1353696 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1354AD6 + sizeof(hijack_ProcessPacketSend));
         }
 
 

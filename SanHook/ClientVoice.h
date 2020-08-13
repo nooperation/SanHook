@@ -125,7 +125,10 @@ public:
 
     void OnLogin(PacketReader &reader)  // TAG: 1DF9BD0
     {
-        auto instance = reader.ReadString();
+        // MODIFIED 40.11.0.1810696  (2020-08-13)
+        //    - instance changed from String to UUID
+
+        auto instance = reader.ReadUUID();
         auto secret = reader.ReadUint32();
         auto personaId = reader.ReadUUID();
         auto slave = reader.ReadUint8();
@@ -153,18 +156,28 @@ public:
 
     void OnAudioData(PacketReader &reader)  // TAG: 1DF9CB0
     {
+        // MODIFIED 40.11.0.1810696  (2020-08-13)
+        //    - Added 'sequence'
+
+        auto sequence = reader.ReadUint64();
         auto volume = reader.ReadUint16();
         auto data = reader.ReadArray();
     }
 
     void OnSpeechGraphicsData(PacketReader &reader) // TAG: 1DF9D20
     {
+        // MODIFIED 40.11.0.1810696  (2020-08-13)
+        //    - Added 'sequence'
+
+        auto sequence = reader.ReadUint64();
         auto data = reader.ReadArray();
     }
 
     void OnLocalAudioData(PacketReader &reader) // TAG: 1DF9D90
     {
-        auto sequence = reader.ReadUint64();
+        // MODIFIED 40.11.0.1810696  (2020-08-13)
+        //    - Removed 'sequence'
+
         auto instance = reader.ReadString();
         auto agentControllerId = reader.ReadUint32();
         auto broadcast = reader.ReadUint8();
@@ -172,34 +185,40 @@ public:
 
     void OnLocalAudioStreamState(PacketReader &reader) // TAG: 1DF9E00
     {
-        auto instance = reader.ReadString();
+        // MODIFIED 40.11.0.1810696  (2020-08-13)
+        //    - instance changed from string to UUID
+
+        auto instance = reader.ReadUUID();
         auto agentControllerId = reader.ReadUint32();
         auto broadcast = reader.ReadUint8();   // TODO: Maybe an okay place to set everyone to broadcast locally, would this work though?
         auto mute = reader.ReadUint8();
 
-        printf("[%s] OnLocalAudioStreamState:\n  instance=%s\n  agentControllerId = %u\n  broacast = %u\n  mute = %u\n",
-            _isSender ? "OUT" : "IN",
-            instance.c_str(),
-            agentControllerId,
-            broadcast,
-            mute
-        );
+        //printf("[%s] OnLocalAudioStreamState:\n  instance=%s\n  agentControllerId = %u\n  broacast = %u\n  mute = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    instance.c_str(),
+        //    agentControllerId,
+        //    broadcast,
+        //    mute
+        //);
     }
 
     void OnLocalAudioPosition(PacketReader &reader) // TAG: 1DF9E70
     {
+        // MODIFIED 40.11.0.1810696  (2020-08-13)
+        //    - instance changed from string to UUID
+
         auto sequence = reader.ReadUint32();
-        auto instance = reader.ReadString();
+        auto instance = reader.ReadUUID();
         auto position = reader.ReadVectorF(3);
         auto agentControllerId = reader.ReadUint32();
 
-        printf("[%s] OnLocalAudioPosition\n  sequence = %u\n  instance = %s\n  position = <%f, %f, %f>\n  agentControllerId = %u\n",
-            _isSender ? "OUT" : "IN",
-            sequence,
-            instance.c_str(),
-            position[0], position[1], position[2],
-            agentControllerId
-        );
+        //printf("[%s] OnLocalAudioPosition\n  sequence = %u\n  instance = %s\n  position = <%f, %f, %f>\n  agentControllerId = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    sequence,
+        //    instance.c_str(),
+        //    position[0], position[1], position[2],
+        //    agentControllerId
+        //);
     }
 
     void OnLocalAudioMute(PacketReader &reader) // TAG: 1DF9EE0
@@ -232,7 +251,10 @@ public:
 
     void OnLocalTextData(PacketReader &reader)  // TAG: 1DFA340
     {
-        auto instance = reader.ReadString();
+        // MODIFIED 40.11.0.1810696  (2020-08-13)
+        //    - instance changed from string to UUID
+
+        auto instance = reader.ReadUUID();
         auto agentControllerId = reader.ReadUint32();
         auto data = reader.ReadString();
 
