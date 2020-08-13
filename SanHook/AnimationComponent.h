@@ -3,6 +3,9 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <set>
+#include <filesystem>
+#include <iostream>
 
 #include "MessageHandler.h"
 #include "PacketReader.hpp"
@@ -180,6 +183,7 @@ public:
         auto position = reader.ReadBits(0x48);
         auto orientationQuat = reader.ReadBits(0x28);
 
+
         //printf("[%s] OnCharacterTransform:\n  componentId = %llu\n  serverFrame = %llu\n  groundComponentId = %llu\n",
         //_isSender ? "OUT" : "IN",
         //    componentId,
@@ -235,6 +239,16 @@ public:
 
     void OnBehaviorStateUpdate(PacketReader &reader) // TAG: 15810C0
     {
+        //if (!_isSender)
+        //{
+        //    auto packet = reader.GetBuffer();
+        //    auto pComponentId = (uint64_t *)&packet[12];
+        //    auto pExceptAgentControllerId = (uint32_t *)&packet[20];
+
+        //    *pComponentId = myComponentId;
+        //    *pExceptAgentControllerId = myControllerId;
+        //}
+
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
         auto exceptAgentControllerId = reader.ReadUint32();
@@ -321,7 +335,14 @@ public:
         auto componentId = reader.ReadUint64();
         auto groundComponentId = reader.ReadUint64();
         auto position = reader.ReadBits(0x48);
+
+        //printf("[%s] OnCharacterSetPosition:\n  componentId = %d\n",
+        //    _isSender ? "OUT" : "IN",
+        //    componentId
+        //);
     }
+
+    std::set<std::string> savedAnimations;
 
     void OnPlayAnimation(PacketReader &reader)  // TAG: 1581210
     {
@@ -338,12 +359,35 @@ public:
         auto animationType = reader.ReadBits(3);
         auto playbackMode = reader.ReadBits(3);
 
-        printf("[%s] AnimationComponentMessages::PlayAnimation:\n  frame = %llu\n  componentId = %llu\n  resourceId = %s\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            componentId,
-            resourceId.c_str()
-        );
+        //printf("[%s] AnimationComponentMessages::PlayAnimation:\n  frame = %llu\n  componentId = %llu\n  resourceId = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    componentId,
+        //    resourceId.c_str()
+        //);
+
+        if (!this->_isSender)
+        {
+            if (savedAnimations.find(resourceId) == savedAnimations.end())
+            {
+                auto resourceUuid = Utils::ToUUID(resourceId);
+
+                std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\animationdump.csv";
+
+                auto now = std::chrono::system_clock::now();
+                auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+
+                FILE *outFile = nullptr;
+                fopen_s(&outFile, userdumpPath.string().c_str(), "a");
+                fprintf(outFile, "\"%lld\",\"%s\"\n",
+                    timestamp,
+                    resourceUuid.c_str()
+                );
+                fclose(outFile);
+
+                savedAnimations.insert(resourceId);
+            }
+        }
     }
 
 

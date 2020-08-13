@@ -255,4 +255,10 @@ public:
         return (bufferSize - bufferIndex);
     }
 
+    uint8_t *GetCurrentPointer() const
+    {
+        //printf("GetBytesRemaining --> Buffer size = %lld | bufferIndex = %lld\n", bufferSize, bufferIndex);
+        return &buffer[bufferIndex];
+    }
+
 };

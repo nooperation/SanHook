@@ -339,13 +339,15 @@ public:
         auto regionServerVersion = reader.ReadString();
         auto privileges = reader.ReadStringList();
 
+        mySessionId = sessionId;
+
         printf("[%s] ClientRegionMessages::UserLoginReply:\n Success: %d\n SessionId: %d\n RegionServerVersion: %s\n Privileges: \n",
             _isSender ? "OUT" : "IN",
             success,
-            sessionId, 
+            sessionId,
             regionServerVersion.c_str()
         );
-        for (const auto &item : privileges)
+        for (const auto &item : privileges)  // TODO: what if inject our own privliges here. maybe no longer need the other patches in the loader for freecam?
         {
             printf("    %s\n", item.c_str());
         }
@@ -364,8 +366,6 @@ public:
         auto personaIdButts = Utils::ClusterButt(personaId);
         auto personaIdFormatted = Utils::ToUUID(personaId);
 
-        sessionIdToNameMap[sessionId] = userName;
-
         std::string avatarAssetId = "";
         std::string avatarInventoryId = "";
 
@@ -383,34 +383,7 @@ public:
 
         auto avatarAssetIdSwapped = Utils::ClusterButt(avatarAssetId);
 
-        std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\userdump.csv";
-
-        bool needToAddHeader = false;
-        if (!std::filesystem::exists(userdumpPath) || std::filesystem::file_size(userdumpPath) == 0)
-        {
-            needToAddHeader = true;
-        }
-
-        auto now = std::chrono::system_clock::now();
-        auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
-
-        FILE *outFile = nullptr;
-        fopen_s(&outFile, userdumpPath.string().c_str(), "a");
-        if (needToAddHeader)
-        {
-            fprintf(outFile, "timestamp,username,handle,personaIdSwapped,avatarAssetIdSwapped,personaId,avatarAssetId,avatarInventoryId\n");
-        }
-        fprintf(outFile, "\"%lld\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-            timestamp,
-            userName.c_str(),
-            handle.c_str(),
-            personaIdButts.c_str(),
-            avatarAssetIdSwapped.c_str(),
-            personaIdFormatted.c_str(),
-            avatarAssetId.c_str(),
-            avatarInventoryId.c_str()
-        );
-        fclose(outFile);
+        sessionIdToNameMap[sessionId] = userName;
 
         printf("[%s] ClientRegionMessages::AddUser\n  SessionID: %d\n  Username: %s\n  Handle: %s\n  PersonaId: %s [%s]\n  avatarAssetId: %s [%s]\n  AvatarType: '%s'\n",
             _isSender ? "OUT" : "IN",
@@ -423,6 +396,38 @@ public:
             avatarAssetIdSwapped.c_str(),
             avatarType.c_str()
         );
+
+        if (!_isSender)
+        {
+            std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\userdump.csv";
+
+            bool needToAddHeader = false;
+            if (!std::filesystem::exists(userdumpPath) || std::filesystem::file_size(userdumpPath) == 0)
+            {
+                needToAddHeader = true;
+            }
+
+            auto now = std::chrono::system_clock::now();
+            auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+
+            FILE *outFile = nullptr;
+            fopen_s(&outFile, userdumpPath.string().c_str(), "a");
+            if (needToAddHeader)
+            {
+                fprintf(outFile, "timestamp,username,handle,personaIdSwapped,avatarAssetIdSwapped,personaId,avatarAssetId,avatarInventoryId\n");
+            }
+            fprintf(outFile, "\"%lld\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+                timestamp,
+                userName.c_str(),
+                handle.c_str(),
+                personaIdButts.c_str(),
+                avatarAssetIdSwapped.c_str(),
+                personaIdFormatted.c_str(),
+                avatarAssetId.c_str(),
+                avatarInventoryId.c_str()
+            );
+            fclose(outFile);
+        }
     }
 
     void OnRemoveUser(PacketReader &reader) // TAG: 1B9B600
@@ -469,6 +474,10 @@ public:
             sessionId,
             userName.c_str()
         );
+
+
+
+
     }
 
     void OnChatMessageToServer(PacketReader &reader) // TAG: 1B9B830
@@ -481,6 +490,15 @@ public:
             toSessionId,
             message.c_str()
         );
+
+        /*
+        auto buffer = reader.GetBuffer();
+        auto *messageId = (uint32_t *)&buffer[0];
+        *messageId = ClientRegionMessages::RenameUser;
+
+        auto *toSessionIdPtr = (uint32_t *)&buffer[4];
+        *toSessionIdPtr = toSessionId;
+        */
     }
 
     void OnChatMessageToClient(PacketReader &reader) // TAG: 1B9B8A0
@@ -522,6 +540,8 @@ public:
         auto agentControllerId = reader.ReadUint32();
         auto frame = reader.ReadUint64();
 
+        myControllerId = agentControllerId;
+
         printf("[%s] OnSetAgentController:\n  agentControllerId = %u\n  frame = %llu\n",
             _isSender ? "OUT" : "IN",
             agentControllerId,
@@ -556,6 +576,9 @@ public:
         auto returnSpawnPointName = reader.ReadString();
         auto workspaceEditView = reader.ReadUint8();
 
+        // 2 = fashon picker thingy for avatar
+        // 3 = select avatar
+        // 4 = select your new avatar
         printf("[%s] OnTeleportToEditMode:\n  returnSpawnPointName = %s\n  workspaceEditView = %u\n",
             _isSender ? "OUT" : "IN",
             returnSpawnPointName.c_str(),
@@ -683,14 +706,66 @@ public:
         auto unused = reader.ReadUint8();
     }
 
+    // whenever a user does %%command we send this and the voicemoderationcommand packets
     void OnClientRegionCommandMessage(PacketReader &reader) // TAG: 1B9C540
     {
-        auto commandLine = reader.ReadString(); // What's this suspicious looking thing
+        auto commandLine = reader.ReadString();
 
         printf("[%s] OnClientRegionCommandMessage:\n  commandLine = %s\n",
             _isSender ? "OUT" : "IN",
             commandLine.c_str()
         );
+
+        if (_isSender)
+        {
+            auto buffer = reader.GetBuffer();
+
+            /*
+            auto fromPersonaId = reader.ReadUUID();
+            auto toPersonaId = reader.ReadUUID();
+            auto instanceAddress = reader.ReadString();
+            auto agentControllerId = reader.ReadUint32();
+            auto message = reader.ReadString();
+            auto timestamp = reader.ReadUint64();
+            auto typing = reader.ReadUint8();
+            auto offset = reader.ReadUint64();
+            auto highwaterMarkOffset = reader.ReadUint64();
+            */
+
+            /*
+            // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa123
+            auto now = std::chrono::system_clock::now();
+            auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+
+            unsigned char personaFrom[16] = {
+                0x90, 0x4C, 0x58, 0x02, 0x2B, 0xAD, 0x3A, 0x1C, 0xF9, 0x43, 0x97, 0x5A,
+                0xA3, 0x0D, 0x04, 0xA6
+            };
+
+
+            ///////////////////////////////////
+            *((uint32_t *)&buffer[0]) = ClientKafkaMessages::RegionChat;
+            memcpy(&buffer[4], personaFrom, 16);
+            memset(&buffer[20], 0, 16);
+            *((uint32_t *)&buffer[36]) = 0; // instanceAddress
+            *((uint32_t *)&buffer[40]) = 0; // agentControllerId
+            *((uint32_t *)&buffer[44]) = 2; // messageLength
+            buffer[48] = 'H';
+            buffer[49] = 'i';
+            *((uint64_t *)&buffer[50]) = 0;
+            buffer[58] = 0;
+            *((uint64_t *)&buffer[59]) = 0;
+            *((uint64_t *)&buffer[67]) = 0;
+            */
+
+
+            //// This works:
+            //// %%<url>aaaa
+            //*((uint32_t *)&buffer[0]) = ClientRegionMessages::RequestDropPortal;
+            //*((uint32_t *)&buffer[4]) = *((uint32_t *)&buffer[4]) - 4;
+            //*((uint32_t *)&buffer[reader.GetBufferSize() - 4]) = 0;
+
+        }
     }
 
     void OnClientKickNotification(PacketReader &reader) // TAG: 1B9C6F0

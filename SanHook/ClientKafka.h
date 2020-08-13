@@ -406,24 +406,59 @@ public:
         auto toPersonaIdButts = Utils::ClusterButt(toPersonaId);
         auto toPersonaIdFormatted = Utils::ToUUID(toPersonaId);
 
-        printf("[%s] ClientKafkaMessages::RegionChat:\n  From = %s [%s]\n  To = %s [%s]\n  instanceAddress = %s\n  agentControllerId = %d\n  message = %s\n  timestamp = %llu\n  typing = %u\n  offset = %llu\n  highwaterMarkOffset = %llu\n",
-            _isSender ? "OUT" : "IN",
-            fromPersonaIdFormatted.c_str(),
-            fromPersonaIdButts.c_str(),
-            toPersonaIdFormatted.c_str(),
-            toPersonaIdButts.c_str(),
-            instanceAddress.c_str(),
-            agentControllerId,
-            message.c_str(),
-            timestamp,
-            typing,
-            offset,
-            highwaterMarkOffset
-        );
+        //if (message.length() > 0)
+        //{
+        //    printf("[%s] ClientKafkaMessages::RegionChat:\n  From = %s [%s]\n  To = %s [%s]\n  instanceAddress = %s\n  agentControllerId = %d\n  message = %s\n  timestamp = %llu\n  typing = %u\n  offset = %llu\n  highwaterMarkOffset = %llu\n",
+        //        _isSender ? "OUT" : "IN",
+        //        fromPersonaIdFormatted.c_str(),
+        //        fromPersonaIdButts.c_str(),
+        //        toPersonaIdFormatted.c_str(),
+        //        toPersonaIdButts.c_str(),
+        //        instanceAddress.c_str(),
+        //        agentControllerId,
+        //        message.c_str(),
+        //        timestamp,
+        //        typing,
+        //        offset,
+        //        highwaterMarkOffset
+        //    );
+        //}
     }
 
     void OnPrivateChat(PacketReader &reader)  // TAG: 17A1740
     {
+        /*
+        if (_isSender)
+        {
+            auto buffer = reader.GetBuffer();
+            auto fromPersonaIdptr = &buffer[12];
+            auto toPersonaIdptr = &buffer[28];
+
+            FILE *inFile = nullptr;
+            fopen_s(&inFile, "u:\\sanhook_config_im.txt", "rb");
+
+            if (inFile != nullptr)
+            {
+                uint8_t personaId[16] = {};
+                bool enabled = fgetc(inFile);
+                auto bytesRead = fread_s(personaId, sizeof(personaId), sizeof(personaId[0]), 16, inFile);
+                fclose(inFile);
+
+                if (bytesRead == 16)
+                {
+                    if (enabled == 1)
+                    {
+                        memcpy(fromPersonaIdptr, personaId, sizeof(personaId) / sizeof(personaId[0]));
+                    }
+                    else if (enabled == 2)
+                    {
+                        memcpy(toPersonaIdptr, personaId, sizeof(personaId) / sizeof(personaId[0]));
+                    }
+                }
+            }
+        }
+        */
+
         auto offset = reader.ReadUint64();
         auto fromPersonaId = reader.ReadUUID();
         auto toPersonaId = reader.ReadUUID();

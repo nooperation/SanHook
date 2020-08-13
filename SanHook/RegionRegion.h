@@ -71,5 +71,11 @@ public:
         auto agentControllerId = reader.ReadUint32();
         auto animationComponentId = reader.ReadUint64();
         auto clusterId = reader.ReadUint32();
+
+        //printf("OnAgentControllerMapping:\n  agentControllerId = %u\n  animationComponentId = %llu\n  clusterId = %llu\n",
+        //    agentControllerId,
+        //    animationComponentId,
+        //    clusterId
+        //);
     }
 };

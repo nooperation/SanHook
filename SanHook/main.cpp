@@ -41,6 +41,12 @@ std::string GetAddressFromAddr(const sockaddr *addr);
 unsigned long long ReturnPoint_ProcessPacketRecv = 0;
 unsigned long long ReturnPoint_ProcessPacketSend = 0;
 
+
+uint32_t myControllerId = 0xffffffff;
+uint32_t mySessionId = 0xffffffff;
+uint64_t myComponentId = 0xffffffffffffffff;
+
+
 std::string GetAddressFromAddr(const sockaddr *addr)
 {
     if (!addr)
@@ -109,11 +115,27 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sock
 
 int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const struct sockaddr *to, int tolen)
 {
-    if (buf == nullptr)
+    if (buf == nullptr || len < 1)
     {
         return original_sendto(s, buf, len, flags, to, tolen);
     }
 
+    /*
+    if (buf[0] == 0x07 || buf[0] == 0x08)
+    {
+        if (len > 10)
+        {
+            auto *messageId = (uint32_t *)&buf[4];
+            if (*messageId == ClientRegionMessages::ClientRegionCommandMessage)
+            {
+                // this actually works \o/
+                *((uint32_t *)&buf[4]) = ClientRegionMessages::RequestDropPortal;
+                *((uint32_t *)&buf[8]) = *((uint32_t *)&buf[8]) - 4;
+                *((uint32_t *)&buf[len-2-4]) = 0;
+            }
+        }
+    }
+    */
     //  Utils::DumpPacket(buf, len, true);
  
     auto result = original_sendto(s, buf, len, flags, to, tolen);
@@ -176,6 +198,31 @@ void ProcessPacketSend(uint8_t *packet, uint64_t length)
         PacketReader reader(packet, length);
         auto messageId = reader.ReadUint32();
     
+        if (messageId == 0)
+        {
+            auto unknown = reader.ReadUint32();
+            auto channel = reader.ReadString();
+            auto numPackets = reader.ReadUint32();
+
+            printf("-----------------------\n");
+            printf("Channel: %s\nPacket versions (%d):\n",
+                channel.c_str(),
+                numPackets
+            );
+
+            std::vector<uint32_t> packetVersions;
+            for (size_t i = 0; i < numPackets; i++)
+            {
+                auto id = reader.ReadUint32();
+                auto version = reader.ReadUint16();
+
+                printf("  %08X = %d\n", id, version);
+            }
+            printf("-----------------------\n");
+
+            return;
+        }
+
         //printf("SEND: messageid = %X\n", messageId);
 
         auto handled_packet = false;
@@ -192,6 +239,7 @@ void ProcessPacketSend(uint8_t *packet, uint64_t length)
         if (!handled_packet)
         {
             printf("ProcessPacketSend: Unhandled message %X\n", messageId);
+            Utils::DumpPacket((const char *)packet, length, true);
         }
     }
     catch (std::exception ex)
@@ -199,8 +247,6 @@ void ProcessPacketSend(uint8_t *packet, uint64_t length)
         printf("!!! ProcessPacketSend Caught exception -> %s\n", ex.what());
     }
 }
-
-
 
 void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 {
@@ -225,6 +271,7 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         if(!handled_packet)
         {
             printf("ProcessPacketRecv: Unhandled message %llX\n", messageId);
+            Utils::DumpPacket((const char*)packet, length, false);
         }
 
         // "Illegally formatted message received. You probably failed to bind a callback for this message. Message was: %s (id: 0x%x)\n"'
@@ -328,7 +375,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         DetourUpdateThread(GetCurrentThread());
         // DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
        //  DetourAttach(&(PVOID &)original_recv, Hooked_Recv); // need to hard hook into ssl functions or post-decrypted recv handler...
-       // DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
+        DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
         // DetourAttach(&(PVOID &)original_send, Hooked_Send);
 
         DetourTransactionCommit();

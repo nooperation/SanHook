@@ -161,6 +161,12 @@ public:
         auto relativePosition = reader.ReadVectorF(3);
         auto relativeRotation = reader.ReadVectorF(4);
         auto componentId = reader.ReadUint64();
+
+        //printf("[%s] OnComponentRelativeTransform:\n  componentId = %d\n  Position = <%f, %f, %f>\n",
+        // _isSender ? "OUT" : "IN",
+        //    componentId,
+        //    relativePosition[0], relativePosition[1], relativePosition[2]
+        //);
     }
 
     void OnInitiateCluster(PacketReader &reader) // TAG: 1BB5D50
@@ -251,17 +257,22 @@ public:
         auto personaId = reader.ReadUUID();
         auto isRemoteAgent = reader.ReadUint8();
 
-        printf("[%s] OnCreateAgentController:\n  sessionId = %d\n  clusterId = %u\n  agentControllerId = %u\n  characterObjectId = %u\n  characterNodesLength = %u\n  frame = %llu\n  personaId = %s\n  isRemoteAgent = %d\n",
-            _isSender ? "OUT" : "IN",
-            sessionId,
-            clusterId,
-            agentControllerId,
-            characterObjectId,
-            characterNodesLength,
-            frame,
-            personaId.c_str(),
-            isRemoteAgent
-        );
+        if (sessionId == mySessionId)
+        {
+            myComponentId = characterObjectId * 0x100000000;
+        }
+
+        //printf("[%s] OnCreateAgentController:\n  sessionId = %d\n  clusterId = %u\n  agentControllerId = %u\n  characterObjectId = %u\n  characterNodesLength = %u\n  frame = %llu\n  personaId = %s\n  isRemoteAgent = %d\n",
+        //    _isSender ? "OUT" : "IN",
+        //    sessionId,
+        //    clusterId,
+        //    agentControllerId,
+        //    characterObjectId,
+        //    characterNodesLength,
+        //    frame,
+        //    personaId.c_str(),
+        //    isRemoteAgent
+        //);
     }
 
     void OnDestroyAgentController(PacketReader &reader) // TAG: 1BB6300
@@ -269,10 +280,10 @@ public:
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
 
-        printf("[%s] WorldStateMessages::DestroyAgentController:\n  frame = %llu\n  agentControllerId = %u\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            agentControllerId
-        );
+        //printf("[%s] WorldStateMessages::DestroyAgentController:\n  frame = %llu\n  agentControllerId = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    agentControllerId
+        //);
     }
 };

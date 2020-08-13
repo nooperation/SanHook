@@ -196,11 +196,12 @@ public:
                 this->OnSetCharacterUserProperty(reader);
                 break;
             }
-            case AgentControllerMessages::CreateSpeechGraphicsPlayer: // TAG: 17106C0
-            {
-                this->OnCreateSpeechGraphicsPlayer(reader);
-                break;
-            }
+            // REMOVED 40.11.0.1810696  (2020-08-13)
+            //case AgentControllerMessages::CreateSpeechGraphicsPlayer: // TAG: 17106C0
+            //{
+            //    this->OnCreateSpeechGraphicsPlayer(reader);
+            //    break;
+            //}
             case AgentControllerMessages::RequestSpawnItem:  // TAG: 1710730
             {
                 this->OnRequestSpawnItem(reader);
@@ -225,8 +226,17 @@ public:
         return true;
     }
 
+
     void OnCharacterControllerInput(PacketReader &reader) // TAG: 170F9C0
     {
+        //if (myControllerId != 0xffffffff)
+        //{
+        //    auto buffer = reader.GetBuffer();
+
+        //    auto pAgentControllerId = (uint32_t *)&buffer[12];
+        //    *pAgentControllerId = myControllerId;
+        //}
+
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto jumpState = reader.ReadUint8();
@@ -302,13 +312,13 @@ public:
         auto objectId = reader.ReadUint32();
         auto enabled = reader.ReadUint8();
 
-        printf("[%s] AnimationComponentMessages::BehaviorInitializationData:\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  enabled = %u\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            clusterId,
-            objectId,
-            enabled
-        );
+        //printf("[%s] AnimationComponentMessages::BehaviorInitializationData:\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  enabled = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    clusterId,
+        //    objectId,
+        //    enabled
+        //);
     }
 
     void OnCreateSpeechGraphicsPlayer(PacketReader &reader) // TAG: 17106C0
@@ -405,6 +415,14 @@ public:
 
     void OnWarpCharacter(PacketReader &reader) // TAG: 170F800
     {
+        //if (myControllerId != 0xffffffff)
+        //{
+        //    auto buffer = reader.GetBuffer();
+
+        //    auto pAgentControllerId = (uint32_t *)&buffer[12];
+        //    *pAgentControllerId = myControllerId;
+        //}
+
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto position_x = reader.ReadFloat();
@@ -415,18 +433,18 @@ public:
         auto rotation_z = reader.ReadFloat();
         auto rotation_w = reader.ReadFloat();
 
-        printf("[%s] AgentControllerMessages::WarpCharacter:\n  frame = %llu\n  agentControllerId = %u\n  position = <%f, %f, %f>\n  rotation = <%f, %f, %f, %f>\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            agentControllerId,
-            position_x,
-            position_y,
-            position_z,
-            rotation_x,
-            rotation_y,
-            rotation_z,
-            rotation_w
-        );
+        //printf("[%s] AgentControllerMessages::WarpCharacter:\n  frame = %llu\n  agentControllerId = %u\n  position = <%f, %f, %f>\n  rotation = <%f, %f, %f, %f>\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    agentControllerId,
+        //    position_x,
+        //    position_y,
+        //    position_z,
+        //    rotation_x,
+        //    rotation_y,
+        //    rotation_z,
+        //    rotation_w
+        //);
     }
 
     void OnControlPoint(PacketReader &reader)  // TAG: 170F790
@@ -470,6 +488,13 @@ public:
         auto nodeType = reader.ReadUint8();
         auto ownershipWatermark = reader.ReadUint8();
         auto broadcastToSelf = reader.ReadUint8();
+
+        //printf("[%s] AgentControllerMessages::OnAttachToCharacterNode\n  frame = %llu\n  componentId = %u\n  agentControllerId = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    componentId,
+        //    agentControllerId
+        //);
     }
 
     void OnDetachFromCharacterNode(PacketReader &reader)  // TAG: 170FC60
@@ -534,13 +559,13 @@ public:
         auto objectId = reader.ReadUint32();
         auto prompt = reader.ReadString();
 
-        printf("[%s] AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            clusterId,
-            objectId,
-            prompt.c_str()
-        );
+        //printf("[%s] AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    clusterId,
+        //    objectId,
+        //    prompt.c_str()
+        //);
     }
 
     void OnObjectInteractionCreate(PacketReader &reader)  // TAG: 17103B0
@@ -567,36 +592,52 @@ public:
 
     void OnSitOnObject(PacketReader &reader)  // TAG: 1710490
     {
+        //if (myControllerId != 0xffffffff)
+        //{
+        //    auto buffer = reader.GetBuffer();
+
+        //    auto pAgentControllerId = (uint32_t *)&buffer[12];
+        //    *pAgentControllerId = myControllerId;
+        //}
+
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto componentId = reader.ReadUint64();
         auto ownershipWatermark = reader.ReadUint8();
         auto skipAnimation = reader.ReadUint8();
 
-        printf("[%s] AgentControllerMessages::SitOnObject\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n  ownershipWatermark = %u\n  skipAnimation = %u\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            agentControllerId,
-            componentId,
-            ownershipWatermark,
-            skipAnimation
-        );
+        //printf("[%s] AgentControllerMessages::SitOnObject\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n  ownershipWatermark = %u\n  skipAnimation = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    agentControllerId,
+        //    componentId,
+        //    ownershipWatermark,
+        //    skipAnimation
+        //);
     }
 
     void OnExitSit(PacketReader &reader)  // TAG: 1710500
     {
+        //if (myControllerId != 0xffffffff)
+        //{
+        //    auto buffer = reader.GetBuffer();
+
+        //    auto pAgentControllerId = (uint32_t *)&buffer[12];
+        //    *pAgentControllerId = myControllerId;
+        //}
+
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto componentId = reader.ReadUint64();
         auto skipAnimation = reader.ReadBits(1);
         auto skipExitTeleport = reader.ReadBits(1);
 
-        printf("[%s] AgentControllerMessages::ExitSit\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            agentControllerId,
-            componentId
-        );
+        //printf("[%s] AgentControllerMessages::ExitSit\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    agentControllerId,
+        //    componentId
+        //);
     }
 
     void OnSetAgentFiltersBody(PacketReader &reader) // TAG: 1710570
@@ -606,13 +647,13 @@ public:
         auto componentId = reader.ReadUint64();
         auto filterBody = reader.ReadUint8();
 
-        printf("[%s] AgentControllerMessages::SetAgentFiltersBody\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n  filterBody = %u\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            agentControllerId,
-            componentId,
-            filterBody
-        );
+        //printf("[%s] AgentControllerMessages::SetAgentFiltersBody\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n  filterBody = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    agentControllerId,
+        //    componentId,
+        //    filterBody
+        //);
     }
 
     void OnRequestSetAgentfiltersBody(PacketReader &reader)  // TAG: 17105E0
@@ -627,13 +668,13 @@ public:
         auto value = reader.ReadFloat();
         auto propertyType = reader.ReadUint8();
 
-        printf("[%s] AgentControllerMessages::SetCharacterUserProperty\n  frame = %llu\n  agentControllerId = %u\n  value = %f\n  propertyType = %u\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            agentControllerId,
-            value,
-            propertyType
-        );
+        //printf("[%s] AgentControllerMessages::SetCharacterUserProperty\n  frame = %llu\n  agentControllerId = %u\n  value = %f\n  propertyType = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    agentControllerId,
+        //    value,
+        //    propertyType
+        //);
     }
 
     void OnRequestSpawnItem(PacketReader &reader) // TAG: 1710730
@@ -717,6 +758,11 @@ public:
         auto spawnPosition = reader.ReadBits(0x4E);
         auto spawnOrientation = reader.ReadBits(0x2B);
 
+        if (_isSender)
+        {
+             myControllerId = agentControllerId;
+        }
+
         printf("[%s] AgentControllerMessages::OnRequestSpawnItem\n  frame = %llu\n  agentControllerId = %u\n  resourceId = %s\n  attachmentNode = %u\n",
             _isSender ? "OUT" : "IN",
             frame,
@@ -760,11 +806,11 @@ public:
         auto animationType = reader.ReadBits(3);
         auto playbackMode = reader.ReadBits(3);
 
-        printf("[%s] AgentControllerMessages::PlayAnimation:\n  frame = %llu\n  componentId = %llu\n  resourceId = %s\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            componentId,
-            resourceId.c_str()
-        );
+        //printf("[%s] AgentControllerMessages::PlayAnimation:\n  frame = %llu\n  componentId = %llu\n  resourceId = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    componentId,
+        //    resourceId.c_str()
+        //);
     }
 };
