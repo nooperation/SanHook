@@ -361,6 +361,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         if (true)
         {
             // Search for "Illegally formatted message received. You probably failed to bind a callback for this message. Message was: %s (id: 0x%x)\n"'
+            // Scan down 4 jumps. Patch after last jump containing just a mov mov call [rax + 8]
             //
             // mov rdx, qword ptr ds : [rdi + 8] | RDX = packet ?
             // mov r8d, dword ptr ds : [rdi + 10] | R8 = packet length maybe ?
@@ -377,10 +378,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x14DD5AA, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + 0x14DD6BA, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DD961);
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DDA71);
         }
 
         if (true)
@@ -395,9 +396,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x1354AD6, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + 0x1354BE6, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1354AD6 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1354BE6 + sizeof(hijack_ProcessPacketSend));
         }
 
         if (false)
@@ -414,9 +415,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-            RewriteCode(base + 0x136E775, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+            RewriteCode(base + 0x136E885, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
 
-            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x136E775 + sizeof(hijack_ProcessHttpBodyRecv));
+            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x136E885 + sizeof(hijack_ProcessHttpBodyRecv));
         }
 
         if (false)
@@ -433,28 +434,20 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSend;
-            RewriteCode(base + 0x136D6BB, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
+            RewriteCode(base + 0x136D7CB, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
 
-            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x136D6BB + sizeof(hijack_ProcessHttpSend));
+            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x136D7CB + sizeof(hijack_ProcessHttpSend));
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         if (true)
         {
+            // waaaaaay above 'AppletMenu'
+            // waaaaaay below 'fullbody_user_slots' (about 0x2543 below)
+            // scan down until even handler
+            // scan down until smaller function with a ton of xmm stuff going on. past 'x', past '`'
+            // should have 5 chunks of xmm stuff in a single function.
+            // 
+
             unsigned char hijack_PositionUpdate[14] = {
                 0x48, 0xB9, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, // MOV ECX, [address]
                 0xFF, 0xE1,                                                 // JMP ECX
@@ -463,16 +456,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
-            RewriteCode(base + 0x16C85AD, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+            RewriteCode(base + 0x16C86BD, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
 
-            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x16C85AD + sizeof(hijack_PositionUpdate));
-        }
-
-
-        if (false)
-        {
-
-
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x16C86BD + sizeof(hijack_PositionUpdate));
         }
 
 

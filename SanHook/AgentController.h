@@ -477,6 +477,8 @@ public:
             {
                 // This is our magical warp animation
                 reader.Reset();
+
+                /*
                 auto buffer = reader.GetBuffer();
 
                 auto animationControllerId = *((uint32_t *)&buffer[4]);
@@ -505,19 +507,18 @@ public:
                 *pRotation_w = 0.0f;
 
                 OnWarpCharacter(reader);
+                */
 
                 AvatarPositionOffset[0] = CameraPositionOffset[0];
                 AvatarPositionOffset[1] = CameraPositionOffset[1];
                 AvatarPositionOffset[2] = CameraPositionOffset[2];
 
-                return;
+                //return;
             }
-            else
-            {
-                reader.Reset();
-                reader.ReadUint32(); // messageId
-                reader.ReadUint32(); // agentControllerId
-            }
+
+            reader.Reset();
+            reader.ReadUint32(); // messageId
+            reader.ReadUint32(); // agentControllerId
         }
 
         OnPlayAnimation(reader);
