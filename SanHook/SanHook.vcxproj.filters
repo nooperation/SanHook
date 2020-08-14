@@ -83,4 +83,7 @@
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Parsers.csv" />
+  </ItemGroup>
 </Project>

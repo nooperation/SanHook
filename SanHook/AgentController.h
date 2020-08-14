@@ -758,13 +758,13 @@ public:
         auto spawnPosition = reader.ReadBits(0x4E);
         auto spawnOrientation = reader.ReadBits(0x2B);
 
-        printf("[%s] AgentControllerMessages::OnRequestSpawnItem\n  frame = %llu\n  agentControllerId = %u\n  resourceId = %s\n  attachmentNode = %u\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            agentControllerId,
-            resourceId.c_str(),
-            attachmentNode
-        );
+        //printf("[%s] AgentControllerMessages::OnRequestSpawnItem\n  frame = %llu\n  agentControllerId = %u\n  resourceId = %s\n  attachmentNode = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    agentControllerId,
+        //    resourceId.c_str(),
+        //    attachmentNode
+        //);
     }
 
     void OnRequestDeleteLatestSpawn(PacketReader &reader)  // TAG: 17107A0

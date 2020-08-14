@@ -40,6 +40,8 @@ std::string GetAddressFromAddr(const sockaddr *addr);
 #include "Magic.h"
 unsigned long long ReturnPoint_ProcessPacketRecv = 0;
 unsigned long long ReturnPoint_ProcessPacketSend = 0;
+unsigned long long ReturnPoint_ProcessHttpBodyRecv = 0;
+unsigned long long ReturnPoint_ProcessHttpSend = 0;
 
 
 uint32_t myControllerId = 0xffffffff;
@@ -282,6 +284,37 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
     }
 }
 
+void ProcessHttpBodyRecv(uint8_t *packet, uint64_t length)
+{
+    try
+    {
+        auto bodyResponse = std::string((const char *)packet, length);
+        printf("[IN] ProcessHttpBodyRecv:\n%s\n",
+            bodyResponse.c_str()
+        );
+    }
+    catch (std::exception ex)
+    {
+        printf("!!! Caught exception -> %s\n", ex.what());
+    }
+}
+
+void ProcessHttpSend(uint8_t *packet, uint64_t length)
+{
+    //system("pause");
+    try
+    {
+        auto bodyResponse = std::string((const char *)packet, length);
+        printf("[OUT] ProcessHttpBodySend:\n%s\n",
+            bodyResponse.c_str()
+        );
+    }
+    catch (std::exception ex)
+    {
+        printf("!!! Caught exception -> %s\n", ex.what());
+    }
+}
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
     if (DetourIsHelperProcess())
@@ -328,20 +361,13 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             // call qword ptr ds : [rax + 8] | call our packet handler
             //
 
-            /*
-                mov RDX, <address>
-                jmp RDX
-                nop
-                nop
-                nop
-                nop
-            */
             uint8_t hijack_ProcessPacketRecv[] = {
-                0x48, 0xBA, 0xC1, 0x25, 0x85, 0xAF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0xE2, // mov rdx, N
-                0x90, // nop
-                0x90, // nop
-                0x90, // nop
-                0x90  // nop
+                0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
+                0xFF, 0xE2,                                                  // JMP RDX  
+                0x90,                                                        // NOP
+                0x90,                                                        // NOP
+                0x90,                                                        // NOP
+                0x90,                                                        // NOP
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
@@ -366,6 +392,65 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             RewriteCode(base + 0x1354AD6, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
             ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1354AD6 + sizeof(hijack_ProcessPacketSend));
+        }
+
+        if (false)
+        {
+            // search for ": consume: parser error"
+            // scan down until the first RET, trace back up to first CALL. patch after the call
+            uint8_t hijack_ProcessHttpBodyRecv[] = {
+                0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RAX, [address]
+                0xFF, 0xE0,                                                  // JMP RAX           
+                0x90,                                                        // NOP
+                0x90,                                                        // NOP
+                0x90,                                                        // NOP
+                0x90                                                         // NOP
+            };
+
+            *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
+            RewriteCode(base + 0x136E775, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+
+            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x136E775 + sizeof(hijack_ProcessHttpBodyRecv));
+        }
+
+        /*
+        this works, but hard to update
+        if (true)
+        {
+            // 
+            uint8_t hijack_ProcessHttpSend[] = {
+                0x52,                                                        // PUSH RDX
+                0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
+                0xFF, 0xE2,                                                  // JMP RDX           
+                0x90,                                                        // NOP
+                0x90                                                         // NOP
+            };
+
+
+            *((uint64_t *)&hijack_ProcessHttpSend[3]) = (uint64_t)intercept_ProcessHttpSend;
+            RewriteCode(base + 0x1348F00, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
+
+            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x1348F00 + sizeof(hijack_ProcessHttpSend));
+        }
+        */
+
+        if (true)
+        {
+            // search for "%.*s"
+            // scan up until you get to the double call (should be past the third call above the string).
+            // patch after the double call
+            uint8_t hijack_ProcessHttpSend[] = {
+                0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
+                0xFF, 0xE2,                                                  // JMP RDX           
+                0x90,                                                        // NOP
+                0x90,                                                        // NOP
+                0x90                                                         // NOP
+            };
+
+            *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSendB;
+            RewriteCode(base + 0x136D6BB, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
+
+            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x136D6BB + sizeof(hijack_ProcessHttpSend));
         }
 
 
