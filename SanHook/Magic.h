@@ -11,13 +11,10 @@ extern "C"
     extern unsigned long long ReturnPoint_ProcessPacketSend;
 
     void intercept_ProcessHttpBodyRecv();
-    void ProcessHttpBodyRecv(uint8_t *packet, uint64_t length);
+    void ProcessHttpBodyRecv(char *packet, uint64_t length);
     extern unsigned long long ReturnPoint_ProcessHttpBodyRecv;
 
     void intercept_ProcessHttpSend();
-    void ProcessHttpSend(uint8_t *packet, uint64_t length);
+    void ProcessHttpSend(char *packet, uint64_t length);
     extern unsigned long long ReturnPoint_ProcessHttpSend;
-
-    void intercept_ProcessHttpSendB();
-
 };

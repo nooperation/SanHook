@@ -276,97 +276,7 @@ EXTERN ProcessHttpSend:PROC
 		jmp ReturnPoint_ProcessHttpBodyRecv ; Jump back to where we left off
 	intercept_ProcessHttpBodyRecv ENDP
 
-
 	intercept_ProcessHttpSend PROC
-		pop rdx ; Restore RDX, which we used as our jump address
-
-		push rax
-		push rbx
-		push rcx
-		push rdx
-		push rbp
-		push rdi
-		push rsi
-		push r8
-		push r9
-		push r10
-		push r11
-		push r12
-		push r13
-		push r14
-		push r15
-		
-		sub rsp, 16*16
-		movdqu  [rsp + 16*0], xmm0
-		movdqu  [rsp + 16*1], xmm1
-		movdqu  [rsp + 16*2], xmm2
-		movdqu  [rsp + 16*3], xmm3
-		movdqu  [rsp + 16*4], xmm4
-		movdqu  [rsp + 16*5], xmm5
-		movdqu  [rsp + 16*6], xmm6
-		movdqu  [rsp + 16*7], xmm7
-		movdqu  [rsp + 16*8], xmm8
-		movdqu  [rsp + 16*9], xmm9
-		movdqu  [rsp + 16*10], xmm10
-		movdqu  [rsp + 16*11], xmm11
-		movdqu  [rsp + 16*12], xmm12
-		movdqu  [rsp + 16*13], xmm13
-		movdqu  [rsp + 16*14], xmm14
-		movdqu  [rsp + 16*15], xmm15
-		
-		sub rsp, 24
-		
-		; RDX = request start
-		; R8 = request length
-		
-		mov rcx, rdx  ; arg1 = request start
-		mov rdx, r8 ; arg2 = request length
-		call ProcessHttpSend ; ProcessHttpSend(packet, packetLength)
-		
-		add rsp, 24
-		
-		movdqu  xmm15, [rsp + 16*15]
-		movdqu  xmm14, [rsp + 16*14]
-		movdqu  xmm13, [rsp + 16*13]
-		movdqu  xmm12, [rsp + 16*12]
-		movdqu  xmm11, [rsp + 16*11]
-		movdqu  xmm10, [rsp + 16*10]
-		movdqu  xmm9, [rsp + 16*9]
-		movdqu  xmm8, [rsp + 16*8]
-		movdqu  xmm7, [rsp + 16*7]
-		movdqu  xmm6, [rsp + 16*6]
-		movdqu  xmm5, [rsp + 16*5]
-		movdqu  xmm4, [rsp + 16*4]
-		movdqu  xmm3, [rsp + 16*3]
-		movdqu  xmm2, [rsp + 16*2]
-		movdqu  xmm1, [rsp + 16*1]
-		movdqu  xmm0, [rsp + 16*0]
-		add rsp, 16*16
-		
-		pop r15
-		pop r14
-		pop r13
-		pop r12
-		pop r11
-		pop r10
-		pop r9
-		pop r8
-		pop rsi
-		pop rdi
-		pop rbp
-		pop rdx
-		pop rcx
-		pop rbx
-		pop rax
-
-		mov qword ptr [rsp + 10h],rbx
-		mov qword ptr [rsp + 18h],rbp
-		mov qword ptr [rsp + 20h],rsi
-
-		jmp ReturnPoint_ProcessHttpSend ; Jump back to where we left off
-	intercept_ProcessHttpSend ENDP
-
-	intercept_ProcessHttpSendB PROC
 		; don't care about rdx, which we used as our jump address
 
 		push rax
@@ -448,10 +358,10 @@ EXTERN ProcessHttpSend:PROC
 		pop rbx
 		pop rax
 
-		mov rdx,qword ptr [rbp - 38h]
-		lea rcx,qword ptr [rbp + 110h]
-		mov rdi,qword ptr [rbp - 30h]
+		mov rdx, qword ptr [rbp - 38h]
+		lea rcx, qword ptr [rbp + 110h]
+		mov rdi, qword ptr [rbp - 30h]
 
 		jmp ReturnPoint_ProcessHttpSend ; Jump back to where we left off
-	intercept_ProcessHttpSendB ENDP
+	intercept_ProcessHttpSend ENDP
 end

@@ -284,11 +284,12 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
     }
 }
 
-void ProcessHttpBodyRecv(uint8_t *packet, uint64_t length)
+void ProcessHttpBodyRecv(char *packet, uint64_t length)
 {
     try
     {
-        auto bodyResponse = std::string((const char *)packet, length);
+        auto bodyResponse = std::string(packet, length);
+
         printf("[IN] ProcessHttpBodyRecv:\n%s\n",
             bodyResponse.c_str()
         );
@@ -299,12 +300,11 @@ void ProcessHttpBodyRecv(uint8_t *packet, uint64_t length)
     }
 }
 
-void ProcessHttpSend(uint8_t *packet, uint64_t length)
+void ProcessHttpSend(char *packet, uint64_t length)
 {
-    //system("pause");
     try
     {
-        auto bodyResponse = std::string((const char *)packet, length);
+        auto bodyResponse = std::string(packet, length);
         printf("[OUT] ProcessHttpBodySend:\n%s\n",
             bodyResponse.c_str()
         );
@@ -413,28 +413,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x136E775 + sizeof(hijack_ProcessHttpBodyRecv));
         }
 
-        /*
-        this works, but hard to update
-        if (true)
-        {
-            // 
-            uint8_t hijack_ProcessHttpSend[] = {
-                0x52,                                                        // PUSH RDX
-                0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
-                0xFF, 0xE2,                                                  // JMP RDX           
-                0x90,                                                        // NOP
-                0x90                                                         // NOP
-            };
-
-
-            *((uint64_t *)&hijack_ProcessHttpSend[3]) = (uint64_t)intercept_ProcessHttpSend;
-            RewriteCode(base + 0x1348F00, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
-
-            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x1348F00 + sizeof(hijack_ProcessHttpSend));
-        }
-        */
-
-        if (true)
+        if (false)
         {
             // search for "%.*s"
             // scan up until you get to the double call (should be past the third call above the string).
@@ -447,7 +426,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                 0x90                                                         // NOP
             };
 
-            *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSendB;
+            *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSend;
             RewriteCode(base + 0x136D6BB, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
 
             ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x136D6BB + sizeof(hijack_ProcessHttpSend));
