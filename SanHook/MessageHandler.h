@@ -7,6 +7,12 @@ class PacketReader;
 extern uint32_t myControllerId;
 extern uint32_t mySessionId;
 extern uint64_t myComponentId;
+extern float *CameraPositionOffset;
+
+extern "C"
+{
+    extern float *AvatarPositionOffset;
+}
 
 class MessageHandler
 {

@@ -17,4 +17,12 @@ extern "C"
     void intercept_ProcessHttpSend();
     void ProcessHttpSend(char *packet, uint64_t length);
     extern unsigned long long ReturnPoint_ProcessHttpSend;
+
+
+    void intercept_ProcessPositionUpdate();
+    //void ProcessPositionUpdate(char *packet, uint64_t length);
+    extern unsigned long long ReturnPoint_ProcessPositionUpdate;
+    float *AvatarPositionOffset;
+    //extern float *AvatarPositionOffset;
 };
+

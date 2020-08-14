@@ -42,7 +42,10 @@ unsigned long long ReturnPoint_ProcessPacketRecv = 0;
 unsigned long long ReturnPoint_ProcessPacketSend = 0;
 unsigned long long ReturnPoint_ProcessHttpBodyRecv = 0;
 unsigned long long ReturnPoint_ProcessHttpSend = 0;
+unsigned long long ReturnPoint_ProcessPositionUpdate = 0;
 
+//float *AvatarPositionOffset = 0;
+float *CameraPositionOffset = nullptr;
 
 uint32_t myControllerId = 0xffffffff;
 uint32_t mySessionId = 0xffffffff;
@@ -315,6 +318,9 @@ void ProcessHttpSend(char *packet, uint64_t length)
     }
 }
 
+
+
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
     if (DetourIsHelperProcess())
@@ -431,6 +437,53 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
             ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x136D6BB + sizeof(hijack_ProcessHttpSend));
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        if (true)
+        {
+            unsigned char hijack_PositionUpdate[14] = {
+                0x48, 0xB9, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, // MOV ECX, [address]
+                0xFF, 0xE1,                                                 // JMP ECX
+                0x90,                                                       // NOP
+                0x90                                                        // NOP
+            };
+
+            *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
+            RewriteCode(base + 0x16C85AD, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x16C85AD + sizeof(hijack_PositionUpdate));
+        }
+
+
+        if (false)
+        {
+
+
+        }
+
+
+        // We got this constant from memory.
+        // Search for "no-input-source".
+        // Between "room scale" and "no-input-source"
+        // Right below a call to RotMatrix, enter that call
+        // rcx+30 = our pointer
+        // Function above it with a bunch of xmm stuff going on (see screenshots)
+        //const static auto kCameraPositionOffset = 0x4AAB1C0;
+        CameraPositionOffset = (float *)(base + 0x4ABE960);
 
 
         DetourRestoreAfterWith();

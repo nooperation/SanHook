@@ -10,6 +10,9 @@ EXTERN ProcessHttpBodyRecv:PROC
 EXTERN ReturnPoint_ProcessHttpSend:QWORD
 EXTERN ProcessHttpSend:PROC
 
+EXTERN AvatarPositionOffset:QWORD
+EXTERN ReturnPoint_ProcessPositionUpdate:QWORD
+
 .code
 	intercept_ProcessPacketRecv PROC
 		mov rdx, qword ptr [rdi + 8h]  ; RDX = packet
@@ -364,4 +367,26 @@ EXTERN ProcessHttpSend:PROC
 
 		jmp ReturnPoint_ProcessHttpSend ; Jump back to where we left off
 	intercept_ProcessHttpSend ENDP
+
+
+
+	intercept_ProcessPositionUpdate PROC
+		; don't care about rcx, which we used as our jump address
+
+		push rax
+		
+		lea rcx, [rax + 30h]
+		lea rax, [AvatarPositionOffset]
+		mov [rax], rcx    ; AvatarPositionOffset = (float * )[rax + 30h]
+
+		pop rax
+
+		; restoring destroyed code
+		movups xmm0,xmmword ptr [rax]
+		movups xmmword ptr [rdi],xmm0
+		movups xmm1,xmmword ptr [rax+10h]
+		movups xmmword ptr [rdi+10h],xmm1
+
+		jmp ReturnPoint_ProcessPositionUpdate ; Jump back to where we left off
+	intercept_ProcessPositionUpdate ENDP
 end

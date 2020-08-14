@@ -42,6 +42,8 @@
 //void OnAgentControllerMessageRequestDeleteAllSpawns(PacketReader &reader);
 //void OnAgentControllerMessagePlayAnimation(PacketReader &reader);
 
+
+
 class AgentController : public MessageHandler
 {
 public:
@@ -464,6 +466,61 @@ public:
     void OnAgentPlayAnimation(PacketReader &reader)   // TAG: 170FAA0
     {
         auto agentControllerId = reader.ReadUint32();
+
+        if (_isSender)
+        {
+            auto frame = reader.ReadUint64();
+            auto componentId = reader.ReadUint64();
+            auto resourceId = reader.ReadUUID();
+
+            if (resourceId == "24995e5142b2d361ae898e497bad984f")
+            {
+                // This is our magical warp animation
+                reader.Reset();
+                auto buffer = reader.GetBuffer();
+
+                auto animationControllerId = *((uint32_t *)&buffer[4]);
+                auto animationFrame = *((uint64_t *)&buffer[8]);
+
+                auto pMessageId = (uint32_t *)&buffer[0];
+                auto pFrame = (uint64_t *)&buffer[4];              // these two are swapped between the two packets :(
+                auto pAgentControllerId = (uint32_t *)&buffer[12]; // these two are swapped between the two packets :(
+                auto pPosition_x = (float *)&buffer[16];
+                auto pPosition_y = (float *)&buffer[20];
+                auto pPosition_z = (float *)&buffer[24];
+                auto pRotation_x = (float *)&buffer[28];
+                auto pRotation_y = (float *)&buffer[32];
+                auto pRotation_z = (float *)&buffer[36];
+                auto pRotation_w = (float *)&buffer[40];
+
+                *pMessageId = AgentControllerMessages::WarpCharacter;
+                *pFrame = animationFrame;
+                *pAgentControllerId = animationControllerId;
+                *pPosition_x = CameraPositionOffset[0];
+                *pPosition_y = CameraPositionOffset[1];
+                *pPosition_z = CameraPositionOffset[2];
+                *pRotation_x = 0.0f;
+                *pRotation_y = 0.0f;
+                *pRotation_z = 0.0f;
+                *pRotation_w = 0.0f;
+
+                OnWarpCharacter(reader);
+
+                AvatarPositionOffset[0] = CameraPositionOffset[0];
+                AvatarPositionOffset[1] = CameraPositionOffset[1];
+                AvatarPositionOffset[2] = CameraPositionOffset[2];
+
+                return;
+            }
+            else
+            {
+                reader.Reset();
+                reader.ReadUint32(); // messageId
+                reader.ReadUint32(); // agentControllerId
+            }
+        }
+
+        OnPlayAnimation(reader);
     }
 
     void OnRequestAgentPlayAnimation(PacketReader &reader)  // TAG: 170FB10
@@ -701,20 +758,9 @@ public:
             }
             if (camrez_enabled)
             {
-                auto base = Utils::GetBaseAddress();
-
-                // We got this constant from memory.
-                // Search for "no-input-source".
-                // Between "room scale" and "no-input-source"
-                // Right below a call to RotMatrix, enter that call
-                // rcx+30 = our pointer
-                // Function above it with a bunch of xmm stuff going on (see screenshots)
-                //const static auto kCameraPositionOffset = 0x4AAB1C0;
-                const static auto kCameraPositionOffset = 0x4ABE960;
-
-                positionX = *((float *)(base + kCameraPositionOffset + 0));
-                positionY = *((float *)(base + kCameraPositionOffset + 4));
-                positionZ = *((float *)(base + kCameraPositionOffset + 8));
+                positionX = CameraPositionOffset[0];
+                positionY = CameraPositionOffset[1];
+                positionZ = CameraPositionOffset[2];
 
                 br.Reset();
                 br.WriteFloat(positionX, 26, false);
