@@ -177,8 +177,9 @@ public:
     {
         // MODIFIED 40.11.0.1810696  (2020-08-13)
         //    - Removed 'sequence'
+        //    - instance is now a UUID
 
-        auto instance = reader.ReadString();
+        auto instance = reader.ReadUUID();
         auto agentControllerId = reader.ReadUint32();
         auto broadcast = reader.ReadUint8();
     }
