@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <string>
 #include <vector>
+#include <filesystem>
 
 #include "MessageHandler.h"
 #include "PacketReader.hpp"
@@ -88,7 +89,7 @@ public:
             }
             case ClientKafkaMessages::PrivateChatStatus: // TAG: 17A17B0
             {
-                this->OnPrivateChatUpdate(reader);
+                this->OnPrivateChatStatus(reader);
                 break;
             }
             case ClientKafkaMessages::PresenceUpdate: // TAG: 17A1820
@@ -471,7 +472,7 @@ public:
         auto toPersonaIdButts = Utils::ClusterButt(toPersonaId);
         auto toPersonaIdFormatted = Utils::ToUUID(toPersonaId);
 
-        printf("[%s] ClientKafkaMessages::OnPrivateChat:\n  From = %s [%s]\n  To = %s [%s]\n   message = %s\n  timestamp = %llu\n  offset = %llu\n",
+        printf("[%s] ClientKafkaMessages::PrivateChat:\n  From = %s [%s]\n  To = %s [%s]\n   message = %s\n  timestamp = %llu\n  offset = %llu\n",
             _isSender ? "OUT" : "IN",
             fromPersonaIdFormatted.c_str(),
             fromPersonaIdButts.c_str(),
@@ -483,16 +484,16 @@ public:
         );
     }
 
-    void OnPrivateChatUpdate(PacketReader &reader)  // TAG: 17A17B0
+    void OnPrivateChatStatus(PacketReader &reader)  // TAG: 17A17B0
     {
         auto offset = reader.ReadUint64();
         auto status = reader.ReadUint32();
 
-        printf("[%s] ClientKafkaMessages::OnPrivateChatUpdateStatus:\n  offset = %llu\n  status = %u\n",
-            _isSender ? "OUT" : "IN",
-            offset,
-            status
-        );
+        //printf("[%s] ClientKafkaMessages::PrivateChatStatus:\n  offset = %llu\n  status = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    offset,
+        //    status
+        //);
     }
 
     void OnShortLivedNotification(PacketReader &reader)  // TAG: 17A3620
@@ -509,6 +510,22 @@ public:
             message.c_str(),
             timestamp
         );
+
+        std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\shortlived.csv";
+        FILE *outFile = nullptr;
+        for (size_t i = 0; i < 10; i++)
+        {
+            fopen_s(&outFile, userdumpPath.string().c_str(), "a");
+            if (outFile != nullptr)
+            {
+                fprintf(outFile, "%s,\n",
+                    message.c_str()
+                );
+                fclose(outFile);
+
+                break;
+            }
+        }
     }
 
     void OnLongLivedNotificationsLoaded(PacketReader &reader) // TAG: 17A3460
@@ -540,6 +557,22 @@ public:
             message.c_str(),
             timestamp
         );
+
+        std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\longlived.csv";
+        FILE *outFile = nullptr;
+        for (size_t i = 0; i < 10; i++)
+        {
+            fopen_s(&outFile, userdumpPath.string().c_str(), "a");
+            if (outFile != nullptr)
+            {
+                fprintf(outFile, "%s,\n",
+                    message.c_str()
+                );
+                fclose(outFile);
+
+                break;
+            }
+        }
     }
 
     void OnUnsubscribeScriptRegionConsole(PacketReader &reader) // TAG: 17A3040
@@ -873,7 +906,7 @@ public:
         auto secret = reader.ReadUint32();
         auto inventoryOffset = reader.ReadUint64();
 
-        printf("[%s] ClientKafka::OnLogin:\n  accountId = %s\n  personaId = %s\n  secret = %u\n  inventoryOffset = %llu\n",
+        printf("[%s] ClientKafka::Login:\n  accountId = %s\n  personaId = %s\n  secret = %u\n  inventoryOffset = %llu\n",
             _isSender ? "OUT" : "IN",
             accountId.c_str(),
             personaId.c_str(),

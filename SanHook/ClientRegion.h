@@ -326,7 +326,7 @@ public:
     {
         auto secret = reader.ReadUint32();
 
-        printf("[%s] ClientRegionMessages::OnUserLogin\n  secret = %u\n",
+        printf("[%s] ClientRegionMessages::UserLogin\n  secret = %u\n",
             _isSender ? "OUT" : "IN",
             secret
         );

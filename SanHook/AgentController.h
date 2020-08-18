@@ -478,7 +478,6 @@ public:
                 // This is our magical warp animation
                 reader.Reset();
 
-                /*
                 auto buffer = reader.GetBuffer();
 
                 auto animationControllerId = *((uint32_t *)&buffer[4]);
@@ -507,13 +506,27 @@ public:
                 *pRotation_w = 0.0f;
 
                 OnWarpCharacter(reader);
-                */
 
-                AvatarPositionOffset[0] = CameraPositionOffset[0];
-                AvatarPositionOffset[1] = CameraPositionOffset[1];
-                AvatarPositionOffset[2] = CameraPositionOffset[2];
+                if (AvatarPositionOffset != nullptr && CameraPositionOffset != nullptr) 
+                {
+                    AvatarPositionOffset[0] = CameraPositionOffset[0];
+                    AvatarPositionOffset[1] = CameraPositionOffset[1];
+                    AvatarPositionOffset[2] = CameraPositionOffset[2];
+                }
+                else
+                {
+                    if (AvatarPositionOffset == nullptr)
+                    {
+                        printf("OnAgentPlayAnimation -> AvatarPositionOffset == nullptr!\n");
+                    }
+                    if (CameraPositionOffset == nullptr)
+                    {
+                        printf("OnAgentPlayAnimation -> CameraPositionOffset == nullptr!\n");
+                    }
+                }
 
-                //return;
+
+                return;
             }
 
             reader.Reset();
@@ -533,7 +546,7 @@ public:
     void OnRequestBehaviorStateUpdate(PacketReader &reader) // TAG: 170FB80
     {
         // double check...
-        //AnimationComponent::OnBehaviorStateUpdate(reader);
+        //AnimationComponent::BehaviorStateUpdate(reader);
     }
 
     void OnAttachToCharacterNode(PacketReader &reader)   // TAG: 170FBF0

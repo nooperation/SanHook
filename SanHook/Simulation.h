@@ -125,7 +125,7 @@ public:
         //position = reader.   78bit floats
         // orientationQuat  43bit floats
 
-        //printf("SimulationManager::OnRigidBodyDeactivated:\n  componentId = %llu\n  frame = %llu\n  ownershipWatermark = %u\n",
+        //printf("SimulationManager::RigidBodyDeactivated:\n  componentId = %llu\n  frame = %llu\n  ownershipWatermark = %u\n",
         //    componentId,
         //    frame,
         //    ownershipWatermark

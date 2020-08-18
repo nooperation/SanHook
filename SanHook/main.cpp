@@ -459,7 +459,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x136DA0B + sizeof(hijack_ProcessHttpSend));
         }
 
-        if (false)
+        if (true)
         {
             // waaaaaay above 'AppletMenu'
             // waaaaaay below 'fullbody_user_slots' (about 0x2543 below)

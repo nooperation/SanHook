@@ -378,14 +378,22 @@ public:
                 auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
                 FILE *outFile = nullptr;
-                fopen_s(&outFile, userdumpPath.string().c_str(), "a");
-                fprintf(outFile, "\"%lld\",\"%s\"\n",
-                    timestamp,
-                    resourceUuid.c_str()
-                );
-                fclose(outFile);
+                for (size_t i = 0; i < 10; i++)
+                {
+                    fopen_s(&outFile, userdumpPath.string().c_str(), "a");
+                    if (outFile != nullptr)
+                    {
+                        fprintf(outFile, "\"%lld\",\"%s\"\n",
+                            timestamp,
+                            resourceUuid.c_str()
+                        );
+                        fclose(outFile);
 
-                savedAnimations.insert(resourceId);
+                        savedAnimations.insert(resourceId);
+                        break;
+                    }
+                }
+
             }
         }
     }

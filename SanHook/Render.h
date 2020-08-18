@@ -45,7 +45,7 @@ public:
         auto spotAngularFalloff = reader.ReadFloat();
         auto spotNearClip = reader.ReadFloat();
 
-        //printf("RenderMessages::OnLightStateChanged:\n  componentId = %llu\n  frame = %llu\n  rgb = <%f, %f, %f>\n  range = %f\n  shadowPriority = %u\n  spotSinHalfAngle = %f\n  spotAngularFalloff = %f\n  spotNearClip = %f\n",
+        //printf("RenderMessages::LightStateChanged:\n  componentId = %llu\n  frame = %llu\n  rgb = <%f, %f, %f>\n  range = %f\n  shadowPriority = %u\n  spotSinHalfAngle = %f\n  spotAngularFalloff = %f\n  spotNearClip = %f\n",
         //    componentId,
         //    frame,
         //    rgb[0], rgb[1], rgb[2],
