@@ -190,8 +190,8 @@ int main()
         };
         *((float*)&gravityHack[1]) = 2.0f;
 
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175591A), gravityHack, sizeof(gravityHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x175591A, written);
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1755EBA), gravityHack, sizeof(gravityHack), &written);
+        //printf("Written to %X: %d bytes\n", base + 0x1755EBA, written);
 
 
         ///////////////////////////////////
@@ -202,8 +202,8 @@ int main()
            // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
              0xB0, 0x01, 0x90
         };
-       // WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1755963), collisionHack, sizeof(collisionHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x1755963, written);
+       // WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1755F03), collisionHack, sizeof(collisionHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x1755F03, written);
     
 
         ///////////////////////////////////
@@ -213,8 +213,8 @@ int main()
             0xB0, 0x01, 0x90
         };
         written = 0;
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17559AE), freecamHack, sizeof(freecamHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x17559AE, written);
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x1755F4E), freecamHack, sizeof(freecamHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x1755F4E, written);
 
 
     
@@ -226,8 +226,8 @@ int main()
            0xB0, 0x01, 0x88, 0x07
         };
         written = 0;
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175BFA5), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x175BFA5, written);
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x175C545), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x175C545, written);
 
 
 
@@ -250,7 +250,7 @@ int main()
         uint8_t no1minTelemetry[] = {
             0xEB, 0x08
         };
-        auto telemetryCallerAddress = 0x11664DB;
+        auto telemetryCallerAddress = 0x11666EB;
         written = 0;
         //WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
         printf("Written to %X: %d bytes\n", base + telemetryCallerAddress, written);

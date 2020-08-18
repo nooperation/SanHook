@@ -125,6 +125,16 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
         return original_sendto(s, buf, len, flags, to, tolen);
     }
 
+    //if (buf[0] != 0x07)
+    //{
+    //    printf("SENDTO\n");
+    //    Utils::DumpPacket(buf, len, true);
+    //}
+    //
+    //if (buf[0] == 0x06)
+    //{
+    //    auto messageId = *((uint32_t *)&buf[1]);
+    //}
     /*
     if (buf[0] == 0x07 || buf[0] == 0x08)
     {
@@ -378,17 +388,27 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x14DD6BA, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + 0x14DDC5A, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
-            // Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DDA71);
+            /// WARNING
+            /// WARNING
+            //      Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
+            /// WARNING
+            /// WARNING
+
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DE011);
         }
 
         if (true)
         {
             // Search for "OutgoingPacket"
             // next call, call qword ptr[rax+18] or whatever
-            // not immediately at the entrypoint with the two movs and setting up the stackframe, but rather down 3 jumps (mov [rsp+78], r15)
+
+            /// WARNING
+            /// WARNING
+            //       not immediately at the entrypoint with the two movs and setting up the stackframe, but rather down 3 jumps (mov [rsp+78], r15)
+            /// WARNING
+            /// WARNING
 
             uint8_t hijack_ProcessPacketSend[] = {
                 0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
@@ -396,9 +416,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x1354BE6, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + 0x1354E26, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1354BE6 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1354E26 + sizeof(hijack_ProcessPacketSend));
         }
 
         if (false)
@@ -415,9 +435,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-            RewriteCode(base + 0x136E885, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+            RewriteCode(base + 0x136EAC5, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
 
-            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x136E885 + sizeof(hijack_ProcessHttpBodyRecv));
+            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x136EAC5 + sizeof(hijack_ProcessHttpBodyRecv));
         }
 
         if (false)
@@ -434,12 +454,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSend;
-            RewriteCode(base + 0x136D7CB, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
+            RewriteCode(base + 0x136DA0B, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
 
-            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x136D7CB + sizeof(hijack_ProcessHttpSend));
+            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x136DA0B + sizeof(hijack_ProcessHttpSend));
         }
 
-        if (true)
+        if (false)
         {
             // waaaaaay above 'AppletMenu'
             // waaaaaay below 'fullbody_user_slots' (about 0x2543 below)
@@ -456,9 +476,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
-            RewriteCode(base + 0x16C86BD, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+            RewriteCode(base + 0x16C8C5D, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
 
-            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x16C86BD + sizeof(hijack_PositionUpdate));
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x16C8C5D + sizeof(hijack_PositionUpdate));
         }
 
 
@@ -469,7 +489,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         // rcx+30 = our pointer
         // Function above it with a bunch of xmm stuff going on (see screenshots)
         //const static auto kCameraPositionOffset = 0x4AAB1C0;
-        CameraPositionOffset = (float *)(base + 0x4ABE960);
+        CameraPositionOffset = (float *)(base + 0x4BC8620);
 
 
         DetourRestoreAfterWith();
@@ -478,8 +498,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         DetourUpdateThread(GetCurrentThread());
         // DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
        //  DetourAttach(&(PVOID &)original_recv, Hooked_Recv); // need to hard hook into ssl functions or post-decrypted recv handler...
-        DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
-        // DetourAttach(&(PVOID &)original_send, Hooked_Send);
+      //  DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
+       //  DetourAttach(&(PVOID &)original_send, Hooked_Send);
 
         DetourTransactionCommit();
 
