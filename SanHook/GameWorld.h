@@ -163,6 +163,14 @@ public:
         auto componentid = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto flags = reader.ReadUint8();
+
+        if (_isVerbose)
+        {
+            printf("StaticMeshFlagsChanged:\n  componentId = %llu\n  flags = %u\n",
+                componentid,
+                flags
+            );
+        }
     }
 
     void OnStaticMeshScaleChanged(PacketReader &reader)  // TAG: 16EA060
@@ -177,6 +185,14 @@ public:
         auto componentid = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto flags = reader.ReadUint8();
+
+        if (_isVerbose)
+        {
+            printf("OnRiggedMeshFlagsChange:\n  componentId = %llu\n  flags = %u\n",
+                componentid,
+                flags
+            );
+        }
     }
 
     void OnRiggedMeshScaleChanged(PacketReader &reader) // TAG: 16EA140

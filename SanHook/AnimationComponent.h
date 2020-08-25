@@ -177,12 +177,38 @@ public:
 
     void OnCharacterTransform(PacketReader &reader) // TAG: 1580CD0
     {
+        auto buffer = reader.GetBuffer();
+
         auto componentId = reader.ReadUint64();
         auto serverFrame = reader.ReadUint64();
         auto groundComponentId = reader.ReadUint64();
-        auto position = reader.ReadBits(0x48);
-        auto orientationQuat = reader.ReadBits(0x28);
+        auto position = reader.ReadBits(72);
+        auto orientationQuat = reader.ReadBits(40);
 
+        // TODO: Disable this ^^
+        if (_isSender == false && componentId != myComponentId)
+        {
+            if (targetComponentId != UINT64_MAX && (componentId == targetComponentId || componentId == 0))
+            {
+                if (GetAsyncKeyState('Q'))
+                {
+                    if (AvatarPositionOffset != nullptr && CameraPositionOffset != nullptr)
+                    {
+                        BitReader br((uint8_t *)&buffer[8 + 8 + 8 + 4], 9);
+                        auto positionX = br.ReadFloat(24, false);
+                        auto positionY = br.ReadFloat(24, false);
+                        auto positionZ = br.ReadFloat(24, false);
+
+                        // printf("maybe -> %f, %f, %f\n", positionX, positionY, positionZ);
+                        AvatarPositionOffset[0] = positionX;
+                        AvatarPositionOffset[1] = positionY;
+                        AvatarPositionOffset[2] = positionZ;
+                    }
+                }
+            }
+        }
+
+        //printf("MyPos = %f, %f, %f\n", AvatarPositionOffset[0], AvatarPositionOffset[1], AvatarPositionOffset[2]);
 
         //printf("[%s] OnCharacterTransform:\n  componentId = %llu\n  serverFrame = %llu\n  groundComponentId = %llu\n",
         //_isSender ? "OUT" : "IN",
@@ -309,12 +335,15 @@ public:
             OnFloatRangeNodeVariable(reader);
         }
 
-        //printf("[%s] AnimationComponentMessages::BehaviorStateUpdate:\n  frame = %llu\n  componentId = %llu\n  exceptAgentControllerId = %u\n",
-        //_isSender ? "OUT" : "IN",
-        //    frame,
-        //    componentId,
-        //    exceptAgentControllerId
-        //);
+        if (false && _isVerbose)
+        {
+            printf("[%s] AnimationComponentMessages::BehaviorStateUpdate:\n  frame = %llu\n  componentId = %llu\n  exceptAgentControllerId = %u\n",
+                _isSender ? "OUT" : "IN",
+                frame,
+                componentId,
+                exceptAgentControllerId
+            );
+        }
     }
 
     void OnBehaviorInitializationData(PacketReader &reader)// TAG: 1581130

@@ -314,13 +314,16 @@ public:
         auto objectId = reader.ReadUint32();
         auto enabled = reader.ReadUint8();
 
-        //printf("[%s] AnimationComponentMessages::BehaviorInitializationData:\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  enabled = %u\n",
-        //    _isSender ? "OUT" : "IN",
-        //    frame,
-        //    clusterId,
-        //    objectId,
-        //    enabled
-        //);
+        if (_isVerbose)
+        {
+            printf("[%s] AnimationComponentMessages::BehaviorInitializationData:\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  enabled = %u\n",
+                _isSender ? "OUT" : "IN",
+                frame,
+                clusterId,
+                objectId,
+                enabled
+            );
+        }
     }
 
     void OnCreateSpeechGraphicsPlayer(PacketReader &reader) // TAG: 17106C0
@@ -560,12 +563,19 @@ public:
         auto ownershipWatermark = reader.ReadUint8();
         auto broadcastToSelf = reader.ReadUint8();
 
-        //printf("[%s] AgentControllerMessages::OnAttachToCharacterNode\n  frame = %llu\n  componentId = %u\n  agentControllerId = %u\n",
-        //    _isSender ? "OUT" : "IN",
-        //    frame,
-        //    componentId,
-        //    agentControllerId
-        //);
+        auto buffer = reader.GetBuffer();
+        auto componentIdPtr = (uint64_t *)&buffer[4 + 8];
+        auto agentControllerIdPtr = (uint32_t *)&buffer[4 + 8 + 8];
+
+        if (_isVerbose)
+        {
+            printf("[%s] AgentControllerMessages::AttachToCharacterNode\n  frame = %llu\n  componentId = %llu\n  agentControllerId = %u\n",
+                _isSender ? "OUT" : "IN",
+                frame,
+                componentId,
+                agentControllerId
+            );
+        }
     }
 
     void OnDetachFromCharacterNode(PacketReader &reader)  // TAG: 170FC60
@@ -578,6 +588,16 @@ public:
         auto bodyVelocity = reader.ReadVectorF(3);
         auto bodyAngularVelocity = reader.ReadVectorF(3);
         auto nodeType = reader.ReadUint8();
+
+        if (_isVerbose)
+        {
+            printf("[%s] AgentControllerMessages::DetachFromCharacterNode\n  frame = %llu\n  componentId = %u\n  agentControllerId = %u\n",
+                _isSender ? "OUT" : "IN",
+                frame,
+                componentId,
+                agentControllerId
+            );
+        }
     }
 
     void OnRequestDetachFromCharacterNode(PacketReader &reader)  // TAG: 170FCD0
@@ -620,7 +640,18 @@ public:
         auto targetedPosition = reader.ReadVectorF(3);
         auto targetedNormal = reader.ReadVectorF(3);
         auto origin = reader.ReadVectorF(3);
-        auto controlPointType = reader.ReadBits(4);
+       // auto controlPointType = reader.ReadBits(4);
+        auto controlPointType = reader.ReadUint8();
+
+        if (_isVerbose)
+        {
+            printf("[%s] ObjectInteraction\n  agentControllerId = %u\n  objectId = %u\n  controlPointType = %u\n",
+                _isSender ? "OUT" : "IN",
+                agentControllerId,
+                objectId,
+                controlPointType
+            );
+        }
     }
 
     void OnObjectInteractionPromptUpdate(PacketReader &reader)   // TAG: 1710340
@@ -647,13 +678,17 @@ public:
         auto prompt = reader.ReadString();
         auto enabled = reader.ReadUint8();
 
-        //printf("AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n  enabled = %u\n",
-        //    frame,
-        //    clusterId,
-        //    objectId,
-        //    prompt.c_str(),
-        //    enabled
-        //);
+        if (_isVerbose)
+        {
+            printf("[%s] AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n  enabled = %u\n",
+                _isSender ? "OUT" : "IN",
+                frame,
+                clusterId,
+                objectId,
+                prompt.c_str(),
+                enabled
+            );
+        }
     }
 
     void OnRequestSitOnObject(PacketReader &reader)  // TAG: 1710420

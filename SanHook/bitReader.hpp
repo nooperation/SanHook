@@ -55,7 +55,7 @@ public:
 
     void WriteFloat(float val, uint32_t numbits, bool fuckItAllUp)
     {
-        int32_t newVal = packFloat26(val);
+        int32_t newVal = packFloat26(val, numbits);
 
         if (fuckItAllUp)
         {
@@ -78,29 +78,51 @@ public:
                 ((newVal & 0b00000000111111000000000000) << 8);
         }
 
-        auto result = unpackFloat26(newVal);
+        auto result = unpackFloat26(newVal, numbits);
         return result;
     }
 
-    float unpackFloat26(int32_t val)
+    float unpackFloat26(int32_t val, int32_t numbits)
     {
-        auto rawValue = (val - 0x1FFFFFF);
+        auto maxValue = pow(2, numbits - 1) - 1;
+
+        // 0x1FFFFFF = 0b1111111111111111111111111
+
+        auto rawValue = (val - maxValue);
         double result = rawValue;
 
-        result *= (2048.0 / 0x1FFFFFF);
+        result *= (2048.0 / maxValue);
 
         return (float)result;
     }
 
-    int32_t packFloat26(float val)
+    int32_t packFloat26(float val, int32_t numbits)
     {
-        double newVal = val * (0x1FFFFFF / 2048.0);  // TAG: 16383.99951171875
+        auto maxValue = pow(2, numbits - 1) - 1;
+
+
+        double newVal = val * (maxValue / 2048.0);
         newVal = round(newVal);
 
         auto result = (int32_t)(newVal);
-        result += 0x1FFFFFF;
+        result += maxValue;
 
         return result;
+    }
+
+    float unpackFloat24(int32_t val)
+    {
+
+        // 0x7FFFFF = 8388607 = 0b11111111111111111111111 
+        auto rawValue = (val - 0x7FFFFF);
+        double result = rawValue;
+
+        result *= (2048.0 / 0x7FFFFF);
+
+        // exponent = 115 = 2^(115-127) = 0.000244140625
+        // mantissa = 1.0
+
+        return (float)result;
     }
 
     void SkipToEndOfByte() {

@@ -135,6 +135,11 @@ public:
         auto relativeComponentId = reader.ReadUint32();
         auto linearVelocity = reader.ReadVectorF(3);
         auto angularVelocity = reader.ReadVectorF(3);
+
+        if (_isVerbose)
+        {
+            printf("OnRigidBodyComponentInitialState\n  relativeComponentId = %u\n", relativeComponentId);
+        }
     }
 
     void OnAnimationComponentInitialState(PacketReader &reader) // TAG: 1BB5C00
@@ -149,11 +154,14 @@ public:
         auto resourceId = reader.ReadUUID();
         auto clusterId = reader.ReadUint32();
 
-        //printf("[%s] OnLoadClusterDefinition:\n  resourceId = %s\n  clusterId = %d\n",
-        // _isSender ? "OUT" : "IN",
-        //    resourceId.c_str(),
-        //    clusterId
-        //);
+        if (_isVerbose)
+        {
+            printf("[%s] OnLoadClusterDefinition:\n  resourceId = %s\n  clusterId = %d\n",
+             _isSender ? "OUT" : "IN",
+                resourceId.c_str(),
+                clusterId
+            );
+        }
     }
 
     void OnComponentRelativeTransform(PacketReader &reader) // TAG: 1BB5CE0
@@ -185,13 +193,16 @@ public:
             OnAnimationComponentInitialState(reader);
         }
 
-        //printf("[%s] OnInitiateCluster:\n  clusterId = %d\n  frame = %llu\n  rigidBodyInitialStatesLength = %u\n  animationInitialStatesLength = %u\n",
-        //_isSender ? "OUT" : "IN",
-        //    clusterId,
-        //    frame,
-        //    rigidBodyInitialStatesLength,
-        //    animationInitialStatesLength
-        //);
+        if (_isVerbose)
+        {
+            printf("[%s] OnInitiateCluster:\n  clusterId = %d\n  frame = %llu\n  rigidBodyInitialStatesLength = %u\n  animationInitialStatesLength = %u\n",
+            _isSender ? "OUT" : "IN",
+                clusterId,
+                frame,
+                rigidBodyInitialStatesLength,
+                animationInitialStatesLength
+            );
+        }
     }
 
     void OnCreateClusterViaDefinition(PacketReader &reader) // TAG: 1BB5DC0
@@ -203,12 +214,15 @@ public:
         auto spawnPosition = reader.ReadVectorF(3);
         auto spawnRotation = reader.ReadVectorF(4);
 
-        //printf("[%s] OnCreateClusterViaDefinition:\n  clusterId = %u\n  startingObjectId = %u\n  resourceId = %s\n",
-        //_isSender ? "OUT" : "IN",
-        //    clusterId,
-        //    startingObjectId,
-        //    resourceId.c_str()
-        //);
+        if (_isVerbose)
+        {
+            printf("[%s] OnCreateClusterViaDefinition:\n  clusterId = %u\n  startingObjectId = %u\n  resourceId = %s\n",
+            _isSender ? "OUT" : "IN",
+                clusterId,
+                startingObjectId,
+                resourceId.c_str()
+            );
+        }
     }
 
     void OnDestroyCluster(PacketReader &reader) // TAG: 1BB5E30
@@ -261,6 +275,8 @@ public:
         {
             myComponentId = characterObjectId * 0x100000000;
         }
+
+        sessionToComponentIdMap[sessionId] = characterObjectId * 0x100000000;
 
         //printf("[%s] OnCreateAgentController:\n  sessionId = %d\n  clusterId = %u\n  agentControllerId = %u\n  characterObjectId = %u\n  characterNodesLength = %u\n  frame = %llu\n  personaId = %s\n  isRemoteAgent = %d\n",
         //    _isSender ? "OUT" : "IN",

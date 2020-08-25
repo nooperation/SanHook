@@ -24,5 +24,10 @@ extern "C"
     extern unsigned long long ReturnPoint_ProcessPositionUpdate;
     float *AvatarPositionOffset;
     //extern float *AvatarPositionOffset;
+
+
+    void intercept_ProcessBodyCinfo();
+    void ProcessBodyCinfo(char *packet, uint64_t length);
+    extern unsigned long long ReturnPoint_ProcessBodyCinfo;
 };
 

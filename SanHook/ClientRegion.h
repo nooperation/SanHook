@@ -326,6 +326,13 @@ public:
     {
         auto secret = reader.ReadUint32();
 
+        myControllerId = UINT32_MAX;
+        mySessionId = UINT32_MAX;
+        myComponentId = UINT64_MAX;
+        targetComponentId = UINT64_MAX;
+        sessionToComponentIdMap.clear();
+        handleToSessionIdMap.clear();
+
         printf("[%s] ClientRegionMessages::UserLogin\n  secret = %u\n",
             _isSender ? "OUT" : "IN",
             secret
@@ -365,6 +372,8 @@ public:
 
         auto personaIdButts = Utils::ClusterButt(personaId);
         auto personaIdFormatted = Utils::ToUUID(personaId);
+
+        handleToSessionIdMap[handle] = sessionId;
 
         std::string avatarAssetId = "";
         std::string avatarInventoryId = "";
@@ -699,6 +708,15 @@ public:
         auto targetSpawnPointName = reader.ReadString();
         auto spawnStyle = reader.ReadUint8();
         auto ready = reader.ReadUint8();
+
+        if (_isVerbose)
+        {
+            printf("OnClientDynamicReady\n  targetPersonaId_0 = %llu\n  targetPersonaId_1 = %llu\n  targetSpawnPointName = %s\n  spawnStyle = %u\n  ready = %u\n",
+                targetPersonaId_0,
+                targetPersonaId_1,
+                targetSpawnPointName.c_str()
+            );
+        }
     }
 
     void OnInitialChunkSubscribed(PacketReader &reader) // TAG: 1B9C380
@@ -718,20 +736,11 @@ public:
 
         if (_isSender)
         {
-            auto buffer = reader.GetBuffer();
-
-            /*
-            auto fromPersonaId = reader.ReadUUID();
-            auto toPersonaId = reader.ReadUUID();
-            auto instanceAddress = reader.ReadString();
-            auto agentControllerId = reader.ReadUint32();
-            auto message = reader.ReadString();
-            auto timestamp = reader.ReadUint64();
-            auto typing = reader.ReadUint8();
-            auto offset = reader.ReadUint64();
-            auto highwaterMarkOffset = reader.ReadUint64();
-            */
-
+            if (commandLine.length() != 0 && commandLine[0] == '%')
+            {
+                HandleCustomCommand(commandLine.substr(1));
+            }
+            
             /*
             // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa123
             auto now = std::chrono::system_clock::now();
@@ -765,6 +774,62 @@ public:
             //*((uint32_t *)&buffer[4]) = *((uint32_t *)&buffer[4]) - 4;
             //*((uint32_t *)&buffer[reader.GetBufferSize() - 4]) = 0;
 
+        }
+    }
+
+    void HandleCustomCommand(std::string message)
+    {
+        auto args = std::string();
+        auto command = message;
+
+        auto spacer = message.find_first_of(' ');
+        if (spacer != std::string::npos)
+        {
+            command = message.substr(0, spacer);
+            args = message.substr(spacer + 1);
+        }
+        
+        if (command == "follow")
+        {
+            auto handle = args;
+
+            if (handle == "")
+            {
+                printf("No longer following %d\n", targetComponentId);
+                targetComponentId = UINT64_MAX;
+                return;
+            }
+
+            if (handle == "ALL")
+            {
+                printf("Following ALL\n");
+                targetComponentId = 0;
+                return;
+            }
+
+            auto handleResult = handleToSessionIdMap.find(handle);
+            if (handleResult == handleToSessionIdMap.end())
+            {
+                printf("! Cannot follow. Unable to find session id for '%s'\n", handle.c_str());
+                return;
+            }
+            auto sessionId = handleResult->second;
+            
+            auto componentIdResult = sessionToComponentIdMap.find(sessionId);
+            if (componentIdResult == sessionToComponentIdMap.end())
+            {
+                printf("! Cannot follow. Unable to find componentId id for '%s' (session = %d)\n", handle.c_str(), sessionId);
+                return;
+            }
+            auto componentId = componentIdResult->second;
+
+            printf("Now following %s (sessionId = %d)(componentId = %d)\n",
+                handle.c_str(),
+                sessionId,
+                componentId
+            );
+
+            targetComponentId = componentId;
         }
     }
 
@@ -819,6 +884,7 @@ public:
         );
     }
 
+    // %%backpack-on  %%backpack-off  %%backpack-clear
     void OnClientRuntimeInventoryUpdatedNotification(PacketReader &reader) // TAG: 1B9CF60
     {
         auto message = reader.ReadString();

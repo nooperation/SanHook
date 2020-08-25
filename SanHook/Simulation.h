@@ -108,28 +108,43 @@ public:
         // auto linearVeolcity // 39bit
         // auto angularVelocity  // 36bit
 
-        //printf("SimulationMessages::ActiveRigidBodyUpdate:\n  componentId = %llu\n  frame = %llu\n  ownerId = %u\n  ownershipWatermark = %u\n  authority = %u\n",
-        //    componentId,
-        //    frame,
-        //    ownerId,
-        //    ownershipWatermark,
-        //    authority
-        //);
+        if (false && _isVerbose)
+        {
+            printf("[%s] SimulationMessages::ActiveRigidBodyUpdate:\n  componentId = %llu\n  frame = %llu\n  ownerId = %u\n  ownershipWatermark = %u\n  authority = %u\n",
+                _isSender ? "OUT" : "IN",
+                componentId,
+                frame,
+                ownerId,
+                ownershipWatermark,
+                authority
+            );
+        }
     }
 
     void OnRigidBodyDeactivated(PacketReader &reader) // TAG: 1573580
     {
+        auto buffer = reader.GetBuffer();
+        auto componentIdPtr = (uint64_t *)&buffer[4];
+        *componentIdPtr = UINT64_MAX;
+
+
         auto componentId = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto ownershipWatermark = reader.ReadUint8();
         //position = reader.   78bit floats
         // orientationQuat  43bit floats
 
-        //printf("SimulationManager::RigidBodyDeactivated:\n  componentId = %llu\n  frame = %llu\n  ownershipWatermark = %u\n",
-        //    componentId,
-        //    frame,
-        //    ownershipWatermark
-        //);
+
+
+        if (_isVerbose)
+        {
+            printf("[%s] SimulationManager::RigidBodyDeactivated:\n  componentId = %llu\n  frame = %llu\n  ownershipWatermark = %u\n",
+                _isSender ? "OUT" : "IN",
+                componentId,
+                frame,
+                ownershipWatermark
+            );
+        }
     }
 
     void OnRigidBodyPropertyChanged(PacketReader &reader) // TAG: 15735F0
@@ -138,10 +153,20 @@ public:
         auto componentId = reader.ReadUint64();
         auto propertyData = reader.ReadBytes(16);
         //auto propertyType = reader.ReadBits(5);
+
+        if (_isVerbose)
+        {
+            printf("RigidBodyPropertyChanged\n  componentId = %llu\n", componentId);
+        }
     }
 
     void OnRigidBodyDestroyed(PacketReader &reader)  // TAG: 1573660
     {
         auto componentId = reader.ReadUint64();
+
+        if (_isVerbose)
+        {
+            printf("OnRigidBodyDestroyed\n  componentId = %llu\n", componentId);
+        }
     }
 };

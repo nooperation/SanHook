@@ -7,7 +7,10 @@ class PacketReader;
 extern uint32_t myControllerId;
 extern uint32_t mySessionId;
 extern uint64_t myComponentId;
+extern uint64_t targetComponentId;
 extern float *CameraPositionOffset;
+extern std::unordered_map<uint32_t, uint64_t> sessionToComponentIdMap;
+extern std::unordered_map<std::string, uint32_t> handleToSessionIdMap;
 
 extern "C"
 {
@@ -18,6 +21,7 @@ class MessageHandler
 {
 protected:
     bool _isSender = false;
+    bool _isVerbose = false;
 
 
 public:

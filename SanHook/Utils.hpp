@@ -4,6 +4,9 @@
 #include <cstdio>
 #include <vector>
 
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 #include <windows.h>
 
@@ -14,6 +17,70 @@ namespace Utils
     std::string ToUUID(std::string id);
     uint16_t ShortCRC(uint8_t *packet, int64_t packetLength, uint64_t initialChecksum);
 
+
+    std::unordered_map<std::string, std::string> _key2NameDb;
+
+    void InitKeyToNameDatabase()
+    {
+        // needs to be able to be speedy-enough in debug mode.
+        // fstreams are the worst thing in the world in debug mode : (
+
+        printf("Reading Key2Name DB...\n");
+
+        FILE *inFile = nullptr;
+        fopen_s(&inFile, "r:\\dec\\new_sansar_dec\\personas.csv", "r");
+        if (inFile == nullptr || feof(inFile))
+        {
+            printf("FAILED TO READ KEY2NAME DB\n");
+            return;
+        }
+
+        fseek(inFile, 0, SEEK_END);
+        auto fileLength = ftell(inFile);
+        fseek(inFile, 0, SEEK_SET);
+
+        std::vector<char> buffer(fileLength);
+
+        fread(&buffer[0], 1, fileLength, inFile);
+        fclose(inFile);
+
+        auto contents = std::string(buffer.begin(), buffer.end());
+
+        std::size_t currentIndex = 0;
+        while (currentIndex < fileLength)
+        {
+            auto commaIndex = contents.find_first_of(',', currentIndex);
+            if (commaIndex == std::string::npos)
+            {
+                break;
+            }
+
+            auto lineBreakIndex = contents.find_first_of('\n', currentIndex);
+            if (lineBreakIndex == std::string::npos)
+            {
+                lineBreakIndex = fileLength;
+            }
+
+            auto key = contents.substr(currentIndex, commaIndex - currentIndex);
+            auto value = contents.substr(commaIndex + 1, lineBreakIndex - commaIndex - 1);
+
+            currentIndex = lineBreakIndex + 1;
+            _key2NameDb[key] = value;
+        }
+
+        printf("Read %d keys\n", _key2NameDb.size());
+    }
+
+    std::string KeyToName(const std::string &key)
+    {
+        auto entry = _key2NameDb.find(key);
+        if (entry == _key2NameDb.end())
+        {
+            return key;
+        }
+
+        return entry->second;
+    }
 
     void DumpPacket(const char *buff, int len, bool is_sending)
     {

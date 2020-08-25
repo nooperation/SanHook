@@ -43,14 +43,17 @@ unsigned long long ReturnPoint_ProcessPacketSend = 0;
 unsigned long long ReturnPoint_ProcessHttpBodyRecv = 0;
 unsigned long long ReturnPoint_ProcessHttpSend = 0;
 unsigned long long ReturnPoint_ProcessPositionUpdate = 0;
+unsigned long long ReturnPoint_ProcessBodyCinfo = 0;
 
 //float *AvatarPositionOffset = 0;
 float *CameraPositionOffset = nullptr;
 
-uint32_t myControllerId = 0xffffffff;
-uint32_t mySessionId = 0xffffffff;
-uint64_t myComponentId = 0xffffffffffffffff;
-
+uint32_t myControllerId = UINT32_MAX;
+uint32_t mySessionId = UINT32_MAX;
+uint64_t myComponentId = UINT64_MAX;
+uint64_t targetComponentId = UINT64_MAX;
+std::unordered_map<uint32_t, uint64_t> sessionToComponentIdMap;
+std::unordered_map<std::string, uint32_t> handleToSessionIdMap;
 
 std::string GetAddressFromAddr(const sockaddr *addr)
 {
@@ -329,7 +332,23 @@ void ProcessHttpSend(char *packet, uint64_t length)
 }
 
 
+void ProcessBodyCinfo(char *bodyCinfo, uint64_t length)
+{
+    if (length > 0x40)
+    {
+        auto bodyType = (uint8_t *)&bodyCinfo[0x40];
 
+        //printf("  BodyType = %d\n", *bodyType);
+        // 0 = static
+        // 1 = keyframe
+        // 2 = dynamic
+
+        //if (*bodyType == 0)
+        {
+            *bodyType = 1; // lol
+        }
+    }
+}
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
@@ -482,6 +501,62 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         }
 
 
+        if (true)
+        {
+            // TODO: Rewrite BodyCinfo... this has the actual body type in it at offset 0x40
+            //   0x02 = dyamic
+            //   0x00 = static
+
+
+            /*
+            //this is clientside only lol, boo
+            // search for "bodyResourceHandle" (right after 3rd call) a little above "shape" (right after 4th call above it)
+            // further down is the canGrabEverything stuff
+            auto processBodyCinfoRva = 0x17785B1;
+            unsigned char processBodyCinfoData[] = {
+                0x48, 0xB9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RCX, <address>
+                0xFF, 0xE1                                                   // JMP RCX
+            };
+            *((uint64_t *)&processBodyCinfoData[2]) = (uint64_t)intercept_ProcessBodyCinfo;
+            RewriteCode(base + processBodyCinfoRva, processBodyCinfoData, sizeof(processBodyCinfoData));
+            ReturnPoint_ProcessBodyCinfo = (uint64_t)(base + processBodyCinfoRva + sizeof(processBodyCinfoData));
+            */
+
+            // search for "bodyResourceHandle" between "shape" and "name" (dealing with al). patch right after 'ja' (before al stuff happens)
+            auto canGrabEverythingRva = 0x17786D9;
+            unsigned char canGrabEverythingData[6] = {
+                0xB0, 0x01,                   // MOV AL, 1
+                0x90,                         // NOP
+                0x90,                         // NOP
+                0x90,                         // NOP
+                0x90                          // NOP
+            };
+            RewriteCode(base + canGrabEverythingRva, canGrabEverythingData, sizeof(canGrabEverythingData));
+
+
+            // search for "spawnPointComponentDef", after "name". patch right after last 'ja', dealing with 'al'
+            auto nothingFixedInWorldRva = 0x176AF62;
+            unsigned char nothingFixedInWorldData[6] = {
+                0xB0, 0x00,                   // MOV AL, 0
+                0x90,                         // NOP
+                0x90,                         // NOP
+                0x90,                         // NOP
+                0x90                          // NOP
+            };
+            RewriteCode(base + nothingFixedInWorldRva, nothingFixedInWorldData, sizeof(nothingFixedInWorldData));
+
+
+        }
+
+        // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
+        auto unlimitedItemPickRangeRva = 0x16ACB15;
+        unsigned char unlimitedItemPickRangeData[1] = {
+            0xeb                            // JE -> JMP
+        };
+        RewriteCode(base + unlimitedItemPickRangeRva, unlimitedItemPickRangeData, sizeof(unlimitedItemPickRangeData));
+
+
+
         // We got this constant from memory.
         // Search for "no-input-source".
         // Between "room scale" and "no-input-source"
@@ -502,6 +577,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
        //  DetourAttach(&(PVOID &)original_send, Hooked_Send);
 
         DetourTransactionCommit();
+
+        Utils::InitKeyToNameDatabase();
 
         break;
     }
