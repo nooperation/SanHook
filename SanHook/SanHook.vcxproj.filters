@@ -86,4 +86,7 @@
   <ItemGroup>
     <None Include="Parsers.csv" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="do_not_commit.txt" />
+  </ItemGroup>
 </Project>

@@ -27,7 +27,7 @@ extern "C"
 
 
     void intercept_ProcessBodyCinfo();
-    void ProcessBodyCinfo(char *packet, uint64_t length);
+    void ProcessBodyCinfo(uint8_t *clusterPtrAtBodyCInfo, uint8_t *packet, uint64_t length);
     extern unsigned long long ReturnPoint_ProcessBodyCinfo;
 };
 

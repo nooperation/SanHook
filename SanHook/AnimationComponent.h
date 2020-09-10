@@ -188,7 +188,7 @@ public:
         // TODO: Disable this ^^
         if (_isSender == false && componentId != myComponentId)
         {
-            if (targetComponentId != UINT64_MAX && (componentId == targetComponentId || componentId == 0))
+            if (targetComponentId != UINT64_MAX && (componentId == targetComponentId || targetComponentId == 0))
             {
                 if (GetAsyncKeyState('Q'))
                 {

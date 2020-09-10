@@ -75,6 +75,7 @@ public:
     static const uint32_t CharacterIKPoseDelta = 0x893A18BE;
     static const uint32_t ObjectInteraction = 0xA25F81AB;
     static const uint32_t ObjectInteractionUpdate = 0x17B7D18A;
+    static const uint32_t UserReaction = 0x6F5546CE;
 };
 
 class GameWorldMessages {
@@ -361,7 +362,7 @@ Packet versions (16):
 
 -----------------------
 Channel: ClientRegionChannel
-Packet versions (140):
+Packet versions (141):
   CA6CCC08 = 1
   3902800A = 1
   58003034 = 1
@@ -462,6 +463,7 @@ Packet versions (140):
   45FAAEBC = 1
   083642BD = 1
   217192BE = 1
+  6F5546CE = 1
   30CDBED6 = 1
   1505C6D8 = 1
   E4C496DF = 1

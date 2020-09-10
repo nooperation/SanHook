@@ -420,22 +420,33 @@ public:
             auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 
             FILE *outFile = nullptr;
-            fopen_s(&outFile, userdumpPath.string().c_str(), "a");
-            if (needToAddHeader)
+            for (auto i = 0; i < 10; ++i)
             {
-                fprintf(outFile, "timestamp,username,handle,personaIdSwapped,avatarAssetIdSwapped,personaId,avatarAssetId,avatarInventoryId\n");
+                fopen_s(&outFile, userdumpPath.string().c_str(), "a");
+                if (outFile != nullptr)
+                {
+                    break;
+                }
             }
-            fprintf(outFile, "\"%lld\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
-                timestamp,
-                userName.c_str(),
-                handle.c_str(),
-                personaIdButts.c_str(),
-                avatarAssetIdSwapped.c_str(),
-                personaIdFormatted.c_str(),
-                avatarAssetId.c_str(),
-                avatarInventoryId.c_str()
-            );
-            fclose(outFile);
+
+            if (outFile != nullptr)
+            {
+                if (needToAddHeader)
+                {
+                    fprintf(outFile, "timestamp,username,handle,personaIdSwapped,avatarAssetIdSwapped,personaId,avatarAssetId,avatarInventoryId\n");
+                }
+                fprintf(outFile, "\"%lld\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+                    timestamp,
+                    userName.c_str(),
+                    handle.c_str(),
+                    personaIdButts.c_str(),
+                    avatarAssetIdSwapped.c_str(),
+                    personaIdFormatted.c_str(),
+                    avatarAssetId.c_str(),
+                    avatarInventoryId.c_str()
+                );
+                fclose(outFile);
+            }
         }
     }
 

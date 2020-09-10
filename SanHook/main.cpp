@@ -332,20 +332,32 @@ void ProcessHttpSend(char *packet, uint64_t length)
 }
 
 
-void ProcessBodyCinfo(char *bodyCinfo, uint64_t length)
+void ProcessBodyCinfo(uint8_t *clusterPtrAtBodyCInfo, uint8_t *realBodyCinfo, uint64_t length)
 {
     if (length > 0x40)
     {
-        auto bodyType = (uint8_t *)&bodyCinfo[0x40];
+        auto bodyType = &realBodyCinfo[0x40];
 
-        //printf("  BodyType = %d\n", *bodyType);
+        PacketReader reader(clusterPtrAtBodyCInfo + length, 1024);
+        
+        auto materialVersion = reader.ReadUint32();
+        auto materialCount = reader.ReadUint32();
+        auto shapeUuidPtr = reader.ReadUUID();
+
+        if (shapeUuidPtr == "176327e45ff2c3276466c3e492a1eb27")
+        {
+            printf("Updating bodytype to dynamic...\n");
+            *bodyType = 2; // lol
+        }
+
+        printf("Shape: %s BodyType = %d\n", shapeUuidPtr.c_str(), *bodyType);
         // 0 = static
         // 1 = keyframe
-        // 2 = dynamic
+        // 2 = dynamic 
 
         //if (*bodyType == 0)
         {
-            *bodyType = 1; // lol
+           // *bodyType = 2; // lol
         }
     }
 }
@@ -392,16 +404,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             // Search for "Illegally formatted message received. You probably failed to bind a callback for this message. Message was: %s (id: 0x%x)\n"'
             // Scan down 4 jumps. Patch after last jump containing just a mov mov call [rax + 8]
             //
-            // mov rdx, qword ptr ds : [rdi + 8] | RDX = packet ?
-            // mov r8d, dword ptr ds : [rdi + 10] | R8 = packet length maybe ?
-            // call qword ptr ds : [rax + 8] | call our packet handler
-            //
 
             uint8_t hijack_ProcessPacketRecv[] = {
                 0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
                 0xFF, 0xE2,                                                  // JMP RDX  
-                0x90,                                                        // NOP
-                0x90,                                                        // NOP
                 0x90,                                                        // NOP
                 0x90,                                                        // NOP
             };
@@ -415,7 +421,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             /// WARNING
             /// WARNING
 
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14DE011);
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14EBCED);
         }
 
         if (true)
@@ -435,13 +441,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x1354E26, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + 0x1359D26, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1354E26 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1359D26 + sizeof(hijack_ProcessPacketSend));
         }
 
-        if (false)
+        if (false)  // always false
         {
+            // NOT YET UPDATED for 2020-09-10
+
             // search for ": consume: parser error"
             // scan down until the first RET, trace back up to first CALL. patch after the call
             uint8_t hijack_ProcessHttpBodyRecv[] = {
@@ -459,8 +467,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x136EAC5 + sizeof(hijack_ProcessHttpBodyRecv));
         }
 
-        if (false)
+        if (false) // always false
         {
+            // NOT YET UPDATED for 2020-09-10
+
             // search for "%.*s"
             // scan up until you get to the double call (should be past the third call above the string).
             // patch after the double call
@@ -478,14 +488,13 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x136DA0B + sizeof(hijack_ProcessHttpSend));
         }
 
-        if (true)
+        if (true)  // always false...??
         {
             // waaaaaay above 'AppletMenu'
             // waaaaaay below 'fullbody_user_slots' (about 0x2543 below)
             // scan down until even handler
             // scan down until smaller function with a ton of xmm stuff going on. past 'x', past '`'
             // should have 5 chunks of xmm stuff in a single function.
-            // 
 
             unsigned char hijack_PositionUpdate[14] = {
                 0x48, 0xB9, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, // MOV ECX, [address]
@@ -495,24 +504,24 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
-            RewriteCode(base + 0x16C8C5D, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+            RewriteCode(base + 0x16E7AD0, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
 
-            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x16C8C5D + sizeof(hijack_PositionUpdate));
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x16E7AD0 + sizeof(hijack_PositionUpdate));
         }
 
 
-        if (true)
+        if (false) // always falseish
         {
+            // NOT YET TESTED for 2020-09-10
+
             // TODO: Rewrite BodyCinfo... this has the actual body type in it at offset 0x40
             //   0x02 = dyamic
             //   0x00 = static
 
-
-            /*
             //this is clientside only lol, boo
             // search for "bodyResourceHandle" (right after 3rd call) a little above "shape" (right after 4th call above it)
             // further down is the canGrabEverything stuff
-            auto processBodyCinfoRva = 0x17785B1;
+            auto processBodyCinfoRva = 0x17A66C1;
             unsigned char processBodyCinfoData[] = {
                 0x48, 0xB9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RCX, <address>
                 0xFF, 0xE1                                                   // JMP RCX
@@ -520,10 +529,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             *((uint64_t *)&processBodyCinfoData[2]) = (uint64_t)intercept_ProcessBodyCinfo;
             RewriteCode(base + processBodyCinfoRva, processBodyCinfoData, sizeof(processBodyCinfoData));
             ReturnPoint_ProcessBodyCinfo = (uint64_t)(base + processBodyCinfoRva + sizeof(processBodyCinfoData));
-            */
+
 
             // search for "bodyResourceHandle" between "shape" and "name" (dealing with al). patch right after 'ja' (before al stuff happens)
-            auto canGrabEverythingRva = 0x17786D9;
+            auto canGrabEverythingRva = 0x17A6860;
             unsigned char canGrabEverythingData[6] = {
                 0xB0, 0x01,                   // MOV AL, 1
                 0x90,                         // NOP
@@ -535,7 +544,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
 
             // search for "spawnPointComponentDef", after "name". patch right after last 'ja', dealing with 'al'
-            auto nothingFixedInWorldRva = 0x176AF62;
+            auto nothingFixedInWorldRva = 0x1796762;
             unsigned char nothingFixedInWorldData[6] = {
                 0xB0, 0x00,                   // MOV AL, 0
                 0x90,                         // NOP
@@ -544,27 +553,29 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                 0x90                          // NOP
             };
             RewriteCode(base + nothingFixedInWorldRva, nothingFixedInWorldData, sizeof(nothingFixedInWorldData));
-
-
         }
 
-        // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
-        auto unlimitedItemPickRangeRva = 0x16ACB15;
-        unsigned char unlimitedItemPickRangeData[1] = {
-            0xeb                            // JE -> JMP
-        };
-        RewriteCode(base + unlimitedItemPickRangeRva, unlimitedItemPickRangeData, sizeof(unlimitedItemPickRangeData));
+        if (true)
+        {
+            // Search: See research
 
+            // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
+            auto unlimitedItemPickRangeRva = 0x174C024;
+            unsigned char unlimitedItemPickRangeData[1] = {
+                0xeb                            // JE -> JMP
+            };
+            RewriteCode(base + unlimitedItemPickRangeRva, unlimitedItemPickRangeData, sizeof(unlimitedItemPickRangeData));
+        }
 
 
         // We got this constant from memory.
         // Search for "no-input-source".
         // Between "room scale" and "no-input-source"
-        // Right below a call to RotMatrix, enter that call
+        // Right below a call to RotMatrix, enter that call (no longer called there directly. just look between the two for the call. it's there)
         // rcx+30 = our pointer
         // Function above it with a bunch of xmm stuff going on (see screenshots)
         //const static auto kCameraPositionOffset = 0x4AAB1C0;
-        CameraPositionOffset = (float *)(base + 0x4BC8620);
+        CameraPositionOffset = (float *)(base + 0x4C2CAA0);
 
 
         DetourRestoreAfterWith();

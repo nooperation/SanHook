@@ -219,6 +219,12 @@ public:
                 this->OnRequestDeleteAllSpawns(reader);
                 break;
             }
+            case AgentControllerMessages::UserReaction: // Tag: 16D52F0 
+            {
+                // Added 2020-09-09
+                this->OnUserReaction(reader);
+                break;
+            }
             default:
             {
             return false;
@@ -884,6 +890,11 @@ public:
             frame,
             agentControllerId
         );
+    }
+
+    void OnUserReaction(PacketReader &reader)  // TAG: 16D52F0 
+    {
+        // Added 2020-09-09
     }
 
     void OnPlayAnimation(PacketReader &reader) // TAG: 1581210

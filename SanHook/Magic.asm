@@ -18,8 +18,9 @@ EXTERN ReturnPoint_ProcessPositionUpdate:QWORD
 
 .code
 	intercept_ProcessPacketRecv PROC
-		mov rdx, qword ptr [rdi + 8h]  ; RDX = packet
-		mov r8d, dword ptr [rdi + 10h] ; R8 = Pakcet Length
+		mov rdi, qword ptr [r14 + 8h]  ; RDX = packet
+		mov r8d, dword ptr [r14 + 10h] ; R8 = Pakcet Length
+		mov rdx,rdi
 
 		push rax
 		push rbx
@@ -188,7 +189,7 @@ EXTERN ReturnPoint_ProcessPositionUpdate:QWORD
 		pop rbx
 		pop rax
 
-		mov qword ptr [rsp+78h], r15
+		mov qword ptr [rsp+68h], r15
 		lea rcx, qword ptr [rax+1788h]
 
 		jmp ReturnPoint_ProcessPacketSend ; Jump back to where we left off
@@ -434,12 +435,14 @@ EXTERN ReturnPoint_ProcessPositionUpdate:QWORD
 		
 		sub rsp, 24
 		
-		; r9 = buff begin
+		; r9 = buff begin (copy of bodyCinfo)
+		; r14 = reader buffer offset to bodyCinfo
 		; r10 = buff end
 		; rax = length
 		
-		mov rcx, R9  ; arg1 = bodyCInfo start
-		mov rdx, RAX ; arg2 = bodyCInfo length
+		mov rcx, R14  ; arg1 = reader buffer offset to bodyCinfo
+		mov rdx, R9 ; arg2 = bodyCInfo buffer
+		mov r8, RAX ; arg2 = bodyCInfo length
 		call ProcessBodyCinfo
 		
 		add rsp, 24
