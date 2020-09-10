@@ -197,7 +197,7 @@ public:
 
         CheckOutOfBoundsRead(numBytes);
 
-        auto result = std::vector<uint8_t>(&buffer[bufferIndex], &buffer[bufferIndex + (numBytes - 1)]);
+        auto result = std::vector<uint8_t>(&buffer[bufferIndex], &buffer[bufferIndex + numBytes]);
         bufferIndex += numBytes;
 
         return result;
@@ -207,7 +207,7 @@ public:
     {
         CheckOutOfBoundsRead(numBytes);
 
-        auto result = std::vector<uint8_t>(&buffer[bufferIndex], &buffer[bufferIndex + (numBytes - 1)]);
+        auto result = std::vector<uint8_t>(&buffer[bufferIndex], &buffer[bufferIndex + numBytes]);
         bufferIndex += numBytes;
 
         return result;

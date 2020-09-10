@@ -182,7 +182,7 @@ int main()
         // NOTE: COPY RVA, NOT FILE OFFSET!
 
         ///////////////////////////////////
-        /// GRAVITYS (right above collision hack, look for "skyCubemap")
+        /// GRAVITYS (right above collision hack, look for "skyCubemap", 4th one down)
         ///////////////////////////////////
 
         uint8_t gravityHack[] = {

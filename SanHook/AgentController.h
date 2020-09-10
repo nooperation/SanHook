@@ -895,6 +895,18 @@ public:
     void OnUserReaction(PacketReader &reader)  // TAG: 16D52F0 
     {
         // Added 2020-09-09
+        auto frame = reader.ReadUint64();
+        auto agentControllerId = reader.ReadUint32();
+        auto type = reader.ReadString(); // this is actually ReadArray, but it just contains a string :s
+        auto position = reader.ReadBits(78);
+        auto orientation = reader.ReadBits(43);
+
+        printf("[%s] AgentControllerMessages::OnUserReaction:\n  frame = %llu\n  agentControllerId = %u\n  type = %s\n",
+            _isSender ? "OUT" : "IN",
+            frame,
+            agentControllerId,
+            type.c_str()
+        );
     }
 
     void OnPlayAnimation(PacketReader &reader) // TAG: 1581210

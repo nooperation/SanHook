@@ -82,39 +82,39 @@ namespace Utils
         return entry->second;
     }
 
-    void DumpPacket(const char *buff, int len, bool is_sending)
+    std::string ArrayToHexString(const char *buff, int len)
     {
         static const char kHexLookup[] = {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
         };
 
-        char output_buffer[65536 * 3 + 1] = {};
-        std::size_t output_index = 0;
+        std::string output_buffer;
+        output_buffer.reserve(len * 3 + 1);
 
         for (int i = 0; i < len; ++i)
         {
             auto low = ((uint8_t)buff[i] & 0xF0) >> 4;
             auto high = (uint8_t)buff[i] & 0x0F;
 
-            output_buffer[output_index++] = kHexLookup[low];
-            output_buffer[output_index++] = kHexLookup[high];
-            output_buffer[output_index++] = ' ';
+            output_buffer += kHexLookup[low];
+            output_buffer += kHexLookup[high];
+            output_buffer += ' ';
         }
 
-        if (!output_buffer)
+        return output_buffer;
+    }
+
+    void DumpPacket(const char *buff, int len, bool is_sending)
+    {
+        auto output_buffer = ArrayToHexString(buff, len);
+
+        if (is_sending)
         {
-            printf("Bad output buffer\n");
+            printf("--> [%d] %s\n", len, output_buffer.c_str());
         }
         else
         {
-            if (is_sending)
-            {
-                printf("--> [%d] %s\n", len, output_buffer);
-            }
-            else
-            {
-                printf("<-- [%d] %s\n", len, output_buffer);
-            }
+            printf("<-- [%d] %s\n", len, output_buffer.c_str());
         }
     }
 
