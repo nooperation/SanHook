@@ -120,41 +120,40 @@ namespace Utils
 
     std::string ClusterButt(std::string uuidBytes)
     {
-        char buffer[32];
-        uint32_t i = 0;
-
-        buffer[i++] = uuidBytes[14];
-        buffer[i++] = uuidBytes[15];
-        buffer[i++] = uuidBytes[12];
-        buffer[i++] = uuidBytes[13];
-        buffer[i++] = uuidBytes[10];
-        buffer[i++] = uuidBytes[11];
-        buffer[i++] = uuidBytes[8];
-        buffer[i++] = uuidBytes[9];
-        buffer[i++] = uuidBytes[6];
-        buffer[i++] = uuidBytes[7];
-        buffer[i++] = uuidBytes[4];
-        buffer[i++] = uuidBytes[5];
-        buffer[i++] = uuidBytes[2];
-        buffer[i++] = uuidBytes[3];
-        buffer[i++] = uuidBytes[0];
-        buffer[i++] = uuidBytes[1];
-        buffer[i++] = uuidBytes[30];
-        buffer[i++] = uuidBytes[31];
-        buffer[i++] = uuidBytes[28];
-        buffer[i++] = uuidBytes[29];
-        buffer[i++] = uuidBytes[26];
-        buffer[i++] = uuidBytes[27];
-        buffer[i++] = uuidBytes[24];
-        buffer[i++] = uuidBytes[25];
-        buffer[i++] = uuidBytes[22];
-        buffer[i++] = uuidBytes[23];
-        buffer[i++] = uuidBytes[20];
-        buffer[i++] = uuidBytes[21];
-        buffer[i++] = uuidBytes[18];
-        buffer[i++] = uuidBytes[19];
-        buffer[i++] = uuidBytes[16];
-        buffer[i++] = uuidBytes[17];
+        char buffer[32] = {
+            uuidBytes[14],
+            uuidBytes[15],
+            uuidBytes[12],
+            uuidBytes[13],
+            uuidBytes[10],
+            uuidBytes[11],
+            uuidBytes[8],
+            uuidBytes[9],
+            uuidBytes[6],
+            uuidBytes[7],
+            uuidBytes[4],
+            uuidBytes[5],
+            uuidBytes[2],
+            uuidBytes[3],
+            uuidBytes[0],
+            uuidBytes[1],
+            uuidBytes[30],
+            uuidBytes[31],
+            uuidBytes[28],
+            uuidBytes[29],
+            uuidBytes[26],
+            uuidBytes[27],
+            uuidBytes[24],
+            uuidBytes[25],
+            uuidBytes[22],
+            uuidBytes[23],
+            uuidBytes[20],
+            uuidBytes[21],
+            uuidBytes[18],
+            uuidBytes[19],
+            uuidBytes[16],
+            uuidBytes[17]
+        };
 
         auto newString = std::string(buffer, sizeof(buffer) / sizeof(buffer[0]));
 

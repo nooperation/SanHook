@@ -347,6 +347,12 @@ public:
         auto originReference = reader.ReadString();
         auto revisionsLength = reader.ReadUint32();
 
+        // TODO: Test ot make sure this is still valid...
+        for (size_t i = 0; i < revisionsLength; i++)
+        {
+            OnInventoryItemRevision(reader);
+        }
+
         auto offset = reader.ReadUint64();
         auto state = reader.ReadUint8();
 

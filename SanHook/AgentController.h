@@ -804,13 +804,20 @@ public:
             auto positionZ = br.ReadFloat(26, true);
 
             auto camrez_enabled = false;
+            auto emote_rez_enabled = false;
+            char emote_to_rez[13] = {};
+
             FILE *inFileCamRez = nullptr;
             fopen_s(&inFileCamRez, "u:\\sanhook_config_camrez.txt", "rb");
             if (inFileCamRez != nullptr)
             {
                 camrez_enabled = fgetc(inFileCamRez);
+                emote_rez_enabled = fgetc(inFileCamRez);
+                fread(emote_to_rez, 1, sizeof(emote_to_rez), inFileCamRez);
+
                 fclose(inFileCamRez);
             }
+
             if (camrez_enabled)
             {
                 positionX = CameraPositionOffset[0];
@@ -830,6 +837,42 @@ public:
                 // do not attach this item...
                 auto attachmentNodePtr = &buffer[32];
                 *attachmentNodePtr = 255;
+            }
+
+
+            if (emote_rez_enabled)
+            {
+                // This is our magical warp animation
+                reader.Reset();
+
+                auto buffer = reader.GetBuffer();
+
+                auto pMessageId = (uint32_t *)&buffer[0];
+                auto pFrame = (uint64_t *)&buffer[4];
+                auto pAgentControllerId = (uint32_t *)&buffer[12];
+                auto pTypeLength = (uint32_t *)&buffer[16];
+                auto pType = (char *)&buffer[20];
+
+                // Sansar.Heart
+                // Sansar.Stars
+                // Sansar.Fire
+                // Sansar.Lightning
+                // Sansar.Exclamation
+                // Sansar.WTF
+                // Sansar.Panda
+                // Sansar.Toast
+                // Sansar.Boba
+                std::string reactionName = std::string(emote_to_rez);// "Sansar.Heart";
+
+                *pMessageId = AgentControllerMessages::UserReaction;
+                *pTypeLength = reactionName.length();  // we only have 13 bytes to play with :(
+                memcpy(pType, reactionName.c_str(), reactionName.length());
+                memcpy(&buffer[20 + reactionName.length()], &buffer[33], reader.GetBufferSize() - 33);
+
+                reader.ReadUint32();
+                OnUserReaction(reader);
+
+                return;
             }
 
             uint8_t newResourceId[16] = {};
@@ -898,14 +941,21 @@ public:
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto type = reader.ReadString(); // this is actually ReadArray, but it just contains a string :s
-        auto position = reader.ReadBits(78);
-        auto orientation = reader.ReadBits(43);
 
-        printf("[%s] AgentControllerMessages::OnUserReaction:\n  frame = %llu\n  agentControllerId = %u\n  type = %s\n",
+        BitReader br(reader.GetCurrentPointer(), 10);
+        auto positionX = br.ReadFloat(26, false);
+        auto positionY = br.ReadFloat(26, false);
+        auto positionZ = br.ReadFloat(26, true);
+
+        //auto position = reader.ReadBits(78);
+        //auto orientation = reader.ReadBits(43);
+
+        printf("[%s] AgentControllerMessages::OnUserReaction:\n  frame = %llu\n  agentControllerId = %u\n  type = %s\n  position = <%f, %f, %f>\n",
             _isSender ? "OUT" : "IN",
             frame,
             agentControllerId,
-            type.c_str()
+            type.c_str(),
+            positionX, positionY, positionZ
         );
     }
 

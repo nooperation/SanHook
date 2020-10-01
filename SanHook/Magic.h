@@ -20,7 +20,7 @@ extern "C"
 
 
     void intercept_ProcessPositionUpdate();
-    //void ProcessPositionUpdate(char *packet, uint64_t length);
+    void ProcessPositionUpdate(float *avatarPosition);
     extern unsigned long long ReturnPoint_ProcessPositionUpdate;
     float *AvatarPositionOffset;
     //extern float *AvatarPositionOffset;

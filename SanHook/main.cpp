@@ -48,6 +48,7 @@ unsigned long long ReturnPoint_ProcessBodyCinfo = 0;
 //float *AvatarPositionOffset = 0;
 float *CameraPositionOffset = nullptr;
 
+bool isFlyMode = false;
 uint32_t myControllerId = UINT32_MAX;
 uint32_t mySessionId = UINT32_MAX;
 uint64_t myComponentId = UINT64_MAX;
@@ -112,17 +113,41 @@ std::string GetAddressFromSocket(SOCKET s)
 
 int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sockaddr *from, int *fromlen)
 {
+    auto address = GetAddressFromSocket(s);
+
+
     auto result = original_recvfrom(s, buff, len, flags, from, fromlen);
     if (result == SOCKET_ERROR)
     {
         return result;
     }
 
+    auto sin = (sockaddr_in6 *)from;
+    auto port = htons(sin->sin6_port);
+
+    char ip[INET6_ADDRSTRLEN];
+    inet_ntop(AF_INET, &sin->sin6_addr, ip, sizeof(ip));
+
+    printf("RECVFROM %s  (%s:%d) [family = %d | flags = %d]\n", address.c_str(), ip, port, from->sa_family, flags);
+    Utils::DumpPacket(buff, result, false);
+
+
     return result;
 }
 
 int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const struct sockaddr *to, int tolen)
 {
+    auto address = GetAddressFromSocket(s);
+    
+    auto sin = (sockaddr_in6 *)to;
+    auto port = htons(sin->sin6_port);
+
+    char ip[INET6_ADDRSTRLEN];
+    inet_ntop(AF_INET, &sin->sin6_addr, ip, sizeof(ip));
+
+    printf("SENDTO %s  (%s:%d) [family = %d | flags = %d]\n", address.c_str(), ip, port, to->sa_family, flags);
+    Utils::DumpPacket(buf, len, true);
+
     if (buf == nullptr || len < 1)
     {
         return original_sendto(s, buf, len, flags, to, tolen);
@@ -362,6 +387,21 @@ void ProcessBodyCinfo(uint8_t *clusterPtrAtBodyCInfo, uint8_t *realBodyCinfo, ui
     }
 }
 
+void ProcessPositionUpdate(float *avatarPositionOffset)
+{
+    AvatarPositionOffset = avatarPositionOffset;
+
+    if (CameraPositionOffset != nullptr && AvatarPositionOffset != nullptr && isFlyMode)
+    {
+        if (GetAsyncKeyState('Q'))
+        {
+            AvatarPositionOffset[0] = CameraPositionOffset[0];
+            AvatarPositionOffset[1] = CameraPositionOffset[1];
+            AvatarPositionOffset[2] = CameraPositionOffset[2];
+        }
+    }
+}
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
     if (DetourIsHelperProcess())
@@ -402,7 +442,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         if (true)
         {
             // Search for "Illegally formatted message received. You probably failed to bind a callback for this message. Message was: %s (id: 0x%x)\n"'
-            // Scan down 4 jumps. Patch after last jump containing just a mov mov call [rax + 8]
+            // Scan down 3 jumps. Patch after last jump containing just a mov mov mov call [rax + 8]
             //
 
             uint8_t hijack_ProcessPacketRecv[] = {
@@ -413,15 +453,16 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x14DDC5A, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + 0x1500E32, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
+            // TODO: May be outdated...
             /// WARNING
             /// WARNING
             //      Return point will not be directly after our injected code, but instead follow the existing jmp that we overwrote
             /// WARNING
             /// WARNING
 
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x14EBCED);
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x1500E32 + sizeof(hijack_ProcessPacketRecv));
         }
 
         if (true)
@@ -431,7 +472,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
             /// WARNING
             /// WARNING
-            //       not immediately at the entrypoint with the two movs and setting up the stackframe, but rather down 3 jumps (mov [rsp+78], r15)
+            //       not immediately at the entrypoint with the two movs and setting up the stackframe, but rather down 3 jumps (mov [rsp+68], r15)
             /// WARNING
             /// WARNING
 
@@ -441,15 +482,13 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x1359D26, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + 0x136B8F6, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1359D26 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x136B8F6 + sizeof(hijack_ProcessPacketSend));
         }
 
         if (false)  // always false
         {
-            // NOT YET UPDATED for 2020-09-10
-
             // search for ": consume: parser error"
             // scan down until the first RET, trace back up to first CALL. patch after the call
             uint8_t hijack_ProcessHttpBodyRecv[] = {
@@ -458,37 +497,37 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                 0x90,                                                        // NOP
                 0x90,                                                        // NOP
                 0x90,                                                        // NOP
+                0x90,                                                        // NOP
+                0x90,                                                        // NOP
                 0x90                                                         // NOP
             };
 
             *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-            RewriteCode(base + 0x136EAC5, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+            RewriteCode(base + 0x13888DE, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
 
-            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x136EAC5 + sizeof(hijack_ProcessHttpBodyRecv));
+            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x13888DE + sizeof(hijack_ProcessHttpBodyRecv));
         }
 
-        if (false) // always false
+        if (true) // always false
         {
-            // NOT YET UPDATED for 2020-09-10
-
             // search for "%.*s"
-            // scan up until you get to the double call (should be past the third call above the string).
+            // scan up until you get to the double call (with a jmp inbetween) (should be past the third call above the string).
             // patch after the double call
             uint8_t hijack_ProcessHttpSend[] = {
-                0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
-                0xFF, 0xE2,                                                  // JMP RDX           
+                0x48, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RBX, [address]
+                0xFF, 0xE3,                                                  // JMP RBX           
                 0x90,                                                        // NOP
                 0x90,                                                        // NOP
                 0x90                                                         // NOP
             };
 
             *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSend;
-            RewriteCode(base + 0x136DA0B, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
+            RewriteCode(base + 0x138749E, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
 
-            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x136DA0B + sizeof(hijack_ProcessHttpSend));
+            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x138749E + sizeof(hijack_ProcessHttpSend));
         }
 
-        if (true)  // always false...??
+        if (true)
         {
             // waaaaaay above 'AppletMenu'
             // waaaaaay below 'fullbody_user_slots' (about 0x2543 below)
@@ -504,13 +543,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
-            RewriteCode(base + 0x16E7AD0, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+            RewriteCode(base + 0x16FFD0C, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
 
-            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x16E7AD0 + sizeof(hijack_PositionUpdate));
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x16FFD0C + sizeof(hijack_PositionUpdate));
         }
 
-
-        if (false) // always falseish
+        if (false) // always falseish  // NOT YET UPDATED (2020-09-30)
         {
             // NOT YET TESTED for 2020-09-10
 
@@ -521,7 +559,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             //this is clientside only lol, boo
             // search for "bodyResourceHandle" (right after 3rd call) a little above "shape" (right after 4th call above it)
             // further down is the canGrabEverything stuff
-            auto processBodyCinfoRva = 0x17A66C1;
+            auto processBodyCinfoRva = 0x17A6571;
             unsigned char processBodyCinfoData[] = {
                 0x48, 0xB9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RCX, <address>
                 0xFF, 0xE1                                                   // JMP RCX
@@ -531,6 +569,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             ReturnPoint_ProcessBodyCinfo = (uint64_t)(base + processBodyCinfoRva + sizeof(processBodyCinfoData));
 
 
+            // NOT UPDATED
             // search for "bodyResourceHandle" between "shape" and "name" (dealing with al). patch right after 'ja' (before al stuff happens)
             auto canGrabEverythingRva = 0x17A6860;
             unsigned char canGrabEverythingData[6] = {
@@ -543,6 +582,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             RewriteCode(base + canGrabEverythingRva, canGrabEverythingData, sizeof(canGrabEverythingData));
 
 
+            // NOT UPDATED
             // search for "spawnPointComponentDef", after "name". patch right after last 'ja', dealing with 'al'
             auto nothingFixedInWorldRva = 0x1796762;
             unsigned char nothingFixedInWorldData[6] = {
@@ -555,16 +595,23 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             RewriteCode(base + nothingFixedInWorldRva, nothingFixedInWorldData, sizeof(nothingFixedInWorldData));
         }
 
-        if (true)
+        if (true) 
         {
             // Search: See research
 
             // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
-            auto unlimitedItemPickRangeRva = 0x174C024;
+            // for seating?
+            auto unlimitedItemPickRangeRva = 0x1765C64;
             unsigned char unlimitedItemPickRangeData[1] = {
-                0xeb                            // JE -> JMP
+                0xeb                            // JB -> JMP
             };
             RewriteCode(base + unlimitedItemPickRangeRva, unlimitedItemPickRangeData, sizeof(unlimitedItemPickRangeData));
+
+
+            // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
+            // for actual item pickup/selection ?
+            auto unlimitedItemPickRangeRva2 = 0x1766032;
+            RewriteCode(base + unlimitedItemPickRangeRva2, unlimitedItemPickRangeData, sizeof(unlimitedItemPickRangeData));
         }
 
 
@@ -575,16 +622,16 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         // rcx+30 = our pointer
         // Function above it with a bunch of xmm stuff going on (see screenshots)
         //const static auto kCameraPositionOffset = 0x4AAB1C0;
-        CameraPositionOffset = (float *)(base + 0x4C2CAA0);
+        CameraPositionOffset = (float *)(base + 0x4C60A60);
 
 
         DetourRestoreAfterWith();
 
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
-        // DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
+         DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
        //  DetourAttach(&(PVOID &)original_recv, Hooked_Recv); // need to hard hook into ssl functions or post-decrypted recv handler...
-      //  DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
+        DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
        //  DetourAttach(&(PVOID &)original_send, Hooked_Send);
 
         DetourTransactionCommit();

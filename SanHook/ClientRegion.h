@@ -60,6 +60,7 @@
 //void OnClientRegionShowTutorialHints(PacketReader &reader);
 //void OnClientRegionTutorialHintsEnabled(PacketReader &reader);
 
+extern bool isFlyMode;
 
 class ClientRegion : public MessageHandler
 {
@@ -800,6 +801,11 @@ public:
             args = message.substr(spacer + 1);
         }
         
+        if (command == "fly")
+        {
+            isFlyMode = !isFlyMode;
+            printf("FlyMode = %s!\n", isFlyMode ? "TRUE" : "FALSE");
+        }
         if (command == "follow")
         {
             auto handle = args;
