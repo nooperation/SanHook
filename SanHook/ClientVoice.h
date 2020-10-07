@@ -181,6 +181,10 @@ public:
 
         auto instance = reader.ReadUUID();
         auto agentControllerId = reader.ReadUint32();
+
+        // MISSING -- this right??
+     //   OnSpeechGraphicsData(reader);
+
         auto broadcast = reader.ReadUint8();
     }
 

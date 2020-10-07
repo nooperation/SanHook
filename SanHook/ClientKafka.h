@@ -469,23 +469,23 @@ public:
         auto toPersonaIdButts = Utils::ClusterButt(toPersonaId);
         auto toPersonaIdFormatted = Utils::ToUUID(toPersonaId);
 
-        //if (message.length() > 0)
-        //{
-        //    printf("[%s] ClientKafkaMessages::RegionChat:\n  From = %s [%s]\n  To = %s [%s]\n  instanceAddress = %s\n  agentControllerId = %d\n  message = %s\n  timestamp = %llu\n  typing = %u\n  offset = %llu\n  highwaterMarkOffset = %llu\n",
-        //        _isSender ? "OUT" : "IN",
-        //        fromPersonaIdFormatted.c_str(),
-        //        fromPersonaIdButts.c_str(),
-        //        toPersonaIdFormatted.c_str(),
-        //        toPersonaIdButts.c_str(),
-        //        instanceAddress.c_str(),
-        //        agentControllerId,
-        //        message.c_str(),
-        //        timestamp,
-        //        typing,
-        //        offset,
-        //        highwaterMarkOffset
-        //    );
-        //}
+        if (message.length() > 0)
+        {
+            printf("[%s] ClientKafkaMessages::RegionChat:\n  From = %s [%s]\n  To = %s [%s]\n  instanceAddress = %s\n  agentControllerId = %d\n  message = %s\n  timestamp = %llu\n  typing = %u\n  offset = %llu\n  highwaterMarkOffset = %llu\n",
+                _isSender ? "OUT" : "IN",
+                fromPersonaIdFormatted.c_str(),
+                fromPersonaIdButts.c_str(),
+                toPersonaIdFormatted.c_str(),
+                toPersonaIdButts.c_str(),
+                instanceAddress.c_str(),
+                agentControllerId,
+                message.c_str(),
+                timestamp,
+                typing,
+                offset,
+                highwaterMarkOffset
+            );
+        }
     }
 
     void OnPrivateChat(PacketReader &reader)  // TAG: 17A1740

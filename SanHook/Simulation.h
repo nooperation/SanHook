@@ -124,10 +124,6 @@ public:
     void OnRigidBodyDeactivated(PacketReader &reader) // TAG: 1573580
     {
         auto buffer = reader.GetBuffer();
-        auto componentIdPtr = (uint64_t *)&buffer[4];
-        *componentIdPtr = UINT64_MAX;
-
-
         auto componentId = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto ownershipWatermark = reader.ReadUint8();

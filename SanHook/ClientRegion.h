@@ -38,7 +38,7 @@
 //void OnClientRegionClientKickNotification(PacketReader &reader);
 //void OnClientRegionClientSmiteNotification(PacketReader &reader);
 //void OnClientRegionClientMuteNotification(PacketReader &reader);
-//void OnClientRegionClientvoiceBroadcastStartNotification(PacketReader &reader);
+//void OnClientRegiOnClientVoiceBroadcastStartNotification(PacketReader &reader);
 //void OnClientRegionClientVoiceBroadcastStopNotification(PacketReader &reader);
 //void OnClientRegionClientRuntimeInventoryUpdatedNotification(PacketReader &reader);
 //void OnClientRegionClientSetRegionBroadcasted(PacketReader &reader);
@@ -48,7 +48,7 @@
 //void OnClientRegionRequestDropPortal(PacketReader &reader);
 //void OnClientRegionOpenStoreListing(PacketReader &reader);
 //void OnClientRegionOpenUserStore(PacketReader &reader);
-//void OnClientRegionOpenQuestCharcterDialog(PacketReader &reader);
+//void OnClientRegiOnOpenQuestCharacterDialog(PacketReader &reader);
 //void OnClientRegionUIScriptableBarStart(PacketReader &reader);
 //void OnClientRegionUIScriptableBarStopped(PacketReader &reader);
 //void OnClientRegionUIScriptableBarCancel(PacketReader &reader);
@@ -57,8 +57,8 @@
 //void OnClientRegionQuestCompleted(PacketReader &reader);
 //void OnClientRegionQuestRemoved(PacketReader &reader);
 //void OnClientRegionShowWorldDetail(PacketReader &reader);
-//void OnClientRegionShowTutorialHints(PacketReader &reader);
-//void OnClientRegionTutorialHintsEnabled(PacketReader &reader);
+//void OnClientRegiOnShowTutorialHint(PacketReader &reader);
+//void OnClientRegiOnTutorialHintsSetEnabled(PacketReader &reader);
 
 extern bool isFlyMode;
 
@@ -211,7 +211,7 @@ public:
             }
             case ClientRegionMessages::ClientVoiceBroadcastStartNotification: // TAG: 1B9CC00
             {
-                this->OnClientvoiceBroadcastStartNotification(reader);
+                this->OnClientVoiceBroadcastStartNotification(reader);
                 break;
             }
             case ClientRegionMessages::ClientVoiceBroadcastStopNotification: // TAG: 1B9CDB0
@@ -261,7 +261,7 @@ public:
             }
             case ClientRegionMessages::OpenQuestCharacterDialog: // TAG: 1B9D7D0
             {
-                this->OnOpenQuestCharcterDialog(reader);
+                this->OnOpenQuestCharacterDialog(reader);
                 break;
             }
             case ClientRegionMessages::UIScriptableBarStart: // TAG: 1B9D960
@@ -306,12 +306,12 @@ public:
             }
             case ClientRegionMessages::ShowTutorialHint: // TAG: 1B9E090
             {
-                this->OnShowTutorialHints(reader);
+                this->OnShowTutorialHint(reader);
                 break;
             }
             case ClientRegionMessages::TutorialHintsSetEnabled: // TAG: 1B9E100
             {
-                this->OnTutorialHintsEnabled(reader);
+                this->OnTutorialHintsSetEnabled(reader);
                 break;
             }
             default:
@@ -880,11 +880,11 @@ public:
         );
     }
 
-    void OnClientvoiceBroadcastStartNotification(PacketReader &reader) // TAG: 1B9CC00
+    void OnClientVoiceBroadcastStartNotification(PacketReader &reader) // TAG: 1B9CC00
     {
         auto message = reader.ReadString();
 
-        printf("[%s] OnClientvoiceBroadcastStartNotification:\n  message = %s\n",
+        printf("[%s] OnClientVoiceBroadcastStartNotification:\n  message = %s\n",
             _isSender ? "OUT" : "IN",
             message.c_str()
         );
@@ -996,11 +996,11 @@ public:
         );
     }
 
-    void OnOpenQuestCharcterDialog(PacketReader &reader) // TAG: 1B9D7D0
+    void OnOpenQuestCharacterDialog(PacketReader &reader) // TAG: 1B9D7D0
     {
         auto characterId = reader.ReadUUID();
 
-        printf("[%s] OnOpenQuestCharcterDialog:\n  characterId = %s\n",
+        printf("[%s] OnOpenQuestCharacterDialog:\n  characterId = %s\n",
             _isSender ? "OUT" : "IN",
             characterId.c_str()
         );
@@ -1067,13 +1067,13 @@ public:
         );
     }
 
-    void OnShowTutorialHints(PacketReader &reader) // TAG: 1B9E090
+    void OnShowTutorialHint(PacketReader &reader) // TAG: 1B9E090
     {
         auto tutorialHintEnum = reader.ReadUint32();
         auto variant = reader.ReadUint32();
     }
 
-    void OnTutorialHintsEnabled(PacketReader &reader) // TAG: 1B9E100
+    void OnTutorialHintsSetEnabled(PacketReader &reader) // TAG: 1B9E100
     {
         auto enabled = reader.ReadUint8();
     }

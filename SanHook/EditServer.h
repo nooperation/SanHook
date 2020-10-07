@@ -23,7 +23,7 @@
 //void OnEditServerBuildWorkspaceProgressUpdate(PacketReader &reader);
 //void OnEditServerBuildWorkspaceuploadReply(PacketReader &reader);
 //void OnEditServerWorkspaceReadyReply(PacketReader &reader);
-//void OnEditServerSaveworkspaceSelectionToInventory(PacketReader &reader);
+//void OnEditServerSaveWorkspaceSelectionToInventory(PacketReader &reader);
 //void OnEditServerSaveWorkspaceSelectionToInventoryReply(PacketReader &reader);
 //void OnEditServerInventoryCreateItem(PacketReader &reader);
 //void OnEditServerInventoryDeleteItem(PacketReader &reader);
@@ -116,7 +116,7 @@ public:
             }
             case EditServerMessages::BuildWorkspaceUploadReply: // TAG: 19B8B80
             {
-                this->OnBuildWorkspaceuploadReply(reader);
+                this->OnBuildWorkspaceUploadReply(reader);
                 break;
             }
             case EditServerMessages::WorkspaceReadyReply: // TAG: 19B8BF0
@@ -126,7 +126,7 @@ public:
             }
             case EditServerMessages::SaveWorkspaceSelectionToInventory: // TAG: 19B8DB0
             {
-                this->OnSaveworkspaceSelectionToInventory(reader);
+                this->OnSaveWorkspaceSelectionToInventory(reader);
                 break;
             }
             case EditServerMessages::SaveWorkspaceSelectionToInventoryReply: // TAG: 19B8E20
@@ -316,7 +316,7 @@ public:
         auto percent = reader.ReadFloat();
     }
 
-    void OnBuildWorkspaceuploadReply(PacketReader &reader) // TAG: 19B8B80
+    void OnBuildWorkspaceUploadReply(PacketReader &reader) // TAG: 19B8B80
     {
         auto success = reader.ReadUint8();
         auto worldDefinitionId = reader.ReadString();
@@ -332,7 +332,7 @@ public:
         );
     }
 
-    void OnSaveworkspaceSelectionToInventory(PacketReader &reader) // TAG: 19B8DB0
+    void OnSaveWorkspaceSelectionToInventory(PacketReader &reader) // TAG: 19B8DB0
     {
         auto authorization = reader.ReadString();
         auto itemName = reader.ReadString();

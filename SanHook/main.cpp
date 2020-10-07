@@ -113,9 +113,6 @@ std::string GetAddressFromSocket(SOCKET s)
 
 int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sockaddr *from, int *fromlen)
 {
-    auto address = GetAddressFromSocket(s);
-
-
     auto result = original_recvfrom(s, buff, len, flags, from, fromlen);
     if (result == SOCKET_ERROR)
     {
@@ -125,28 +122,22 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sock
     auto sin = (sockaddr_in6 *)from;
     auto port = htons(sin->sin6_port);
 
-    char ip[INET6_ADDRSTRLEN];
-    inet_ntop(AF_INET, &sin->sin6_addr, ip, sizeof(ip));
-
-    printf("RECVFROM %s  (%s:%d) [family = %d | flags = %d]\n", address.c_str(), ip, port, from->sa_family, flags);
-    Utils::DumpPacket(buff, result, false);
-
+  //  printf("<-- RECVFROM port %d: [%d] %s\n", port, result, Utils::ArrayToHexString(buff, result).c_str());
 
     return result;
 }
 
 int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const struct sockaddr *to, int tolen)
 {
-    auto address = GetAddressFromSocket(s);
+    //auto address = GetAddressFromSocket(s);
     
     auto sin = (sockaddr_in6 *)to;
     auto port = htons(sin->sin6_port);
 
-    char ip[INET6_ADDRSTRLEN];
-    inet_ntop(AF_INET, &sin->sin6_addr, ip, sizeof(ip));
+    //char ip[INET6_ADDRSTRLEN];
+    //inet_ntop(AF_INET, &sin->sin6_addr, ip, sizeof(ip));
 
-    printf("SENDTO %s  (%s:%d) [family = %d | flags = %d]\n", address.c_str(), ip, port, to->sa_family, flags);
-    Utils::DumpPacket(buf, len, true);
+   // printf("--> SENDTO port %d: [%d] %s\n", port, len, Utils::ArrayToHexString(buf, len).c_str());
 
     if (buf == nullptr || len < 1)
     {
@@ -205,7 +196,7 @@ int WINAPI Hooked_Send(SOCKET s, const char *buf, int len, int flags)
     if (result != SOCKET_ERROR)
     {
         printf("Hooked send [%s] -> %d\n", GetAddressFromSocket(s).c_str(), result);
-        Utils::DumpPacket(buf, len, true);
+      //  Utils::DumpPacket(buf, len, true);
     }
 
     return result;
@@ -231,6 +222,240 @@ void RewriteCode(void *targetAddress, uint8_t *newCode, std::size_t newCodeLengt
 }
 
 std::vector<std::unique_ptr<MessageHandler>> messageHandlers;
+
+std::unordered_map<int, std::string> idToMessageMap = {
+    {0x412484C4, "Audio.LoadSound"},
+    {0x8FC77316, "Audio.PlaySound"},
+    {0x6A2C4CEF, "Audio.PlayStream"},
+    {0x866BF5CF, "Audio.StopBroadcastingSound"},
+    {0x5DCD6123, "Audio.SetAudioStream"},
+    {0xEC3CA8EC, "Audio.SetMediaSource"},
+    {0x559B7F04, "Audio.PerformMediaAction"},
+    {0x1A5C9610, "Audio.StopSound"},
+    {0x20EDD0C4, "Audio.SetLoudness"},
+    {0x7BB86A5B, "Audio.SetPitch"},
+    {0x6951DAEC, "Render.LightStateChanged"},
+    {0x0D094FEA, "Simulation.InitialTimestamp"},
+    {0x1E9B31CE, "Simulation.Timestamp"},
+    {0x86E6A7F6, "Simulation.SetWorldGravityMagnitude"},
+    {0x864418DA, "Simulation.ActiveRigidBodyUpdate"},
+    {0x0D938F45, "Simulation.RigidBodyDeactivated"},
+    {0x45FAAEBC, "Simulation.RigidBodyPropertyChanged"},
+    {0x3A92215C, "Simulation.RigidBodyDestroyed"},
+    {0x00AC2B81, "AgentController.AgentPlayAnimation"},
+    {0x0B617A9A, "AgentController.ExitSit"},
+    {0x1651CD68, "AgentController.ObjectInteractionPromptUpdate"},
+    {0xBB086E9B, "AgentController.ObjectInteractionCreate"},
+    {0xE5321C47, "AgentController.RequestSitOnObject"},
+    {0x191F08C0, "AgentController.SitOnObject"},
+    {0x09DD53F6, "AgentController.SetAgentFiltersBody"},
+    {0x2B87F09D, "AgentController.RequestSetAgentFiltersBody"},
+    {0x31D1EC43, "AgentController.SetCharacterUserProperty"},
+    {0x158B2580, "AgentController.CreateSpeechGraphicsPlayer"},
+    {0x2C21850D, "AgentController.RequestSpawnItem"},
+    {0xEB3C4296, "AgentController.RequestDeleteLatestSpawn"},
+    {0x3EB3EDF7, "AgentController.RequestDeleteAllSpawns"},
+    {0x2DF35CF3, "AgentController.ControlPoint"},
+    {0x75C0AC6B, "AgentController.WarpCharacter"},
+    {0x25C093E0, "AgentController.RequestWarpCharacter"},
+    {0xFCA3EF20, "AgentController.CharacterControlPointInput"},
+    {0x8FB6F456, "AgentController.CharacterControlPointInputReliable"},
+    {0x3D490CAB, "AgentController.CharacterControllerInput"},
+    {0xA7D6EFD1, "AgentController.CharacterControllerInputReliable"},
+    {0x982B98D8, "AgentController.RequestAgentPlayAnimation"},
+    {0x5489A347, "AgentController.RequestBehaviorStateUpdate"},
+    {0x85BA6E75, "AgentController.AttachToCharacterNode"},
+    {0x80F90328, "AgentController.DetachFromCharacterNode"},
+    {0x67B63AA3, "AgentController.RequestDetachFromCharacterNode"},
+    {0x645C4976, "AgentController.SetCharacterNodePhysics"},
+    {0x83F1D7DB, "AgentController.WarpCharacterNode"},
+    {0xBB382C6B, "AgentController.CharacterIKBone"},
+    {0xE945D8B8, "AgentController.CharacterIKPose"},
+    {0x4C3B3B4B, "AgentController.CharacterIKBoneDelta"},
+    {0x893A18BE, "AgentController.CharacterIKPoseDelta"},
+    {0xA25F81AB, "AgentController.ObjectInteraction"},
+    {0x17B7D18A, "AgentController.ObjectInteractionUpdate"},
+    {0x6F5546CE, "AgentController.UserReaction"},
+    {0xAE522F17, "GameWorld.StaticMeshFlagsChanged"},
+    {0xCA6CCC08, "GameWorld.StaticMeshScaleChanged"},
+    {0xD22C9D73, "GameWorld.Timestamp"},
+    {0xEFC20B7F, "GameWorld.MoveEntity"},
+    {0x403D5704, "GameWorld.ChangeMaterialVectorParam"},
+    {0x4F20B073, "GameWorld.ChangeMaterialFloatParam"},
+    {0x45C605B8, "GameWorld.ChangeMaterial"},
+    {0x3F020C77, "GameWorld.RiggedMeshFlagsChange"},
+    {0xEA2934E8, "GameWorld.RiggedMeshScaleChanged"},
+    {0x60C955C0, "GameWorld.ScriptCameraMessage"},
+    {0x371D99C1, "GameWorld.UpdateRuntimeInventorySettings"},
+    {0x513700E2, "RegionRegion.DynamicSubscribe"},
+    {0xE87C89BB, "RegionRegion.DynamicPlayback"},
+    {0x5A4AFA33, "RegionRegion.MasterFrameSync"},
+    {0xBB5865E8, "RegionRegion.AgentControllerMapping"},
+    {0x685B436C, "WorldState.CreateWorld"},
+    {0x20C45982, "WorldState.DestroyWorld"},
+    {0x065C105B, "WorldState.RigidBodyComponentInitialState"},
+    {0xDE87FDD8, "WorldState.AnimationComponentInitialState"},
+    {0xA5C4FB23, "WorldState.LoadClusterDefinition"},
+    {0x941E6445, "WorldState.ComponentRelativeTransform"},
+    {0x349AD257, "WorldState.InitiateCluster"},
+    {0x73810D53, "WorldState.CreateClusterViaDefinition"},
+    {0x2926D248, "WorldState.DestroyCluster"},
+    {0x5749A1CD, "WorldState.DestroyObject"},
+    {0x1505C6D8, "WorldState.DestroySourceIdSpace"},
+    {0x32DC63D7, "WorldState.CreateCharacterNode"},
+    {0xF555FE2D, "WorldState.CreateAgentController"},
+    {0x16406FB7, "WorldState.DestroyAgentController"},
+    {0x0AF50C12, "ClientKafka.FriendResponseLoaded"},
+    {0x5915FBFE, "ClientKafka.PresenceUpdateFanoutLoaded"},
+    {0xB4AB87F5, "ClientKafka.FriendTableLoaded"},
+    {0x0A7562A7, "ClientKafka.RelationshipTableLoaded"},
+    {0x4B73CF2C, "ClientKafka.PrivateChatLoaded"},
+    {0x9BC4EF8A, "ClientKafka.PrivateChatStatusLoaded"},
+    {0xD3CAA979, "ClientKafka.ScriptRegionConsoleLoaded"},
+    {0x4AC30FE7, "ClientKafka.ClientMetric"},
+    {0xDCF900A4, "ClientKafka.RegionHeartbeatMetric"},
+    {0xBA6DB2FC, "ClientKafka.RegionEventMetric"},
+    {0x3BFA4474, "ClientKafka.SubscribeScriptRegionConsole"},
+    {0xD49B04C3, "ClientKafka.UnsubscribeScriptRegionConsole"},
+    {0x00B0E15E, "ClientKafka.ScriptConsoleLog"},
+    {0x46C5FDF3, "ClientKafka.LongLivedNotification"},
+    {0x59CF6950, "ClientKafka.LongLivedNotificationDelete"},
+    {0x3494608D, "ClientKafka.LongLivedNotificationsLoaded"},
+    {0xAD589C6F, "ClientKafka.ShortLivedNotification"},
+    {0x0C0C9D81, "ClientKafka.Login"},
+    {0xA685E82B, "ClientKafka.LoginReply"},
+    {0x08445006, "ClientKafka.EnterRegion"},
+    {0xE4ADC2EB, "ClientKafka.LeaveRegion"},
+    {0x304D3746, "ClientKafka.RegionChat"},
+    {0x2DC9B029, "ClientKafka.PrivateChat"},
+    {0x955C35EB, "ClientKafka.PrivateChatStatus"},
+    {0x1DB989E8, "ClientKafka.PresenceUpdate"},
+    {0xA356B3ED, "ClientKafka.FriendRequest"},
+    {0x14FFCD37, "ClientKafka.FriendRequestStatus"},
+    {0xE24EBDD3, "ClientKafka.FriendResponse"},
+    {0x22565685, "ClientKafka.FriendResponseStatus"},
+    {0x203CC0A8, "ClientKafka.FriendTable"},
+    {0x650939F7, "ClientKafka.RelationshipOperation"},
+    {0x078DCC26, "ClientKafka.RelationshipTable"},
+    {0xA2190F5D, "ClientKafka.InventoryItemCapabilities"},
+    {0xE3466906, "ClientKafka.InventoryItemRevision"},
+    {0xD7C7DC26, "ClientKafka.InventoryItemUpdate"},
+    {0xB11C8C84, "ClientKafka.InventoryItemDelete"},
+    {0x75BAFB95, "ClientKafka.InventoryLoaded"},
+    {0xF5361468, "ClientKafka.FriendRequestLoaded"},
+    {0x59AC5555, "ClientVoice.Login"},
+    {0xA6972017, "ClientVoice.LoginReply"},
+    {0x5A978A32, "ClientVoice.AudioData"},
+    {0xD9306963, "ClientVoice.SpeechGraphicsData"},
+    {0x0D50D087, "ClientVoice.LocalAudioData"},
+    {0xF2FB6AD0, "ClientVoice.LocalAudioStreamState"},
+    {0x1798BA9C, "ClientVoice.LocalAudioPosition"},
+    {0x56800096, "ClientVoice.LocalAudioMute"},
+    {0x573EE089, "ClientVoice.LocalSetRegionBroadcasted"},
+    {0x90DA7ED3, "ClientVoice.LocalSetMuteAll"},
+    {0x47C4FFDF, "ClientVoice.GroupAudioData"},
+    {0xC91B2D1C, "ClientVoice.LocalTextData"},
+    {0x88C28A79, "ClientVoice.MasterInstance"},
+    {0x3F7171FB, "ClientVoice.VoiceModerationCommand"},
+    {0x742CE528, "ClientVoice.VoiceModerationCommandResponse"},
+    {0x3A168D81, "ClientVoice.VoiceNotification"},
+    {0x3902800A, "ClientRegion.UserLogin"},
+    {0x30CDBED6, "ClientRegion.UserLoginReply"},
+    {0xF6B9093E, "ClientRegion.AddUser"},
+    {0x0A7FC621, "ClientRegion.RemoveUser"},
+    {0xC67C58F7, "ClientRegion.RenameUser"},
+    {0x083642BD, "ClientRegion.ChatMessageToClient"},
+    {0xDDDEC199, "ClientRegion.ChatMessageToServer"},
+    {0xD6F4CF23, "ClientRegion.SetAgentController"},
+    {0x41FE0612, "ClientRegion.DebugTimeChangeToServer"},
+    {0x0741CA9B, "ClientRegion.VisualDebuggerCaptureToServer"},
+    {0xF8E77C8E, "ClientRegion.ClientStaticReady"},
+    {0x575AC239, "ClientRegion.ClientDynamicReady"},
+    {0xECE56EFD, "ClientRegion.ClientRegionCommandMessage"},
+    {0x7D22C30C, "ClientRegion.RequestDropPortal"},
+    {0x0D3809EB, "ClientRegion.VibrationPulseToClient"},
+    {0x5C7CC1FC, "ClientRegion.TeleportTo"},
+    {0x2BDBDB56, "ClientRegion.TeleportToUri"},
+    {0x706F63FB, "ClientRegion.TeleportToEditMode"},
+    {0x5178DC5E, "ClientRegion.DebugTimeChangeToClient"},
+    {0xF66AD9BF, "ClientRegion.VisualDebuggerCaptureToClient"},
+    {0x88023C72, "ClientRegion.ScriptModalDialog"},
+    {0xB34F3A45, "ClientRegion.ScriptModalDialogResponse"},
+    {0x981AB0D6, "ClientRegion.TwitchEventSubscription"},
+    {0x28F54053, "ClientRegion.TwitchEvent"},
+    {0xB4E1AB7B, "ClientRegion.InitialChunkSubscribed"},
+    {0x4B68A51C, "ClientRegion.ClientKickNotification"},
+    {0x58003034, "ClientRegion.ClientSmiteNotification"},
+    {0x6188A537, "ClientRegion.ClientMuteNotification"},
+    {0x7E28AEAF, "ClientRegion.ClientVoiceBroadcastStartNotification"},
+    {0xC33DE58B, "ClientRegion.ClientVoiceBroadcastStopNotification"},
+    {0x9643B9C3, "ClientRegion.ClientRuntimeInventoryUpdatedNotification"},
+    {0x87341F77, "ClientRegion.ClientSetRegionBroadcasted"},
+    {0xABDA80C7, "ClientRegion.SubscribeCommand"},
+    {0xA36E9F9C, "ClientRegion.UnsubscribeCommand"},
+    {0xB87F9C66, "ClientRegion.ClientCommand"},
+    {0x05C1A8D7D, "ClientRegion.OpenStoreListing"},
+    {0x53078A1E, "ClientRegion.OpenUserStore"},
+    {0x4221836F, "ClientRegion.OpenQuestCharacterDialog"},
+    {0x036164050, "ClientRegion.UIScriptableBarStart"},
+    {0xBAFD799D, "ClientRegion.UIScriptableBarStopped"},
+    {0x604E18DE, "ClientRegion.UIScriptableBarCancel"},
+    {0x64225637, "ClientRegion.UIHintTextUpdate"},
+    {0x4DB48E35, "ClientRegion.QuestOfferResponse"},
+    {0xE1EE5F5D, "ClientRegion.QuestCompleted"},
+    {0x34793AB0, "ClientRegion.QuestRemoved"},
+    {0x5F483F0C, "ClientRegion.ShowWorldDetail"},
+    {0x581827CC, "ClientRegion.ShowTutorialHint"},
+    {0xE4C496DF, "ClientRegion.TutorialHintsSetEnabled"},
+    {0x046D3C1E, "EditServer.UserLogin"},
+    {0xE227C3E2, "EditServer.UserLoginReply"},
+    {0x50155562, "EditServer.AddUser"},
+    {0x5729AC25, "EditServer.RemoveUser"},
+    {0xBC512F47, "EditServer.OpenWorkspace"},
+    {0x43C06583, "EditServer.CloseWorkspace"},
+    {0x76363E28, "EditServer.EditWorkspaceCommand"},
+    {0x7C7BDCA8, "EditServer.SaveWorkspace"},
+    {0xFAE838FC, "EditServer.SaveWorkspaceReply"},
+    {0x5963934F, "EditServer.BuildWorkspace"},
+    {0xF12FD324, "EditServer.UpdateWorkspaceClientBuiltBakeData"},
+    {0x15B220E0, "EditServer.BuildWorkspaceCompileReply"},
+    {0xC9FCDB71, "EditServer.BuildWorkspaceProgressUpdate"},
+    {0xF090AF8E, "EditServer.BuildWorkspaceUploadReply"},
+    {0x7D87DBEA, "EditServer.WorkspaceReadyReply"},
+    {0x7E37F335, "EditServer.SaveWorkspaceSelectionToInventory"},
+    {0x439C3637, "EditServer.SaveWorkspaceSelectionToInventoryReply"},
+    {0xB5487205, "EditServer.InventoryCreateItem"},
+    {0x6F75848E, "EditServer.InventoryDeleteItem"},
+    {0x690612C6, "EditServer.InventoryChangeItemName"},
+    {0x6C202756, "EditServer.InventoryChangeItemState"},
+    {0x2C2AE45E, "EditServer.InventoryModifyItemThumbnailAssetId"},
+    {0xF93582DD, "EditServer.InventoryModifyItemCapabilities"},
+    {0xA67D88F8, "EditServer.InventorySaveItem"},
+    {0x144D39F8, "EditServer.InventoryUpdateItemReply"},
+    {0xF2E11A50, "EditServer.InventoryItemUpload"},
+    {0xA25566F4, "EditServer.InventoryItemUploadReply"},
+    {0xBE2C532E, "EditServer.InventoryCreateListing"},
+    {0x4EA3D072, "EditServer.InventoryCreateListingReply"},
+    {0xB5BFECD3, "EditServer.BeginEditServerSpawn"},
+    {0xB3623297, "EditServer.EditServerSpawnReady"},
+    {0x0B3B7D2E, "AnimationComponent.FloatVariable"},
+    {0x4C1B3DF2, "AnimationComponent.FloatNodeVariable"},
+    {0x91419DEB, "AnimationComponent.FloatRangeNodeVariable"},
+    {0x23314E53, "AnimationComponent.VectorVariable"},
+    {0x0CC9F1B8, "AnimationComponent.QuaternionVariable"},
+    {0xC11AFDE7, "AnimationComponent.Int8Variable"},
+    {0xA67454F0, "AnimationComponent.BoolVariable"},
+    {0xAB2F1EB1, "AnimationComponent.CharacterTransform"},
+    {0x970F93D4, "AnimationComponent.CharacterTransformPersistent"},
+    {0x53A4BF26, "AnimationComponent.CharacterAnimationDestroyed"},
+    {0x8C738C9E, "AnimationComponent.AnimationOverride"},
+    {0xCE9B5148, "AnimationComponent.BehaviorInternalState"},
+    {0x16C090B1, "AnimationComponent.CharacterBehaviorInternalState"},
+    {0x217192BE, "AnimationComponent.BehaviorStateUpdate"},
+    {0x7846436E, "AnimationComponent.BehaviorInitializationData"},
+    {0x51A1705A, "AnimationComponent.CharacterSetPosition"},
+    {0x009385A0, "AnimationComponent.PlayAnimation"},
+};
 
 void ProcessPacketSend(uint8_t *packet, uint64_t length)
 {
@@ -269,6 +494,12 @@ void ProcessPacketSend(uint8_t *packet, uint64_t length)
         //printf("SEND: messageid = %X\n", messageId);
 
         auto handled_packet = false;
+
+        auto foundMessage = idToMessageMap.find(messageId);
+        if (foundMessage != idToMessageMap.end())
+        {
+       //     printf("[OUT] %s [%08X]\n", foundMessage->second.c_str(), foundMessage->first);
+        }
     
         for (auto &item : messageHandlers)
         {
@@ -301,6 +532,12 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         messageId = reader.ReadUint32();
 
         auto handled_packet = false;
+
+        auto foundMessage = idToMessageMap.find(messageId);
+        if (foundMessage != idToMessageMap.end())
+        {
+         //   printf("[IN] %s [%08X]\n", foundMessage->second.c_str(), foundMessage->first);
+        }
 
         for (auto &item : messageHandlers)
         {
@@ -453,7 +690,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x1500E32, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + 0x1501732, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // TODO: May be outdated...
             /// WARNING
@@ -462,7 +699,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             /// WARNING
             /// WARNING
 
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x1500E32 + sizeof(hijack_ProcessPacketRecv));
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x1501732 + sizeof(hijack_ProcessPacketRecv));
         }
 
         if (true)
@@ -482,9 +719,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x136B8F6, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + 0x136D376, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x136B8F6 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x136D376 + sizeof(hijack_ProcessPacketSend));
         }
 
         if (false)  // always false
@@ -503,12 +740,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-            RewriteCode(base + 0x13888DE, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+            RewriteCode(base + 0x138A35E, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
 
-            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x13888DE + sizeof(hijack_ProcessHttpBodyRecv));
+            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138A35E + sizeof(hijack_ProcessHttpBodyRecv));
         }
 
-        if (true) // always false
+        if (false) // always false
         {
             // search for "%.*s"
             // scan up until you get to the double call (with a jmp inbetween) (should be past the third call above the string).
@@ -522,9 +759,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSend;
-            RewriteCode(base + 0x138749E, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
+            RewriteCode(base + 0x1388F1E, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
 
-            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x138749E + sizeof(hijack_ProcessHttpSend));
+            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x1388F1E + sizeof(hijack_ProcessHttpSend));
         }
 
         if (true)
@@ -536,16 +773,16 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             // should have 5 chunks of xmm stuff in a single function.
 
             unsigned char hijack_PositionUpdate[14] = {
-                0x48, 0xB9, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, // MOV ECX, [address]
-                0xFF, 0xE1,                                                 // JMP ECX
+                0x48, 0xB9, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x11, // MOV RCX, [address]
+                0xFF, 0xE1,                                                 // JMP RCX
                 0x90,                                                       // NOP
                 0x90                                                        // NOP
             };
 
             *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
-            RewriteCode(base + 0x16FFD0C, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+            RewriteCode(base + 0x170042C, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
 
-            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x16FFD0C + sizeof(hijack_PositionUpdate));
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x170042C + sizeof(hijack_PositionUpdate));
         }
 
         if (false) // always falseish  // NOT YET UPDATED (2020-09-30)
@@ -601,7 +838,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
             // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
             // for seating?
-            auto unlimitedItemPickRangeRva = 0x1765C64;
+            auto unlimitedItemPickRangeRva = 0x1766A34;
             unsigned char unlimitedItemPickRangeData[1] = {
                 0xeb                            // JB -> JMP
             };
@@ -610,7 +847,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
             // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
             // for actual item pickup/selection ?
-            auto unlimitedItemPickRangeRva2 = 0x1766032;
+            auto unlimitedItemPickRangeRva2 = 0x1766E02;
             RewriteCode(base + unlimitedItemPickRangeRva2, unlimitedItemPickRangeData, sizeof(unlimitedItemPickRangeData));
         }
 
@@ -622,7 +859,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         // rcx+30 = our pointer
         // Function above it with a bunch of xmm stuff going on (see screenshots)
         //const static auto kCameraPositionOffset = 0x4AAB1C0;
-        CameraPositionOffset = (float *)(base + 0x4C60A60);
+        CameraPositionOffset = (float *)(base + 0x4C62CE0);
 
 
         DetourRestoreAfterWith();

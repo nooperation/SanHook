@@ -190,7 +190,7 @@ public:
             }
             case AgentControllerMessages::RequestSetAgentFiltersBody:  // TAG: 17105E0
             {
-                this->OnRequestSetAgentfiltersBody(reader);
+                this->OnRequestSetAgentFiltersBody(reader);
                 break;
             }
             case AgentControllerMessages::SetCharacterUserProperty:  // TAG: 1710650
@@ -337,9 +337,7 @@ public:
         // REMOVED 40.11.0.1810696  (2020-08-13)
 
         auto agentControllerId = reader.ReadUint32();
-
-        auto numElements = reader.ReadUint32();
-        auto sinkConfigData = reader.ReadBytes(numElements);
+        auto sinkConfigData = reader.ReadArray();
 
         //printf("OnCreateSpeechGraphicsPlayer:\n  sinkConfigData = Array[%u]\n",
         //    numElements
@@ -768,7 +766,7 @@ public:
         //);
     }
 
-    void OnRequestSetAgentfiltersBody(PacketReader &reader)  // TAG: 17105E0
+    void OnRequestSetAgentFiltersBody(PacketReader &reader)  // TAG: 17105E0
     {
         OnSetAgentFiltersBody(reader);
     }

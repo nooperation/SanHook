@@ -104,6 +104,20 @@ namespace Utils
         return output_buffer;
     }
 
+    void DumpPacket2(const char *message, const char *buff, int len, bool is_sending)
+    {
+        auto output_buffer = ArrayToHexString(buff, len);
+
+        if (is_sending)
+        {
+            printf("%s--> [%d] %s\n", message, len, output_buffer.c_str());
+        }
+        else
+        {
+            printf("%s<-- [%d] %s\n", message, len, output_buffer.c_str());
+        }
+    }
+
     void DumpPacket(const char *buff, int len, bool is_sending)
     {
         auto output_buffer = ArrayToHexString(buff, len);

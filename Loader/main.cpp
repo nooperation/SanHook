@@ -129,7 +129,8 @@ int main()
         TEXT("C:\\Program Files\\Sansar\\Client\\SansarClient.exe"),
         //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -sceneUri sansar://sansar.com/experience/nopnop/flatt"),
       //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -audio.attenuationVoiceFactor 0.01 "),
-        (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 0"),
+      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -system.maxCores 1"),
+        (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 "),
        // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -system.maxCores 1"),
         nullptr,
         nullptr,
@@ -190,8 +191,8 @@ int main()
         };
         *((float*)&gravityHack[1]) = 2.0f;
 
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x179FC2B), gravityHack, sizeof(gravityHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x179FC2B, written);
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17A097B), gravityHack, sizeof(gravityHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x17A097B, written);
 
 
         ///////////////////////////////////
@@ -202,8 +203,8 @@ int main()
            // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
              0xB0, 0x01, 0x90
         };
-       // WriteProcessMemory(process_info.hProcess, (void*)(base + 0x179FC74), collisionHack, sizeof(collisionHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x179FC74, written);
+       // WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17A09C4), collisionHack, sizeof(collisionHack), &written);
+       // printf("Written to %X: %d bytes\n", base + 0x17A09C4, written);
     
 
         ///////////////////////////////////
@@ -213,8 +214,8 @@ int main()
             0xB0, 0x01, 0x90
         };
         written = 0;
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x179FCBF), freecamHack, sizeof(freecamHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x179FCBF, written);
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17A0A0F), freecamHack, sizeof(freecamHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x17A0A0F, written);
 
 
     
@@ -227,9 +228,9 @@ int main()
            0xB0, 0x01, 0x88, 0x07
         };
         written = 0;
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17A5DA5), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x17A5DA5, written);
-        */
+        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17A6AF5), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
+        printf("Written to %X: %d bytes\n", base + 0x17A6AF5, written);
+        
 
 
         //uint8_t hijackClientRegionMessage_AddUserLogin[] = {
@@ -251,7 +252,7 @@ int main()
         uint8_t no1minTelemetry[] = {
             0xEB, 0x08
         };
-        auto telemetryCallerAddress = 0x1163D0B;
+        auto telemetryCallerAddress = 0x1165B7B;
         written = 0;
         //WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
         printf("Written to %X: %d bytes\n", base + telemetryCallerAddress, written);
