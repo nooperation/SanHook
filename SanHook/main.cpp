@@ -459,7 +459,7 @@ std::unordered_map<int, std::string> idToMessageMap = {
 
 void ProcessPacketSend(uint8_t *packet, uint64_t length)
 {
-    //printf("ProcessPacketSend: Length = %lld | packet = %llX\n", length, (uint64_t)packet);
+    //printf("ProcessPacketSend: Length = %lld | packet = %llX\n", length, *(uint64_t)packet);
 
     try
     {
@@ -524,7 +524,7 @@ void ProcessPacketSend(uint8_t *packet, uint64_t length)
 
 void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 {
-    // printf("ProcessPacketRecv: MessageId = %llX | Length = %lld | packet = %llX\n", messageId, length, (uint64_t)packet);
+  //   printf("ProcessPacketRecv: MessageId = %llX | Length = %lld | packet = %llX\n", messageId, length, (uint64_t)packet);
 
     try
     {
@@ -690,7 +690,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x1503C22, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + 0x15044A2, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // TODO: May be outdated...
             /// WARNING
@@ -699,7 +699,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             /// WARNING
             /// WARNING
 
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x1503C22 + sizeof(hijack_ProcessPacketRecv));
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x15044A2 + sizeof(hijack_ProcessPacketRecv));
         }
 
         if (true)
@@ -719,9 +719,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x1371076, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + 0x13717F6, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1371076 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x13717F6 + sizeof(hijack_ProcessPacketSend));
         }
 
         if (false)  // always false
@@ -740,9 +740,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-            RewriteCode(base + 0x138E05E, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+            RewriteCode(base + 0x138E7DE, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
 
-            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138E05E + sizeof(hijack_ProcessHttpBodyRecv));
+            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138E7DE + sizeof(hijack_ProcessHttpBodyRecv));
         }
 
         if (false) // always false
@@ -760,9 +760,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSend;
-            RewriteCode(base + 0x138B33E, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
+            RewriteCode(base + 0x138D39E, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
 
-            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x138B33E + sizeof(hijack_ProcessHttpSend));
+            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x138D39E + sizeof(hijack_ProcessHttpSend));
         }
 
         if (true)
@@ -781,9 +781,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
-            RewriteCode(base + 0x170230C, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+            RewriteCode(base + 0x1704D9C, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
 
-            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x170230C + sizeof(hijack_PositionUpdate));
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x1704D9C + sizeof(hijack_PositionUpdate));
         }
 
         if (false) // always falseish  // NOT YET UPDATED (2020-09-30)
@@ -839,7 +839,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
             // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
             // for seating?
-            auto unlimitedItemPickRangeRva = 0x17693B4;
+            auto unlimitedItemPickRangeRva = 0x176B154;
             unsigned char unlimitedItemPickRangeData[1] = {
                 0xeb                            // JB -> JMP
             };
@@ -848,7 +848,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
             // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
             // for actual item pickup/selection ?
-            auto unlimitedItemPickRangeRva2 = 0x1769782;
+            auto unlimitedItemPickRangeRva2 = 0x176B522;
             RewriteCode(base + unlimitedItemPickRangeRva2, unlimitedItemPickRangeData, sizeof(unlimitedItemPickRangeData));
         }
 
@@ -860,16 +860,16 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         // rcx+30 = our pointer
         // Function above it with a bunch of xmm stuff going on (see screenshots)
         //const static auto kCameraPositionOffset = 0x4C7E760;
-        CameraPositionOffset = (float *)(base + 0x4C7E760);
+        CameraPositionOffset = (float *)(base + 0x4C8C7E0);
 
 
         DetourRestoreAfterWith();
 
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
-         DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
+         //DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
        //  DetourAttach(&(PVOID &)original_recv, Hooked_Recv); // need to hard hook into ssl functions or post-decrypted recv handler...
-        DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
+        //DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
        //  DetourAttach(&(PVOID &)original_send, Hooked_Send);
 
         DetourTransactionCommit();
