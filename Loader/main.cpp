@@ -186,36 +186,40 @@ int main()
         /// GRAVITYS (right above collision hack, look for "skyCubemap", 4th one down)
         ///////////////////////////////////
 
+
+        auto gravityHackAddr = (void *)(base + 0x17A682B);
         uint8_t gravityHack[] = {
             0xB8, 0x14, 0xAE, 0xE7, 0x3F, 0x90, 0x90
         };
         *((float*)&gravityHack[1]) = 2.0f;
 
-        //WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17A564B), gravityHack, sizeof(gravityHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x17A564B, written);
+        //WriteProcessMemory(process_info.hProcess, gravityHackAddr, gravityHack, sizeof(gravityHack), &written);
+        printf("Written to %X: %d bytes\n", gravityHackAddr, written);
 
 
         ///////////////////////////////////
         /// COLLISION - ALWAYS COLLIDE AVATARS (right above freecam hack, look for "skyCubemap")
         ///////////////////////////////////
 
+        auto collisionHackAddr = (void *)(base + 0x17A6874);
         uint8_t collisionHack[] = {
            // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
              0xB0, 0x01, 0x90
         };
-       // WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17A5694), collisionHack, sizeof(collisionHack), &written);
-       // printf("Written to %X: %d bytes\n", base + 0x17A5694, written);
+       // WriteProcessMemory(process_info.hProcess, collisionHackAddr, collisionHack, sizeof(collisionHack), &written);
+       // printf("Written to %X: %d bytes\n", collisionHackAddr, written);
     
 
         ///////////////////////////////////
         /// FREECAM - ALLOW ALWAYS (rigth below freecam hack, look for "skyCubemap" (THIRD DOWN FROM 'defaultSkyCubeMap') (func below has 'environment' reference)
         ///////////////////////////////////
+        auto freecamHackAddr = (void *)(base + 0x17A68BF);
         uint8_t freecamHack[] = {
             0xB0, 0x01, 0x90
         };
         written = 0;
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17A56DF), freecamHack, sizeof(freecamHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x17A56DF, written);
+        WriteProcessMemory(process_info.hProcess, freecamHackAddr, freecamHack, sizeof(freecamHack), &written);
+        printf("Written to %X: %d bytes\n", freecamHackAddr, written);
 
 
     
@@ -224,12 +228,15 @@ int main()
         /// INVENTORY - ALLOW ALWAYS (search for 'exposureBias', function just above that) 
         ///////////////////////////////////
         /*
+        */
+
+        auto inventoryAlwaysHackAddr = (void *)(base + 0x17ACCB5);
         uint8_t inventoryAlwaysHack[] = {
            0xB0, 0x01, 0x88, 0x07
         };
         written = 0;
-        WriteProcessMemory(process_info.hProcess, (void*)(base + 0x17AB7C5), inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
-        printf("Written to %X: %d bytes\n", base + 0x17AB7C5, written);
+        WriteProcessMemory(process_info.hProcess, inventoryAlwaysHackAddr, inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
+        printf("Written to %X: %d bytes\n", inventoryAlwaysHackAddr, written);
         
 
 
@@ -252,7 +259,7 @@ int main()
         uint8_t no1minTelemetry[] = {
             0xEB, 0x08
         };
-        auto telemetryCallerAddress = 0x116822B;
+        auto telemetryCallerAddress = 0x11674CB;
         written = 0;
         WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
         printf("Written to %X: %d bytes\n", base + telemetryCallerAddress, written);

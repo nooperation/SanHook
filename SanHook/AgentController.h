@@ -702,6 +702,9 @@ public:
 
     void OnSitOnObject(PacketReader &reader)  // TAG: 1710490
     {
+        // CHANGED: 2020-12-10: 
+        // TODO: Update
+
         //if (myControllerId != 0xffffffff)
         //{
         //    auto buffer = reader.GetBuffer();
@@ -713,17 +716,16 @@ public:
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto componentId = reader.ReadUint64();
-        auto ownershipWatermark = reader.ReadUint8();
-        auto skipAnimation = reader.ReadUint8();
+        
+        //auto ownershipWatermark = reader.ReadUint8(); // REMOVED 2020-12-10 - dynamic sitpoints update
+        //auto skipAnimation = reader.ReadUint8(); // REMOVED 2020-12-10 - dynamic sitpoints update
 
-        //printf("[%s] AgentControllerMessages::SitOnObject\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n  ownershipWatermark = %u\n  skipAnimation = %u\n",
-        //    _isSender ? "OUT" : "IN",
-        //    frame,
-        //    agentControllerId,
-        //    componentId,
-        //    ownershipWatermark,
-        //    skipAnimation
-        //);
+        printf("[%s] AgentControllerMessages::SitOnObject\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n",
+            _isSender ? "OUT" : "IN",
+            frame,
+            agentControllerId,
+            componentId
+        );
     }
 
     void OnExitSit(PacketReader &reader)  // TAG: 1710500
@@ -739,15 +741,15 @@ public:
         auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto componentId = reader.ReadUint64();
-        auto skipAnimation = reader.ReadBits(1);
+        // auto skipAnimation = reader.ReadBits(1); // REMOVED 2020-12-10 - dynamic sitpoints update
         auto skipExitTeleport = reader.ReadBits(1);
 
-        //printf("[%s] AgentControllerMessages::ExitSit\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n",
-        //    _isSender ? "OUT" : "IN",
-        //    frame,
-        //    agentControllerId,
-        //    componentId
-        //);
+        printf("[%s] AgentControllerMessages::ExitSit\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n",
+            _isSender ? "OUT" : "IN",
+            frame,
+            agentControllerId,
+            componentId
+        );
     }
 
     void OnSetAgentFiltersBody(PacketReader &reader) // TAG: 1710570

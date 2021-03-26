@@ -314,6 +314,31 @@ public:
                 this->OnTutorialHintsSetEnabled(reader);
                 break;
             }
+            case  ClientRegionMessages::ReactionDefinition: // = 0x1753788; // NEW: 2021-03-25
+            {
+                this->OnReactionDefinition(reader);
+                break;
+            }
+            case  ClientRegionMessages::SystemReactionDefinition: // = 0xFA87F231; // NEW: 2021-03-25
+            {
+                this->OnSystemReactionDefinition(reader);
+                break;
+            }
+            case  ClientRegionMessages::UpdateReactions: // = 0x9B5B20E9; // NEW: 2021-03-25
+            {
+                this->OnUpdateReactions(reader);
+                break;
+            }
+            case  ClientRegionMessages::AddReaction: // = 0x28323E96; // NEW: 2021-03-25
+            {
+                this->OnAddReaction(reader);
+                break;
+            }
+            case  ClientRegionMessages::RemoveReaction: // = 0x3F337471; // NEW: 2021-03-25
+            {
+                this->OnRemoveReaction(reader);
+                break;
+            }
             default:
             {
                 return false;
@@ -1076,5 +1101,68 @@ public:
     void OnTutorialHintsSetEnabled(PacketReader &reader) // TAG: 1B9E100
     {
         auto enabled = reader.ReadUint8();
+    }
+
+    void OnReactionDefinition(PacketReader &reader) // TAG: 1C2EBF0
+    {
+        // NEW: 2021-03-25
+        auto reactionType = reader.ReadString();
+        auto displayText = reader.ReadString();
+        auto thumbnailId = reader.ReadUUID();
+
+        printf("[%s] OnReactionDefinition:\n  reactionType = %s\n  displayText = %s\n  thumbnailId = %s\n",
+            _isSender ? "OUT" : "IN",
+            reactionType.c_str(),
+            displayText.c_str(),
+            thumbnailId.c_str()
+        );
+    }
+
+    void OnSystemReactionDefinition(PacketReader &reader) // TAG: 1C2EC60
+    {
+        // NEW: 2021-03-25
+
+        auto reactionType = reader.ReadString();
+        auto displayText = reader.ReadString();
+        auto thumbnailPath = reader.ReadString();
+
+        printf("[%s] OnSystemReactionDefinition:\n  reactionType = %s\n  displayText = %s\n  thumbnailPath = %s\n",
+            _isSender ? "OUT" : "IN",
+            reactionType.c_str(),
+            displayText.c_str(),
+            thumbnailPath.c_str()
+        );
+    }
+
+    void OnUpdateReactions(PacketReader &reader) // TAG: 1C2ECD0
+    {
+        // NEW: 2021-03-25
+        auto reactionsLength = reader.ReadUint32();
+        for (size_t i = 0; i < reactionsLength; i++)
+        {
+            printf("[%s] OnUpdateReactions: (handled as the following definitions):\n", _isSender ? "OUT" : "IN");
+            OnReactionDefinition(reader);
+        }
+
+        auto systemReactionsLength = reader.ReadUint32();
+        for (size_t i = 0; i < systemReactionsLength; i++)
+        {
+            printf("[%s] OnUpdateReactions: (handled as the following definitions):\n", _isSender ? "OUT" : "IN");
+            OnSystemReactionDefinition(reader);
+        }
+    }
+
+    void OnAddReaction(PacketReader &reader) // TAG: 1C2EE60
+    {
+        // NEW: 2021-03-25
+        OnReactionDefinition(reader);
+
+        printf("[%s] OnAddReaction: (handled as the following OnReactionDefinition output):\n", _isSender ? "OUT" : "IN");
+    }
+
+    void OnRemoveReaction(PacketReader &reader) // TAG: 1C2EED0
+    {
+        // NEW: 2021-03-25
+        auto reactionType = reader.ReadString();
     }
 };

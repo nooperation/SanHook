@@ -80,6 +80,11 @@ public:
                 this->OnScriptCameraMessage(reader);
                 break;
             }
+            case GameWorldMessages::ScriptCameraCapture:  // 
+            {
+                this->OnScriptCameraCapture(reader);
+                break;
+            }
             case GameWorldMessages::UpdateRuntimeInventorySettings:  // TAG: 16EA220
             {
                 this->OnUpdateRuntimeInventorySettings(reader);
@@ -207,6 +212,11 @@ public:
         auto componentid = reader.ReadUint64();
         auto frame = reader.ReadUint64();
         auto controlMode = reader.ReadBits(4);
+    } 
+    
+    void OnScriptCameraCapture(PacketReader &reader) // TAG: 1767F20
+    {
+        auto componentid = reader.ReadUint64();
     }
 
     void OnUpdateRuntimeInventorySettings(PacketReader &reader) // TAG: 16EA220

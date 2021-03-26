@@ -90,6 +90,7 @@ public:
     static const uint32_t RiggedMeshFlagsChange = 0x3F020C77;
     static const uint32_t RiggedMeshScaleChanged = 0xEA2934E8;
     static const uint32_t ScriptCameraMessage = 0x60C955C0;
+    static const uint32_t ScriptCameraCapture = 0x575D5715; // NEW: 2021-03-25
     static const uint32_t UpdateRuntimeInventorySettings = 0x371D99C1;
 };
 
@@ -232,6 +233,11 @@ public:
     static const uint32_t ShowWorldDetail = 0x5F483F0C;
     static const uint32_t ShowTutorialHint = 0x581827CC;
     static const uint32_t TutorialHintsSetEnabled = 0xE4C496DF;
+    static const uint32_t ReactionDefinition = 0x1753788; // NEW: 2021-03-25
+    static const uint32_t SystemReactionDefinition = 0xFA87F231; // NEW: 2021-03-25
+    static const uint32_t UpdateReactions = 0x9B5B20E9; // NEW: 2021-03-25
+    static const uint32_t AddReaction = 0x28323E96; // NEW: 2021-03-25
+    static const uint32_t RemoveReaction = 0x3F337471; // NEW: 2021-03-25
 };
 
 class EditServerMessages {
@@ -362,7 +368,7 @@ Packet versions (16):
 
 -----------------------
 Channel: ClientRegionChannel
-Packet versions (141):
+Packet versions (147):
   CA6CCC08 = 1
   3902800A = 1
   58003034 = 1
@@ -378,6 +384,7 @@ Packet versions (141):
   B87F9C66 = 1
   75C0AC6B = 1
   BB382C6B = 1
+  3F337471 = 1 // New 2021-03-25
   88023C72 = 1
   4F20B073 = 1
   3F020C77 = 1
@@ -397,6 +404,7 @@ Packet versions (141):
   864418DA = 2
   604E18DE = 1
   EA2934E8 = 1
+  9B5B20E9 = 1 // New 2021-03-25
   EC3CA8EC = 1
   6A2C4CEF = 1
   A67454F0 = 1
@@ -443,6 +451,7 @@ Packet versions (141):
   53078A1E = 1
   0A7FC621 = 1
   F555FE2D = 5
+  FA87F231 = 1 // New 2021-03-25
   4DB48E35 = 1
   64225637 = 1
   575AC239 = 1
@@ -453,6 +462,7 @@ Packet versions (141):
   7BB86A5B = 1
   85BA6E75 = 1
   EB3C4296 = 1
+  28323E96 = 1 // New 2021-03-25
   0B617A9A = 1
   BB086E9B = 1
   0741CA9B = 2
@@ -473,6 +483,7 @@ Packet versions (141):
   403D5704 = 1
   5F483F0C = 1
   7D22C30C = 1
+  575D5715 = 1 // New 2021-03-25
   8FC77316 = 1
   AE522F17 = 1
   FCA3EF20 = 1
@@ -492,6 +503,7 @@ Packet versions (141):
   B4E1AB7B = 1
   EFC20B7F = 1
   00AC2B81 = 1
+  01753788 = 1 // New 2021-03-25
   A36E9F9C = 1
   16406FB7 = 1
   581827CC = 1

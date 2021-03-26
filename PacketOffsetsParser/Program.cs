@@ -62,10 +62,10 @@ namespace PacketOffsetsParser
 
         static void Main(string[] args)
         {
-            Regex patternPacketName = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})  \\\"(?<name>[a-zA-Z]+::[a-zA-Z0-9]+)\\\"");
-            Regex patternValueType = new Regex("(?<address>[0-9A-Z]{16})  (?<value>[0-9A-Z]{16})  ");
-            Regex patternSmallValueType = new Regex("[0-9A-Z]{16}  000000000000(?<value>[0-9A-Z]{4})  ");
-            Regex patternParserOffset = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})");
+            Regex patternPacketName = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})  (?<dump>.{8})  \\\"(?<name>[a-zA-Z]+::[a-zA-Z0-9]+)\\\"");
+            Regex patternValueType = new Regex("(?<address>[0-9A-Z]{16})  (?<value>[0-9A-Z]{16})  (?<dump>.{8})  ");
+            Regex patternSmallValueType = new Regex("[0-9A-Z]{16}  000000000000(?<value>[0-9A-Z]{4})  (?<dump>.{8})  ");
+            Regex patternParserOffset = new Regex("[0-9A-Z]{16}  (?<value>[0-9A-Z]{16})  (?<dump>.{8})  ");
 
             List<ParserData> parsers = new List<ParserData>();
 
