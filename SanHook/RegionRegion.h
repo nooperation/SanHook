@@ -64,6 +64,7 @@ public:
     void OnMasterFrameSync(PacketReader &reader) // TAG: 1BB1C50
     {
         auto masterFrame = reader.ReadUint64();
+        printf("MasterFrameSync: %llu", masterFrame);
     }
 
     void OnAgentControllerMapping(PacketReader &reader)  // TAG: 1BB1E10

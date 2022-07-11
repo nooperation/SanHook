@@ -67,6 +67,38 @@ public:
         this->WriteInt32(newVal, numbits);
     }
 
+    float ReadFloatX(uint32_t numbits, float modifier)
+    {
+        auto value = ReadUInt64(numbits);
+
+        if (numbits == 16) {
+            value = (
+                (value & 0b0000000011111111 << 8) | 
+                (value & 0b1111111100000000 >> 8)
+            );
+        }
+
+        auto mask = pow(2, numbits - 1) - 1;
+        auto result = (value - mask) * (1.0f / mask) * modifier;
+
+        return (float)result;
+    }
+    void WriteFloatX(float value, int numBits, float modifier)
+    {
+        auto mask = (int32_t)pow(2, numBits - 1) - 1;
+
+        auto newVal = value * (mask / modifier);
+        auto packedFloat = (int32_t)round(mask + (value * (mask / modifier)));
+
+        if (numBits == 16) {
+            packedFloat = (
+                (packedFloat & 0b0000000011111111 << 8) | 
+                (packedFloat & 0b1111111100000000 >> 8)
+            );
+        }
+        this->WriteInt32(packedFloat, numBits);
+    }
+
     float ReadFloat(uint32_t numbits, bool fuckItAllUp)
     {
         auto newVal = ReadUInt64(numbits);
@@ -74,8 +106,8 @@ public:
         if (fuckItAllUp)
         {
             newVal = (newVal & 0b00000000000000111111111111) |
-                ((newVal & 0b11111111000000000000000000) >> 6) |
-                ((newVal & 0b00000000111111000000000000) << 8);
+                    ((newVal & 0b11111111000000000000000000) >> 6) |
+                    ((newVal & 0b00000000111111000000000000) << 8);
         }
 
         auto result = unpackFloat26(newVal, numbits);

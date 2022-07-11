@@ -74,7 +74,11 @@ public:
         auto nanoseconds = reader.ReadUint64();
         auto frame = reader.ReadUint64();
 
-        printf("OnInitialTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
+        printf("[%s] SimulationMessages::InitialTimestamp\n  nanoseconds = %llu\n  frame = %llu\n",
+            _isSender ? "OUT" : "IN", 
+            nanoseconds, 
+            frame
+        );
     }
 
     void OnTimestamp(PacketReader &reader) // TAG: 1573430 
@@ -82,7 +86,11 @@ public:
         auto nanoseconds = reader.ReadUint64();
         auto frame = reader.ReadUint64();
 
-        //printf("OnTimestamp: nanoseconds = %llu | frame = %llu\n", nanoseconds, frame);
+        //printf("[%s] SimulationMessages::Timestamp\n  nanoseconds = %llu\n  frame = %llu\n",
+        //    _isSender ? "OUT" : "IN",
+        //    nanoseconds,
+        //    frame
+        //);
     }
 
     void OnSetWorldGravityMagnitude(PacketReader &reader) // TAG: 15734A0
@@ -90,7 +98,8 @@ public:
         auto frame = reader.ReadUint64();
         auto magnitude = reader.ReadFloat();
 
-        printf("OnSetWorldGravityMagnitude\n  frame = %llu\n  magnitude = %f\n",
+        printf("[%s] SimulationMessages::SetWorldGravityMagnitude\n  frame = %llu\n  magnitude = %f\n",
+            _isSender ? "OUT" : "IN",
             frame,
             magnitude
         );
@@ -152,7 +161,10 @@ public:
 
         if (_isVerbose)
         {
-            printf("RigidBodyPropertyChanged\n  componentId = %llu\n", componentId);
+            printf("[%s] SimulationManager::RigidBodyPropertyChanged\n  componentId = %llu\n",
+                _isSender ? "OUT" : "IN",
+                componentId
+            );
         }
     }
 
@@ -162,7 +174,10 @@ public:
 
         if (_isVerbose)
         {
-            printf("OnRigidBodyDestroyed\n  componentId = %llu\n", componentId);
+            printf("[%s] SimulationManager::OnRigidBodyDestroyed\n  componentId = %llu\n",
+                _isSender ? "OUT" : "IN",
+                componentId
+            );
         }
     }
 };

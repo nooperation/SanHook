@@ -133,9 +133,8 @@ public:
         auto personaId = reader.ReadUUID();
         auto slave = reader.ReadUint8();
 
-        printf("[%s] ClientVoice::Login\n  instance = %s\n  secret = %u\n  personaId = %s\n  slave = %u\n",
+        printf("[%s] ClientVoice::Login\n  secret = %u\n  personaId = %s\n  slave = %u\n",
             _isSender ? "OUT" : "IN",
-            instance.c_str(),
             secret,
             personaId.c_str(),
             slave
@@ -162,6 +161,12 @@ public:
         auto sequence = reader.ReadUint64();
         auto volume = reader.ReadUint16();
         auto data = reader.ReadArray();
+
+        //printf("[%s] OnAudioData: Sequence=%u: Volume='%u'\n",
+        //    _isSender ? "OUT" : "IN",
+        //    sequence,
+        //    volume
+        //);
     }
 
     void OnSpeechGraphicsData(PacketReader &reader) // TAG: 1DF9D20
@@ -173,6 +178,7 @@ public:
         auto data = reader.ReadArray();
     }
 
+    bool forceBroadcast = false;
     void OnLocalAudioData(PacketReader &reader) // TAG: 1DF9D90
     {
         // MODIFIED 40.11.0.1810696  (2020-08-13)
@@ -182,11 +188,32 @@ public:
         auto instance = reader.ReadUUID();
         auto agentControllerId = reader.ReadUint32();
 
-        // MISSING -- this right??
-     //   OnSpeechGraphicsData(reader);
+        auto sequence = reader.ReadUint64();
+        auto volume = reader.ReadUint16();
+        auto data = reader.ReadArray();
+
+        auto sgSequence = reader.ReadUint64();
+        auto sgData = reader.ReadArray();
+
+        if (_isSender) {
+            auto pBroadcast = (bool *)reader.GetCurrentPointer();
+            if (forceBroadcast) {
+                *pBroadcast = 1;
+            }
+        }
 
         auto broadcast = reader.ReadUint8();
-    }
+
+        //printf("[%s] OnLocalAudioData: Inst=%s agent=%u Sequence=%u: Volume='%u' sgSequence=%u broadcast=%d\n",
+        //    _isSender ? "OUT" : "IN",
+        //    instance,
+        //    agentControllerId,
+        //    sequence,
+        //    volume,
+        //    sgSequence,
+        //    broadcast
+        //);
+    }   
 
     void OnLocalAudioStreamState(PacketReader &reader) // TAG: 1DF9E00
     {
@@ -197,6 +224,14 @@ public:
         auto agentControllerId = reader.ReadUint32();
         auto broadcast = reader.ReadUint8();   // TODO: Maybe an okay place to set everyone to broadcast locally, would this work though?
         auto mute = reader.ReadUint8();
+
+        std::ifstream inFile("r:\\sanhook_config_broadcast.txt");
+        if (inFile.is_open())
+        {
+            inFile >> forceBroadcast;
+            printf("forceBroadcast=%d\n", forceBroadcast);
+            inFile.close();
+        }
 
         //printf("[%s] OnLocalAudioStreamState:\n  instance=%s\n  agentControllerId = %u\n  broacast = %u\n  mute = %u\n",
         //    _isSender ? "OUT" : "IN",
@@ -217,10 +252,9 @@ public:
         auto position = reader.ReadVectorF(3);
         auto agentControllerId = reader.ReadUint32();
 
-        //printf("[%s] OnLocalAudioPosition\n  sequence = %u\n  instance = %s\n  position = <%f, %f, %f>\n  agentControllerId = %u\n",
+        //printf("[%s] OnLocalAudioPosition\n  sequence = %u\n position = <%f, %f, %f>\n  agentControllerId = %u\n",
         //    _isSender ? "OUT" : "IN",
         //    sequence,
-        //    instance.c_str(),
         //    position[0], position[1], position[2],
         //    agentControllerId
         //);
@@ -263,9 +297,8 @@ public:
         auto agentControllerId = reader.ReadUint32();
         auto data = reader.ReadString();
 
-        printf("[%s] OnLocalTextData\n  instance = %s\n  agentControllerId = %u\n  data = %s\n",
+        printf("[%s] OnLocalTextData\n  agentControllerId = %u\n  data = %s\n",
             _isSender ? "OUT" : "IN",
-            instance.c_str(),
             agentControllerId,
             data.c_str()
         );

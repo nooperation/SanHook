@@ -127,11 +127,36 @@ int main()
     printf("Creating process...\n");
     auto result_create_process = CreateProcess(
         TEXT("C:\\Program Files\\Sansar\\Client\\SansarClient.exe"),
-        //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -sceneUri sansar://sansar.com/experience/nopnop/flatt"),
-      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -audio.attenuationVoiceFactor 0.01 "),
-      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -system.maxCores 1"),
-        (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 "),
-       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -system.maxCores 1"),
+        //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -sceneUri sansar://sansar.com/experience/nopnop/flatt "),
+      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -audio.attenuationVoiceFactor 0.01 -enableVR false"),
+      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -system.maxCores 1 -enableVR false"),
+       //   (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 -enableVR false"),
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -logging.logFilePath \"r:\\sansar123log.txt\" -logging.logAllTagged 1 -logging.logUntagged 0 -logging.disableTags Inventory ResourceLoader ComponentManager MeshDuplicateCheck EventQueue AssetSystem TextureStreamingManager TextureBudgetShareholder UserInputHints Audio UIPanelManager UIWorkspaceManager MaterialTypeDictionary LLHttp::HttpMessageParser LoadingProgress"),
+      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 -enableVR false"),
+      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 0 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 "),
+       
+      // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  "), // -networking.useTcp 1
+      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 0  "), // -networking.useTcp 1
+
+
+
+ //\\ (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -graphics.maxFps 30 -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -media.enabled false"), // -networking.useTcp 1
+ (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -media.enabled false"), // -networking.useTcp 1
+ // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 0  -enableVR true  -media.enabled false "), // -networking.useTcp 1
+
+
+
+
+
+   //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 0  -enableVR false  -media.enabled false"), // -networking.useTcp 1
+    //   (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -crash.enableCrashReporting false  -enablesteamlogin false -enableVR true  -singleInstance 1 -media.enabled false"), // -connection.conductor.insecureHost true
+
+                                                                                                                                                                                            
+                                                                                                                                                                                            
+                                                                                                                                                                                            //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 -enableVR false -logging.logAllTagged 0 -logging.logUntagged 0 -logging.tags OutgoingPacket IncomingPacket HttpClient ClientVoiceApi Voice ClientApplication Config"),
+     //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 -enableVR false -logging.logAllTagged 0 -logging.logUntagged 1 -logging.logFilePath \"r:\\sansar123log.txt\" -logging.tags Application OutgoingPacket IncomingPacket HttpClient ClientVoiceApi Voice ClientApplication Config"),
+        // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 -enableVR false -logging.logAllTagged 0 -logging.logUntagged 0 -logging.disableTags DataSyncRoot ClientUI Window State"),
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -system.maxCores 1 -enableVR false"),
         nullptr,
         nullptr,
         false,
@@ -191,7 +216,7 @@ int main()
         uint8_t gravityHack[] = {
             0xB8, 0x14, 0xAE, 0xE7, 0x3F, 0x90, 0x90
         };
-        *((float*)&gravityHack[1]) = 2.0f;
+        *((float*)&gravityHack[1]) = 0.35f;
 
         //WriteProcessMemory(process_info.hProcess, gravityHackAddr, gravityHack, sizeof(gravityHack), &written);
         printf("Written to %X: %d bytes\n", gravityHackAddr, written);
@@ -237,8 +262,6 @@ int main()
         written = 0;
         WriteProcessMemory(process_info.hProcess, inventoryAlwaysHackAddr, inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
         printf("Written to %X: %d bytes\n", inventoryAlwaysHackAddr, written);
-        
-
 
         //uint8_t hijackClientRegionMessage_AddUserLogin[] = {
         //    0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0x20

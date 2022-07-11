@@ -12,7 +12,7 @@
 
 namespace Utils
 {
-    void DumpPacket(const char *buff, int len, bool is_sending);
+    void DumpPacket(const char *buff, int len, bool is_sending, int socket=0, int port=0);
     std::string ClusterButt(std::string uuidBytes);
     std::string ToUUID(std::string id);
     uint16_t ShortCRC(uint8_t *packet, int64_t packetLength, uint64_t initialChecksum);
@@ -110,25 +110,25 @@ namespace Utils
 
         if (is_sending)
         {
-            printf("%s--> [%d] %s\n", message, len, output_buffer.c_str());
+            printf("SEND to %s --> [%d] %s\n", message, len, output_buffer.c_str());
         }
         else
         {
-            printf("%s<-- [%d] %s\n", message, len, output_buffer.c_str());
+            printf("RECV from %s <-- [%d] %s\n", message, len, output_buffer.c_str());
         }
     }
 
-    void DumpPacket(const char *buff, int len, bool is_sending)
+    void DumpPacket(const char *buff, int len, bool is_sending, int socket, int port)
     {
         auto output_buffer = ArrayToHexString(buff, len);
 
         if (is_sending)
         {
-            printf("--> [%d] %s\n", len, output_buffer.c_str());
+            printf("--> (%d:%d) [%d] %s\n", socket, port, len, output_buffer.c_str());
         }
         else
         {
-            printf("<-- [%d] %s\n", len, output_buffer.c_str());
+            printf("<-- (%d:%d) [%d] %s\n", socket, port, len, output_buffer.c_str());
         }
     }
 

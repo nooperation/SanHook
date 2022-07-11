@@ -20,6 +20,7 @@ EXTERN ProcessPositionUpdate:PROC
 
 .code
 	intercept_ProcessPacketRecv PROC
+		
 		mov rdi, qword ptr [r14 + 8h]  ; RDX = packet
 		mov r8d, dword ptr [r14 + 10h] ; R8 = Pakcet Length
 		mov rdx,rdi
@@ -236,11 +237,11 @@ EXTERN ProcessPositionUpdate:PROC
 		
 		sub rsp, 24
 		
-		; R15 = request data
-		; RAX = request length
+		; R14 = request data
+		; RBX = request length
 		
-		mov rcx, r14  ; arg1 = request data
-		mov rdx, r11 ; arg2 = request length
+		mov rcx, r15  ; arg1 = request data
+		mov rdx, r14 ; arg2 = request length
 		call ProcessHttpBodyRecv ; ProcessHttpBodyRecv(packet, packetLength)
 		
 		add rsp, 24
@@ -279,9 +280,8 @@ EXTERN ProcessPositionUpdate:PROC
 		pop rbx
 		pop rax
 
-		mov rax, rbx
-		mov rbx, qword ptr [rsp+ 0108h]
-		add rsp, 0E8h
+		cmp qword ptr [rdi+178], 0 
+		mov qword ptr [rsp+130], rbx
 
 		jmp ReturnPoint_ProcessHttpBodyRecv ; Jump back to where we left off
 	intercept_ProcessHttpBodyRecv ENDP

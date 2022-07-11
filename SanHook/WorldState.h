@@ -271,12 +271,40 @@ public:
         auto personaId = reader.ReadUUID();
         auto isRemoteAgent = reader.ReadUint8();
 
+        auto componentId = characterObjectId * 0x100000000;
+
         if (sessionId == mySessionId)
         {
-            myComponentId = characterObjectId * 0x100000000;
+            myComponentId = componentId;
         }
 
-        sessionToComponentIdMap[sessionId] = characterObjectId * 0x100000000;
+        sessionToComponentIdMap[sessionId] = componentId;
+
+        if (isUsingTargetAsSpawnPosition) {
+            // handleToSessionIdMap[targetHandle] should always resolve to the latest session id of that avatar
+            auto handleResult = handleToSessionIdMap.find(targetHandle);
+            if (handleResult == handleToSessionIdMap.end())
+            {
+                knowsTargetPosition = false;
+                printf("! Cannot target. Unable to find session id for '%s'\n", targetHandle.c_str());
+                return;
+            }
+            auto trackedSessionId = handleResult->second;
+            if (trackedSessionId != sessionId) {
+                // The new person who joined isn't our target
+                return;
+            }
+
+            knowsTargetPosition = false;
+            targetComponentId = componentId;
+
+            printf("Now targeting %s for item spawns (from create controller) (sessionId = %d)(componentId = %d)\n",
+                targetHandle.c_str(),
+                sessionId,
+                componentId
+            );
+        }
+
 
         //printf("[%s] OnCreateAgentController:\n  sessionId = %d\n  clusterId = %u\n  agentControllerId = %u\n  characterObjectId = %u\n  characterNodesLength = %u\n  frame = %llu\n  personaId = %s\n  isRemoteAgent = %d\n",
         //    _isSender ? "OUT" : "IN",

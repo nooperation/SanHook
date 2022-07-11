@@ -6,6 +6,7 @@
 #include <regex>
 #include <chrono>
 #include <filesystem>
+#include <algorithm>
 
 #include "MessageHandler.h"
 #include "PacketReader.hpp"
@@ -399,7 +400,9 @@ public:
         auto personaIdButts = Utils::ClusterButt(personaId);
         auto personaIdFormatted = Utils::ToUUID(personaId);
 
-        handleToSessionIdMap[handle] = sessionId;
+        std::string handleLower = handle;
+        std::transform(handleLower.begin(), handleLower.end(), handleLower.begin(), tolower);
+        handleToSessionIdMap[handleLower] = sessionId;
 
         std::string avatarAssetId = "";
         std::string avatarInventoryId = "";
@@ -831,28 +834,24 @@ public:
             isFlyMode = !isFlyMode;
             printf("FlyMode = %s!\n", isFlyMode ? "TRUE" : "FALSE");
         }
-        if (command == "follow")
-        {
+        if (command == "spawn-target" || command == "st") {
             auto handle = args;
+            followMode = 0;
+            targetHandle = handle;
 
             if (handle == "")
             {
-                printf("No longer following %d\n", targetComponentId);
+                printf("No longer following %d\n", targetFollowComponentId);
                 targetComponentId = UINT64_MAX;
+                isUsingTargetAsSpawnPosition = false;
                 return;
             }
 
-            if (handle == "ALL")
-            {
-                printf("Following ALL\n");
-                targetComponentId = 0;
-                return;
-            }
-
+            std::transform(handle.begin(), handle.end(), handle.begin(), tolower);
             auto handleResult = handleToSessionIdMap.find(handle);
             if (handleResult == handleToSessionIdMap.end())
             {
-                printf("! Cannot follow. Unable to find session id for '%s'\n", handle.c_str());
+                printf("! Cannot target. Unable to find session id for '%s'\n", handle.c_str());
                 return;
             }
             auto sessionId = handleResult->second;
@@ -860,7 +859,52 @@ public:
             auto componentIdResult = sessionToComponentIdMap.find(sessionId);
             if (componentIdResult == sessionToComponentIdMap.end())
             {
-                printf("! Cannot follow. Unable to find componentId id for '%s' (session = %d)\n", handle.c_str(), sessionId);
+                printf("! Cannot target. Unable to find componentId id for '%s' (session = %d)\n", handle.c_str(), sessionId);
+                return;
+            }
+            auto componentId = componentIdResult->second;
+            printf("Now targeting %s for item spawns (sessionId = %d)(componentId = %d)\n",
+                handle.c_str(),
+                sessionId,
+                componentId
+            );
+            
+            isUsingTargetAsSpawnPosition = true;
+            targetComponentId = componentId;
+        }
+        if (command == "follow")
+        {
+            auto handle = args;
+            followMode = 0;
+            targetHandle = handle;
+
+            if (handle == "")
+            {
+                printf("No longer following %d\n", targetFollowComponentId);
+                targetComponentId = UINT64_MAX;
+                return;
+            }
+
+            if (handle == "ALL")
+            {
+                printf("Following ALL\n");
+                followMode = 2;
+                return;
+            }
+
+            std::transform(handle.begin(), handle.end(), handle.begin(), tolower);
+            auto handleResult = handleToSessionIdMap.find(handle);
+            if (handleResult == handleToSessionIdMap.end())
+            {
+                printf("! Cannot target. Unable to find session id for '%s'\n", handle.c_str());
+                return;
+            }
+            auto sessionId = handleResult->second;
+            
+            auto componentIdResult = sessionToComponentIdMap.find(sessionId);
+            if (componentIdResult == sessionToComponentIdMap.end())
+            {
+                printf("! Cannot target. Unable to find componentId id for '%s' (session = %d)\n", handle.c_str(), sessionId);
                 return;
             }
             auto componentId = componentIdResult->second;
@@ -870,8 +914,9 @@ public:
                 sessionId,
                 componentId
             );
-
-            targetComponentId = componentId;
+            
+            targetFollowComponentId = componentId;
+            followMode = 1;
         }
     }
 

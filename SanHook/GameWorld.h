@@ -103,6 +103,12 @@ public:
     {
         auto nanoseconds = reader.ReadUint64();
         auto frame = reader.ReadUint64();
+
+        printf("[%s] OnTimestamp\n  frame = %llu\n",
+            _isSender ? "OUT" : "IN",
+            frame
+        );
+        //printf("Timestamp: frame=%llu\n", frame);
     }
 
     void OnMoveEntity(PacketReader &reader)// TAG: 16E9E30
@@ -227,13 +233,13 @@ public:
         auto perUserSpawnLimit = reader.ReadUint16();
         auto spawnTimeout = reader.ReadUint32();
 
-        printf("[%s] OnUpdateRuntimeInventorySettings\n  spawnSource = %u\n  spawnLifetimePolicy = %u\n  totalSpawnLimit = %u\n  perUserSpawnLimit = %u\n  spawnTimeout = %u\n",
-            _isSender ? "OUT" : "IN",
-            spawnSource,
-            spawnLifetimePolicy,
-            totalSpawnLimit,
-            perUserSpawnLimit,
-            spawnTimeout
-        );
+        //printf("[%s] OnUpdateRuntimeInventorySettings\n  spawnSource = %u\n  spawnLifetimePolicy = %u\n  totalSpawnLimit = %u\n  perUserSpawnLimit = %u\n  spawnTimeout = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    spawnSource,
+        //    spawnLifetimePolicy,
+        //    totalSpawnLimit,
+        //    perUserSpawnLimit,
+        //    spawnTimeout
+        //);
     }
 };

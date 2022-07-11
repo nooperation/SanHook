@@ -11,6 +11,7 @@
 #include "PacketReader.hpp"
 #include "Utils.hpp"
 
+
 //void OnAnimationComponentPlayAnimation(PacketReader &reader);
 //void OnAnimationComponentCharacterSetPosition(PacketReader &reader);
 //void OnAnimationComponentBehaviorStateUpdate(PacketReader &reader);
@@ -28,6 +29,8 @@
 //void OnAnimationComponentBehaviorInternalState(PacketReader &reader);
 //void OnAnimationComponentBehaviorInitializationData(PacketReader &reader);
 
+extern std::vector<float> currentTargetPosition;
+extern bool knowsTargetPosition;
 
 class AnimationComponent : public MessageHandler
 {
@@ -182,13 +185,41 @@ public:
         auto componentId = reader.ReadUint64();
         auto serverFrame = reader.ReadUint64();
         auto groundComponentId = reader.ReadUint64();
+
+            //printf("[%s] OnCharacterTransform: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X ...\n",
+            //    _isSender ? "OUT" : "IN",
+            //    buffer[4 + 24 + 0],
+            //    buffer[4 + 24 + 1],
+            //    buffer[4 + 24 + 2],
+            //    buffer[4 + 24 + 3],
+            //    buffer[4 + 24 + 4],
+            //    buffer[4 + 24 + 5],
+            //    buffer[4 + 24 + 6],
+            //    buffer[4 + 24 + 7],
+            //    buffer[4 + 24 + 8],
+            //    buffer[4 + 24 + 9]
+            //);
         auto position = reader.ReadBits(72);
         auto orientationQuat = reader.ReadBits(40);
 
         // TODO: Disable this ^^
         if (_isSender == false && componentId != myComponentId)
         {
-            if (targetComponentId != UINT64_MAX && (componentId == targetComponentId || targetComponentId == 0))
+            if (componentId == targetComponentId) {
+                BitReader br((uint8_t *)&buffer[8 + 8 + 8 + 4], 9);
+                auto positionX = br.ReadFloat(24, false);
+                auto positionY = br.ReadFloat(24, false);
+                auto positionZ = br.ReadFloat(24, false);
+
+                //printf("Target moved to %f,%f,%f\n",currentTargetPosition[0],currentTargetPosition[1],currentTargetPosition[2]);
+
+                currentTargetPosition[0] = positionX;
+                currentTargetPosition[1] = positionY;
+                currentTargetPosition[2] = positionZ;
+                knowsTargetPosition = true;
+            }
+
+            if (targetFollowComponentId != UINT64_MAX && followMode != 0 && (componentId == targetFollowComponentId || targetFollowComponentId == 0))
             {
                 if (GetAsyncKeyState('Q'))
                 {
@@ -375,9 +406,19 @@ public:
 
     void OnPlayAnimation(PacketReader &reader)  // TAG: 1581210
     {
+        auto buffer = reader.GetBuffer();
+
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
         auto resourceId = reader.ReadUUID();
+
+        //printf("[%s] OnPlayAnimation: %02X %02X %02X %02X ...\n",
+        //    _isSender ? "OUT" : "IN",
+        //    buffer[4 + 8+8+8+8 + 0],
+        //    buffer[4 + 8+8+8+8 + 1],
+        //    buffer[4 + 8+8+8+8 + 2],
+        //    buffer[4 + 8+8+8+8 + 3]
+        //);
 
         auto playbackSpeed = reader.ReadBits(0x10);
         //v10 = _mm_cvtpd_ps((__m128d)COERCE_UNSIGNED_INT64((double)((signed int)v16 - 0x7FFF) * 0.00003051850947599719));

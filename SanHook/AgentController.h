@@ -259,6 +259,8 @@ public:
         auto characterForward = reader.ReadBits(15); // - 0x3FFF) * 0.00006103888176768602
         auto cameraForward = reader.ReadBits(28);
 
+        
+
         /*
         auto v34 = reader.ReadBits(2);
         auto v33 = reader.ReadBits(1);
@@ -798,17 +800,38 @@ public:
 
             auto buffer = reader.GetBuffer();
 
+           // Utils::DumpPacket((const char *)buffer, 0x2D, true);
+
             BitReader br((uint8_t *)&buffer[33], 10);
             auto positionX = br.ReadFloat(26, false);
             auto positionY = br.ReadFloat(26, false);
             auto positionZ = br.ReadFloat(26, true);
+
+            //printf("[%s] AgentControllerMessages::OnRequestSpawnItem: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X [X=%f Y=%f Z=%f]\n",
+            //    _isSender ? "OUT" : "IN",
+            //    buffer[33 + 0],
+            //    buffer[33 + 1],
+            //    buffer[33 + 2],
+            //    buffer[33 + 3],
+            //    buffer[33 + 4],
+            //    buffer[33 + 5],
+            //    buffer[33 + 6],
+            //    buffer[33 + 7],
+            //    buffer[33 + 8],
+            //    buffer[33 + 9],
+            //    buffer[33 + 10],
+            //    positionX,
+            //    positionY,
+            //    positionZ
+            //);
+
 
             auto camrez_enabled = false;
             auto emote_rez_enabled = false;
             char emote_to_rez[13] = {};
 
             FILE *inFileCamRez = nullptr;
-            fopen_s(&inFileCamRez, "u:\\sanhook_config_camrez.txt", "rb");
+            fopen_s(&inFileCamRez, "r:\\sanhook_config_camrez.txt", "rb");
             if (inFileCamRez != nullptr)
             {
                 camrez_enabled = fgetc(inFileCamRez);
@@ -818,7 +841,27 @@ public:
                 fclose(inFileCamRez);
             }
 
-            if (camrez_enabled)
+            if (isUsingTargetAsSpawnPosition) {
+                printf("Spawning item at target position %f,%f,%f\n",currentTargetPosition[0],currentTargetPosition[1],currentTargetPosition[2]);
+                positionX = currentTargetPosition[0];
+                positionY = currentTargetPosition[1];
+                positionZ = currentTargetPosition[2];
+
+                br.Reset();
+                br.WriteFloat(positionX, 26, false);
+                br.WriteFloat(positionY, 26, false);
+                br.WriteFloat(positionZ, 26, true);
+
+                br.Reset();
+                positionX = br.ReadFloat(26, false);
+                positionY = br.ReadFloat(26, false);
+                positionZ = br.ReadFloat(26, true);
+
+                // do not attach this item...
+                auto attachmentNodePtr = &buffer[32];
+                *attachmentNodePtr = 255;
+            }
+            else if (camrez_enabled)
             {
                 positionX = CameraPositionOffset[0];
                 positionY = CameraPositionOffset[1];
@@ -878,7 +921,7 @@ public:
             uint8_t newResourceId[16] = {};
             bool enabled = false;
             FILE *inFile = nullptr;
-            fopen_s(&inFile, "u:\\sanhook_config_rez.txt", "rb");
+            fopen_s(&inFile, "r:\\sanhook_config_rez.txt", "rb");
             if (inFile != nullptr)
             {
                 auto resourceIdPtr = &buffer[16];
@@ -902,13 +945,13 @@ public:
         auto spawnPosition = reader.ReadBits(0x4E);
         auto spawnOrientation = reader.ReadBits(0x2B);
 
-        //printf("[%s] AgentControllerMessages::OnRequestSpawnItem\n  frame = %llu\n  agentControllerId = %u\n  resourceId = %s\n  attachmentNode = %u\n",
-        //    _isSender ? "OUT" : "IN",
-        //    frame,
-        //    agentControllerId,
-        //    resourceId.c_str(),
-        //    attachmentNode
-        //);
+        printf("[%s] AgentControllerMessages::OnRequestSpawnItem\n  frame = %llu\n  agentControllerId = %u\n  resourceId = %s\n  attachmentNode = %u\n",
+            _isSender ? "OUT" : "IN",
+            frame,
+            agentControllerId,
+            resourceId.c_str(),
+            attachmentNode
+        );
     }
 
     void OnRequestDeleteLatestSpawn(PacketReader &reader)  // TAG: 17107A0
@@ -964,10 +1007,38 @@ public:
         auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
         auto resourceId = reader.ReadUUID();
-        auto playbackSpeed = reader.ReadBits(16);
-        auto skeletonType = reader.ReadBits(2);
-        auto animationType = reader.ReadBits(3);
-        auto playbackMode = reader.ReadBits(3);
+        #define _CRT_SECURE_NO_DEPRECATE
+        //if (_isSender)
+        //{
+        //    auto buffer = reader.GetBuffer();
+        //
+        //    BitReader br((uint8_t *)&buffer[8+8+8+8+8], 2);
+        //    auto speed = br.ReadFloatX(16, 10.0f);
+        //    printf("SPEED= %f\n", speed);
+        //
+        //    auto anim_speed_enabled = false;
+        //    auto anim_speed_override = speed;
+        //
+        //    FILE *inFileCamRez = nullptr;
+        //    std::ifstream inFile("r:\\sanhook_config_anim.txt");
+        //    if (inFile.is_open())
+        //    {
+        //        inFile >> anim_speed_enabled >> anim_speed_override;
+        //        printf("anim_speed_enabled=%d anim_speed_override=%f\n", anim_speed_enabled, anim_speed_override);
+        //        inFile.close();
+        //    }
+        //
+        //    if (anim_speed_enabled)
+        //    {
+        //        br.Reset();
+        //        br.WriteFloatX(anim_speed_override, 16, 10.0f);
+        //    }
+        //}
+
+        //auto playbackSpeed = reader.ReadBits(16);
+        //auto skeletonType = reader.ReadBits(2);
+        //auto animationType = reader.ReadBits(3);
+        //auto playbackMode = reader.ReadBits(3);
 
         //printf("[%s] AgentControllerMessages::PlayAnimation:\n  frame = %llu\n  componentId = %llu\n  resourceId = %s\n",
         //    _isSender ? "OUT" : "IN",

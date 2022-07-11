@@ -48,13 +48,52 @@ unsigned long long ReturnPoint_ProcessBodyCinfo = 0;
 //float *AvatarPositionOffset = 0;
 float *CameraPositionOffset = nullptr;
 
+std::vector<float> currentTargetPosition = std::vector<float>({0.0f, 0.0f, 0.0f});
+
 bool isFlyMode = false;
 uint32_t myControllerId = UINT32_MAX;
 uint32_t mySessionId = UINT32_MAX;
 uint64_t myComponentId = UINT64_MAX;
 uint64_t targetComponentId = UINT64_MAX;
+uint64_t targetFollowComponentId = UINT64_MAX;
+std::string targetHandle = "";
+
+int followMode = 0;
+bool isUsingTargetAsSpawnPosition = false;
+bool knowsTargetPosition = false;
+
 std::unordered_map<uint32_t, uint64_t> sessionToComponentIdMap;
 std::unordered_map<std::string, uint32_t> handleToSessionIdMap;
+
+uint16_t GetPortFromAddr(const sockaddr *addr)
+{
+    if (!addr)
+    {
+        return 0;
+    }
+
+    static std::map<uint64_t, uint16_t> addr_lookup;
+    auto cached = addr_lookup.find((uint64_t)addr);
+    if (cached != addr_lookup.end())
+    {
+        return cached->second;
+    }
+
+    int port = 0;
+
+    if (addr->sa_family == AF_INET)
+    {
+        auto s = (sockaddr_in *)addr;
+        port = ntohs(s->sin_port);
+    }
+    else
+    {
+        auto s = (sockaddr_in6 *)addr;
+        port = ntohs(s->sin6_port);
+    }
+
+    return port;
+}
 
 std::string GetAddressFromAddr(const sockaddr *addr)
 {
@@ -92,6 +131,24 @@ std::string GetAddressFromAddr(const sockaddr *addr)
     return result;
 }
 
+uint16_t GetPortFromSocket(SOCKET s)
+{
+    static std::map<SOCKET, uint16_t> addr_lookup;
+    auto cached = addr_lookup.find(s);
+    if (cached != addr_lookup.end())
+    {
+        return cached->second;
+    }
+
+    sockaddr_storage addr = {};
+    socklen_t namelen = sizeof(addr);
+
+    auto result = getpeername(s, (sockaddr *)&addr, &namelen);
+
+    auto port = GetPortFromAddr((const sockaddr *)&addr);
+    return port;
+}
+
 std::string GetAddressFromSocket(SOCKET s)
 {
     static std::map<SOCKET, std::string> addr_lookup;
@@ -122,8 +179,10 @@ int WINAPI Hooked_Recvfrom(SOCKET s, char *buff, int len, int flags, struct sock
     auto sin = (sockaddr_in6 *)from;
     auto port = htons(sin->sin6_port);
 
-  //  printf("<-- RECVFROM port %d: [%d] %s\n", port, result, Utils::ArrayToHexString(buff, result).c_str());
-    Utils::DumpPacket(buff, len, false);
+
+        printf("<-- RECVFROM port %d: [%d] %s\n", port, result, Utils::ArrayToHexString(buff, result).c_str());
+        Utils::DumpPacket(buff, result, false, s, port);
+ 
 
     return result;
 }
@@ -138,7 +197,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
     //char ip[INET6_ADDRSTRLEN];
     //inet_ntop(AF_INET, &sin->sin6_addr, ip, sizeof(ip));
 
-   // printf("--> SENDTO port %d: [%d] %s\n", port, len, Utils::ArrayToHexString(buf, len).c_str());
+    //printf("--> SENDTO port %d: [%d] %s\n", port, len, Utils::ArrayToHexString(buf, len).c_str());
 
     if (buf == nullptr || len < 1)
     {
@@ -171,7 +230,7 @@ int WINAPI Hooked_Sendto(SOCKET s, const char *buf, int len, int flags, const st
         }
     }
     */
-      Utils::DumpPacket(buf, len, true);
+    Utils::DumpPacket(buf, len, true, s, port);
  
     auto result = original_sendto(s, buf, len, flags, to, tolen);
     return result;
@@ -183,8 +242,18 @@ int WINAPI Hooked_Recv(SOCKET s, char *buf, int len, int flags)
     auto result = original_recv(s, buf, len, flags);
     if (result != SOCKET_ERROR)
     {
-        printf("hooked recv [%s] -> %d\n", GetAddressFromSocket(s).c_str(), result);
-        //Utils::DumpPacket(buf, result, false);
+        auto port = GetPortFromSocket(s);
+        if (port != 443 && port != 80)
+        {
+
+            auto name = GetAddressFromSocket(s);
+            Utils::DumpPacket2(name.c_str(), buf, result, false);
+
+            if (buf[0] == 0xe8 || buf[0] == 0x29 || buf[0] == 0x26)
+            {
+                memset(buf, 0, result);
+            }
+        }
     }
 
     return result;
@@ -196,13 +265,16 @@ int WINAPI Hooked_Send(SOCKET s, const char *buf, int len, int flags)
     auto result = original_send(s, buf, len, flags);
     if (result != SOCKET_ERROR)
     {
-        printf("Hooked send [%s] -> %d\n", GetAddressFromSocket(s).c_str(), result);
-      //  Utils::DumpPacket(buf, len, true);
+        auto port = GetPortFromSocket(s);
+        if (port != 443 && port != 80)
+        {
+            auto name = GetAddressFromSocket(s);
+            Utils::DumpPacket2(name.c_str(), buf, len, true);
+        }
     }
 
     return result;
 }
-
 
 
 void RewriteCode(void *targetAddress, uint8_t *newCode, std::size_t newCodeLength)
@@ -502,14 +574,18 @@ void ProcessPacketSend(uint8_t *packet, uint64_t length)
 
         auto handled_packet = false;
 
-        auto foundMessage = idToMessageMap.find(messageId);
-        if (foundMessage != idToMessageMap.end())
-        {
-       //     printf("[OUT] %s [%08X]\n", foundMessage->second.c_str(), foundMessage->first);
-        }
+        //auto foundMessage = idToMessageMap.find(messageId);
+        //if (foundMessage != idToMessageMap.end())
+        //{
+        //    printf("[OUT] %s [%08X]\n", foundMessage->second.c_str(), foundMessage->first);
+        //}
     
         for (auto &item : messageHandlers)
         {
+                // printf("SendMessage %08X\n",
+                //    messageId
+                //);
+
             if (item->OnMessage(messageId, reader, true))
             {
                 handled_packet = true;
@@ -540,11 +616,11 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 
         auto handled_packet = false;
 
-        auto foundMessage = idToMessageMap.find(messageId);
-        if (foundMessage != idToMessageMap.end())
-        {
-         //   printf("[IN] %s [%08X]\n", foundMessage->second.c_str(), foundMessage->first);
-        }
+        //auto foundMessage = idToMessageMap.find(messageId);
+        //if (foundMessage != idToMessageMap.end())
+        //{
+        //    printf("[IN] %s [%08X]\n", foundMessage->second.c_str(), foundMessage->first);
+        //}
 
         for (auto &item : messageHandlers)
         {
@@ -571,10 +647,24 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
 
 void ProcessHttpBodyRecv(char *packet, uint64_t length)
 {
+    length = length > 9999 ? 9999 : length;
+
     try
     {
-        auto bodyResponse = std::string(packet, length);
+        //if (strstr(packet, "Content-Type: image") == nullptr) {
+        //    return;
+        //}
+        for (size_t i = 0; i < length; i++)
+        {
+            uint8_t ch = (uint8_t)packet[i];
+            if (ch != '\r' && ch != '\n' && ch != 0 && !isprint(ch)) {
+                length = i;
+                break;
+            }
+        }
 
+
+        auto bodyResponse = std::string(packet, length);
         printf("[IN] ProcessHttpBodyRecv:\n%s\n",
             bodyResponse.c_str()
         );
@@ -731,29 +821,32 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1372426 + sizeof(hijack_ProcessPacketSend));
         }
 
-        if (false)  // always false
-        {
-            // search for ": consume: parser error"
-            // scan down until the first RET, trace back up to first CALL. patch after the call
-            uint8_t hijack_ProcessHttpBodyRecv[] = {
-                0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RAX, [address]
-                0xFF, 0xE0,                                                  // JMP RAX           
-                0x90,                                                        // NOP
-                0x90,                                                        // NOP
-                0x90,                                                        // NOP
-                0x90,                                                        // NOP
-                0x90,                                                        // NOP
-                0x90                                                         // NOP
-            };
+        //if (false)  // OLD http recv
+        //{
+        //    // 48 8B C3 48 8B 9C 24 08 01 00 00 48 81 C4 E8 00 00 00 41 5D 5D C3 ??
 
-            *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-            RewriteCode(base + 0x138F40E, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+        //    // search for ": consume: parser error"
+        //    // scan down until the first RET, trace back up to first CALL. patch after the call
+        //    uint8_t hijack_ProcessHttpBodyRecv[] = {
+        //        0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RAX, [address]
+        //        0xFF, 0xE0,                                                  // JMP RAX           
+        //        0x90,                                                        // NOP
+        //        0x90,                                                        // NOP
+        //        0x90,                                                        // NOP
+        //        0x90,                                                        // NOP
+        //        0x90,                                                        // NOP
+        //        0x90                                                         // NOP
+        //    };
 
-            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138F40E + sizeof(hijack_ProcessHttpBodyRecv));
-        }
+        //    *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
+        //    RewriteCode(base + 0x138F40E, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+
+        //    ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138F40E + sizeof(hijack_ProcessHttpBodyRecv));
+        //}
 
         if (false) // always false
         {
+            // 48 3B 7C 24 60 4C 8B F7 4C 0F 4C 74 24 60 45 33 FF 4C 89 74 24 60 48 8B 5C 24 58
             // NOT UPDATEd
             // search for "%.*s"
             // scan up until you get to the double call (with a jmp inbetween) (should be past the third call above the string).
@@ -771,6 +864,87 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
             ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x138DFCE + sizeof(hijack_ProcessHttpSend));
         }
+
+
+
+
+        if (0) // Hack to force the logging flag for HTTP logs?
+        {
+            // search for "%.*s". There's some condition nearby which skips and referrs to "HttpClient" something
+            uint8_t force_loghttp[] = {
+	            0x48, 0x33, 0xC9,                          // XOR RCX, RCX
+                0x48, 0xC1, 0xE1, 0x25,                    // SHL RCX, 0x25
+                0x48, 0x09, 0x88, 0xB8, 0x0F, 0x00, 0x00,  // MOV [RAX + 0xFB8], RCX
+                0x90,                                      // NOP
+                0x90,                                      // NOP
+                0x90,                                      // NOP
+                0x90,                                      // NOP
+                0x90,                                      // NOP
+                0x90                                       // NOP
+            };
+
+            RewriteCode(base + 0x138E0F9, force_loghttp, sizeof(force_loghttp));
+        }
+        
+        //if (false)  // DELETEME
+        //{
+        //    // 48 8B C3 48 8B 9C 24 08 01 00 00 48 81 C4 E8 00 00 00 41 5D 5D C3 ??
+
+        //    // search for " first 0x%x"
+        //    // up 4 or so lines.  "jle cmp jle <MOV R8> jmp"
+        //    // RAX = messageLength
+        //    // [RSI+2C8] = message
+
+        //    uint8_t hijack_ProcessHttpBodyRecv[] = {
+        //        0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RAX, [address]
+        //        0xFF, 0xE0,                                                  // JMP RAX           
+        //        0x90,                                                        // NOP
+        //        0x90,                                                        // NOP
+        //        0x90,                                                        // NOP
+        //        0x90,                                                        // NOP
+        //        0x90,                                                        // NOP
+        //        0x90                                                         // NOP
+        //    };
+
+        //    *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
+        //    RewriteCode(base + 0x138F40E, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+
+        //    ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138F40E + sizeof(hijack_ProcessHttpBodyRecv));
+        //}
+        
+        if (0)  // NEW process http recv
+        {
+            // 138E8E0
+
+            // search for "HttpClient::fireHandler" top of function, after the first je
+            // R14 = full response length
+            // R15 = full response
+            // 
+            // R11 = content body ?
+            // 
+            // [RSI+2C8] = message
+
+            // 00007FF75F12E8E0 | 48:83BF 78010000 00      | cmp qword ptr ds:[rdi+178],0                   |
+            // 00007FF75F12E8E8 | 48:899C24 30010000       | mov qword ptr ss:[rsp+130],rbx                 |
+
+            uint8_t hijack_ProcessHttpBodyRecv[] = {
+                0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RAX, [address]
+                0xFF, 0xE0,                                                  // JMP RAX           
+                0x90,                                                        // NOP
+                0x90,                                                        // NOP
+                0x90,                                                        // NOP
+                0x90,                                                        // NOP
+            };
+
+            *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
+            RewriteCode(base + 0x138E8E0, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+
+            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138E8E0 + sizeof(hijack_ProcessHttpBodyRecv));
+        }
+
+
+
+
 
         if (true)
         {
@@ -870,18 +1044,27 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         CameraPositionOffset = (float *)(base + 0x4CA1020);
 
 
+
+        // 37 66 35 39 31 31 35 38 35 63 35 30 31 36 34 34 35 31 35 31
+       // auto licenseAddr = (char *)(base + 0x4769A80);
+       // printf("Umbra License = %s\n", licenseAddr);
+       // OutputDebugStringA(licenseAddr);
+       // RewriteCode(licenseAddr, (uint8_t*)"7f571357585512445d52", 20); // 7 year license. good enough
+
+        // 7f5810585a5313475f57
+
         DetourRestoreAfterWith();
 
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
-        // DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
+      //   DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
        // DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
-       //  DetourAttach(&(PVOID &)original_recv, Hooked_Recv); // need to hard hook into ssl functions or post-decrypted recv handler...
-         //DetourAttach(&(PVOID &)original_send, Hooked_Send);
+      //   DetourAttach(&(PVOID &)original_recv, Hooked_Recv); // need to hard hook into ssl functions or post-decrypted recv handler...
+       // DetourAttach(&(PVOID &)original_send, Hooked_Send);
 
         DetourTransactionCommit();
 
-        Utils::InitKeyToNameDatabase();
+      //  Utils::InitKeyToNameDatabase();
 
         break;
     }

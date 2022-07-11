@@ -134,22 +134,22 @@ public:
             }
             case ClientKafkaMessages::InventoryItemCapabilities: // TAG: 17A1BA0
             {
-                this->OnInventoryItemCapabilities(reader);
+                //this->OnInventoryItemCapabilities(reader);
                 break;
             }
             case ClientKafkaMessages::InventoryItemRevision: // TAG: 17A1D80
             {
-                this->OnInventoryItemRevision(reader);
+                //this->OnInventoryItemRevision(reader);
                 break;
             }
             case ClientKafkaMessages::InventoryItemUpdate: // TAG: 17A1DF0
             {
-                this->OnInventoryItemUpdate(reader);
+                //this->OnInventoryItemUpdate(reader);
                 break;
             }
             case ClientKafkaMessages::InventoryItemDelete: // TAG: 17A1E60
             {
-                this->OnInventoryItemDelete(reader);
+                //this->OnInventoryItemDelete(reader);
                 break;
             }
             case ClientKafkaMessages::InventoryLoaded: // TAG: 17A1ED0
@@ -420,7 +420,7 @@ public:
             auto fromPersonaIdptr = &buffer[4];
 
             FILE *inFile = nullptr;
-            fopen_s(&inFile, "u:\\sanhook_config.txt", "rb");
+            fopen_s(&inFile, "r:\\sanhook_config.txt", "rb");
 
             if (inFile != nullptr)
             {
@@ -497,7 +497,7 @@ public:
             auto toPersonaIdptr = &buffer[28];
 
             FILE *inFile = nullptr;
-            fopen_s(&inFile, "u:\\sanhook_config_im.txt", "rb");
+            fopen_s(&inFile, "r:\\sanhook_config_im.txt", "rb");
 
             if (inFile != nullptr)
             {
@@ -691,23 +691,23 @@ public:
         auto configuration = reader.ReadString();
         auto worldId = reader.ReadString();
 
-        //printf("ClientKafkaMessages::RegionEventMetric:\n  ownerPersonaID = %s\n  eventName = %s\n  headcount = %u\n  grid = %s\n  ownerPersonaHandle = %s\n  experienceHandle = %s\n  instanceId = %s\n  buildID = %s\n  locationHandle = %s\n  sansarURI = %s\n  compatVersion = %s\n  protoVersion = %s\n  accessGroup = %s\n  configuration = %s\n  worldId = %s\n",
-        //    ownerPersonaID.c_str(),
-        //    eventName.c_str(),
-        //    headcount,
-        //    grid.c_str(),
-        //    ownerPersonaHandle.c_str(),
-        //    experienceHandle.c_str(),
-        //    instanceId.c_str(),
-        //    buildID.c_str(),
-        //    locationHandle.c_str(),
-        //    sansarURI.c_str(),
-        //    compatVersion.c_str(),
-        //    protoVersion.c_str(),
-        //    accessGroup.c_str(),
-        //    configuration.c_str(),
-        //    worldId.c_str()
-        //);
+        printf("ClientKafkaMessages::RegionEventMetric:\n  ownerPersonaID = %s\n  eventName = %s\n  headcount = %u\n  grid = %s\n  ownerPersonaHandle = %s\n  experienceHandle = %s\n  instanceId = %s\n  buildID = %s\n  locationHandle = %s\n  sansarURI = %s\n  compatVersion = %s\n  protoVersion = %s\n  accessGroup = %s\n  configuration = %s\n  worldId = %s\n",
+            ownerPersonaID.c_str(),
+            eventName.c_str(),
+            headcount,
+            grid.c_str(),
+            ownerPersonaHandle.c_str(),
+            experienceHandle.c_str(),
+            instanceId.c_str(),
+            buildID.c_str(),
+            locationHandle.c_str(),
+            sansarURI.c_str(),
+            compatVersion.c_str(),
+            protoVersion.c_str(),
+            accessGroup.c_str(),
+            configuration.c_str(),
+            worldId.c_str()
+        );
     }
 
     void OnRegionHeartbeatMetric(PacketReader &reader) // TAG: 17A2EF0
@@ -730,34 +730,47 @@ public:
         auto configuration = reader.ReadString();
         auto worldId = reader.ReadString();
 
-        //printf("ClientKafkaMessages::RegionHeartbeatMetric:\n  ownerPersonaID = %s\n  averageFrameRate = %f\n  minFrameRate = %f\n  maxFrameRate = %f\n  headcount = %u\n  grid = %s\n  ownerPersonaHandle = %s\n  experienceHandle = %s\n  instanceId = %s\n  buildID = %s\n  locationHandle = %s\n  sansarURI = %s\n  compatVersion = %s\n  protoVersion = %s\n  accessGroup = %s\n  configuration = %s\n  worldId = %s\n",
-        //    ownerPersonaID.c_str(),
-        //    averageFrameRate,
-        //    minFrameRate,
-        //    maxFrameRate,
-        //    headcount,
-        //    grid.c_str(),
-        //    ownerPersonaHandle.c_str(),
-        //    experienceHandle.c_str(),
-        //    instanceId.c_str(),
-        //    buildID.c_str(),
-        //    locationHandle.c_str(),
-        //    sansarURI.c_str(),
-        //    compatVersion.c_str(),
-        //    protoVersion.c_str(),
-        //    accessGroup.c_str(),
-        //    configuration.c_str(),
-        //    worldId.c_str()
-        //);
+        printf("ClientKafkaMessages::RegionHeartbeatMetric:\n  ownerPersonaID = %s\n  averageFrameRate = %f\n  minFrameRate = %f\n  maxFrameRate = %f\n  headcount = %u\n  grid = %s\n  ownerPersonaHandle = %s\n  experienceHandle = %s\n  instanceId = %s\n  buildID = %s\n  locationHandle = %s\n  sansarURI = %s\n  compatVersion = %s\n  protoVersion = %s\n  accessGroup = %s\n  configuration = %s\n  worldId = %s\n",
+            ownerPersonaID.c_str(),
+            averageFrameRate,
+            minFrameRate,
+            maxFrameRate,
+            headcount,
+            grid.c_str(),
+            ownerPersonaHandle.c_str(),
+            experienceHandle.c_str(),
+            instanceId.c_str(),
+            buildID.c_str(),
+            locationHandle.c_str(),
+            sansarURI.c_str(),
+            compatVersion.c_str(),
+            protoVersion.c_str(),
+            accessGroup.c_str(),
+            configuration.c_str(),
+            worldId.c_str()
+        );
     }
 
     void OnClientMetric(PacketReader &reader) // TAG: 17A2D40
     {
-        auto jsonString = reader.ReadString();
+        if (_isSender) {
+            auto jsonString = reader.ReadString();
+            //printf("ClientKafkaMessages::ClientMetric:\n  jsonString = %s\n",
+            //    jsonString.c_str()
+            //);
 
-        //printf("ClientKafkaMessages::ClientMetric:\n  jsonString = %s\n",
-        //    jsonString.c_str()
-        //);
+            reader.Reset();
+
+            auto buffer = reader.GetBuffer();
+            auto pMessageId = (uint32_t *)&buffer[0];
+            auto pStringLength = (uint32_t *)&buffer[4];
+
+            auto existingMessageId = *pMessageId;
+
+            memset(buffer, 0, reader.GetBufferSize());
+            *pMessageId = existingMessageId;
+            pStringLength = 0;
+        }
     }
 
     void OnScriptRegionConsoleLoaded(PacketReader &reader) // TAG: 17A2CD0
@@ -845,6 +858,7 @@ public:
         {
             printf("    %s\n", item.c_str());
         }
+        
     }
 
     void OnInventoryItemCapabilities(PacketReader &reader)  // TAG: 17A1BA0
