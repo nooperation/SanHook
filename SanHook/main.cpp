@@ -1041,9 +1041,25 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         // rcx+30 = our pointer
         // Function above it with a bunch of xmm stuff going on (see screenshots)
         //const static auto kCameraPositionOffset = 0x4CA1020;
-        CameraPositionOffset = (float *)(base + 0x4CA1020);
+        CameraPositionOffset = (float *)(base + 0x4CA2020);
 
+        auto aabbCheckBypassAvatar1 = (char *)(base + 0x217341B);
+        RewriteCode(aabbCheckBypassAvatar1, (uint8_t*)"\x90\x90", 2);
 
+        auto aabbCheckBypassAvatar2 = (char *)(base + 0x217343C);
+        RewriteCode(aabbCheckBypassAvatar2, (uint8_t*)"\x90\x90", 2);
+
+        auto aabbCheckBypassAttachment = (char *)(base + 0x21715D3);
+        RewriteCode(aabbCheckBypassAttachment, (uint8_t*)"\xEB", 1);
+
+        auto maxVertsClothingHair = (char *)(base + 0x2171EA8 + 3);
+        RewriteCode(maxVertsClothingHair, (uint8_t*)"\xFF\xFF\xFF\x7F", 4);
+        
+        auto maxVertsAttachment = (char *)(base + 0x2171627 + 3);
+        RewriteCode(maxVertsAttachment, (uint8_t*)"\xFF\xFF\xFF\x7F", 4);
+        
+        auto maxVertsAvatar = (char *)(base + 0x217324D + 7);
+        RewriteCode(maxVertsAvatar, (uint8_t*)"\xFF\xFF\xFF\x7F", 4);
 
         // 37 66 35 39 31 31 35 38 35 63 35 30 31 36 34 34 35 31 35 31
        // auto licenseAddr = (char *)(base + 0x4769A80);
