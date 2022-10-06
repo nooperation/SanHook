@@ -22,7 +22,7 @@ public:
         {
             case RenderMessages::LightStateChanged: // TAG: 1611170
             {
-                this->OnLightStateChanged(reader);
+               // this->OnLightStateChanged(reader);
                 break;
             }
             default:

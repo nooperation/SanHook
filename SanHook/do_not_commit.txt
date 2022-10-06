@@ -1,1 +1,116 @@
-Empty
+hijack_ProcessPacketRecv:
+mov rdi,qword ptr ds:[r14+8]   | 
+mov r8d,dword ptr ds:[r14+10]  | 
+mov rdx,rdi
+call qword ptr ds:[rax+8]
+
+skyCubemap/gravhack/camhack/etc (the second one?):
+ 48 3B C1 77 12 8B 02 89 87 B0 02 00 00 48 83 83 68 1B 00 00 04 EB 0E
+exposurebias (other main, the function below is parser with __verison):
+8B 01 89 07 48 83 83 68 1B 00 00 04 48 8B 93 68 1B 00 00 48 8B 83 70 1B 00 00
+
+hijack_ProcessPacketRecv  intercept_ProcessPacketRecv
+ 49 8B 7E 08 45 8B 46 10 48 8B D7 ff 50 08
+
+intercept_ProcessPacketSend hijack_ProcessPacketSend
+ 4C 89 7C 24 68 48 8D 88 88 17 00 00 48 8B D3 4C 8B FB
+
+ProcessHttpBodyRecv:
+ 48 8B C3 48 8B 9C 24 08 01 00 00 48 81 C4 E8 00 00 00
+
+hijack_ProcessHttpSend
+ 48 3B 7C 24 60 4C 8B F7 4C 0F 4C 74 24 60 45 33 FF 4C 89 74 24 60 48 8B 5C 24 58
+
+hijack_PositionUpdate  intercept_ProcessPositionUpdate
+ 0F 10 00 0F 11 07 0F 10 48 10 0F 11 4F 10  (right after a je - call - jmp - mov rax)
+
+ unlimitedItemPickRangeRva:
+418BC025FFFFFF004C69C0B0000000
+
+CameraPositionOffset: (Do not just copy rva - we have to break here, follow [rcx+30 in dump, copy rva of address)
+0F 28 49 30 0F 29 4B 30 48 8B 5C 24 70
+
+
+
+hijack_PositionUpdate:
+
+00007FF75B407AB1 | E8 3A54E4FF                     | call <sansarclient.sub_7FF75B24CEF0>                                        |
+00007FF75B407AB6 | 48:8B8B 98080000                | mov rcx,qword ptr ds:[rbx+898]                                              |
+00007FF75B407ABD | 48:85C0                         | test rax,rax                                                                |
+00007FF75B407AC0 | 74 07                           | je sansarclient.7FF75B407AC9                                                |
+00007FF75B407AC2 | E8 2954E4FF                     | call <sansarclient.sub_7FF75B24CEF0>                                        |
+00007FF75B407AC7 | EB 07                           | jmp sansarclient.7FF75B407AD0                                               |
+00007FF75B407AC9 | 48:8B81 90000000                | mov rax,qword ptr ds:[rcx+90]                                               |
+00007FF75B407AD0 | 0F1000                          | movups xmm0,xmmword ptr ds:[rax]                                            | patch here (unlimitedItemPickRangeRva)
+00007FF75B407AD3 | 0F1107                          | movups xmmword ptr ds:[rdi],xmm0                                            |
+00007FF75B407AD6 | 0F1048 10                       | movups xmm1,xmmword ptr ds:[rax+10]                                         |
+00007FF75B407ADA | 0F114F 10                       | movups xmmword ptr ds:[rdi+10],xmm1                                         |
+00007FF75B407ADE | 0F1040 20                       | movups xmm0,xmmword ptr ds:[rax+20]                                         |
+00007FF75B407AE2 | 0F1147 20                       | movups xmmword ptr ds:[rdi+20],xmm0                                         |
+00007FF75B407AE6 | 0F1048 30                       | movups xmm1,xmmword ptr ds:[rax+30]                                         |
+00007FF75B407AEA | 0F114F 30                       | movups xmmword ptr ds:[rdi+30],xmm1                                         |
+00007FF75B407AEE | 48:8B8B 90070000                | mov rcx,qword ptr ds:[rbx+790]                                              |
+
+
+
+
+00007FF75B283470 | 41:8BC0                         | mov eax,r8d                                                                 | <-- Find Calls from
+00007FF75B283473 | 25 FFFFFF00                     | and eax,FFFFFF                                                              |
+00007FF75B283478 | 4C:69C0 B0000000                | imul r8,rax,B0                                                              |
+00007FF75B28347F | 48:8B81 58010000                | mov rax,qword ptr ds:[rcx+158]                                              |
+00007FF75B283486 | 48:8B48 20                      | mov rcx,qword ptr ds:[rax+20]                                               |
+00007FF75B28348A | 49:8B8408 90000000              | mov rax,qword ptr ds:[r8+rcx+90]                                            |
+00007FF75B283492 | 48:8902                         | mov qword ptr ds:[rdx],rax                                                  |
+00007FF75B283495 | 48:8BC2                         | mov rax,rdx                                                                 |
+00007FF75B283498 | C3                              | ret                                                                         |
+
+
+00007FF75B46BFE8 | 48:05 E0070000                  | add rax,7E0                                                                 |
+00007FF75B46BFEE | F3:0F1057 14                    | movss xmm2,dword ptr ds:[rdi+14]                                            |
+00007FF75B46BFF3 | 0F285C24 50                     | movaps xmm3,xmmword ptr ss:[rsp+50]                                         |
+00007FF75B46BFF8 | 0F5C58 30                       | subps xmm3,xmmword ptr ds:[rax+30]                                          |
+00007FF75B46BFFC | 44:8B45 98                      | mov r8d,dword ptr ss:[rbp-68]                                               |
+00007FF75B46C000 | F3:0F59D2                       | mulss xmm2,xmm2                                                             |
+00007FF75B46C004 | 0F59DB                          | mulps xmm3,xmm3                                                             |
+00007FF75B46C007 | F3:0F115424 40                  | movss dword ptr ss:[rsp+40],xmm2                                            |
+00007FF75B46C00D | 66:0F70C3 55                    | pshufd xmm0,xmm3,55                                                         |
+00007FF75B46C012 | 66:0F70CB AA                    | pshufd xmm1,xmm3,AA                                                         |
+00007FF75B46C017 | 0F58D8                          | addps xmm3,xmm0                                                             |
+00007FF75B46C01A | 0F58D9                          | addps xmm3,xmm1                                                             |
+00007FF75B46C01D | 0FC6DB 00                       | shufps xmm3,xmm3,0                                                          |
+00007FF75B46C021 | 0F2EDA                          | ucomiss xmm3,xmm2                                                           |
+00007FF75B46C024 | EB 2F                           | jmp sansarclient.7FF75B46C055                                               | <-- Patch here (to jmp) unlimitedItemPickRangeRva.
+00007FF75B46C026 | 48:837F 48 00                   | cmp qword ptr ds:[rdi+48],0                                                 |
+00007FF75B46C02B | 0F8E 90000000                   | jle sansarclient.7FF75B46C0C1                                               |
+00007FF75B46C031 | 8B4F 50                         | mov ecx,dword ptr ds:[rdi+50]                                               | 
+00007FF75B46C034 | 48:8B47 40                      | mov rax,qword ptr ds:[rdi+40]                                               |
+00007FF75B46C038 | 49:23C8                         | and rcx,r8                                                                  |
+00007FF75B46C03B | 48:8B14C8                       | mov rdx,qword ptr ds:[rax+rcx*8]                                            |
+00007FF75B46C03F | 48:85D2                         | test rdx,rdx                                                                |
+00007FF75B46C042 | 74 7D                           | je sansarclient.7FF75B46C0C1                                                |
+00007FF75B46C044 | 44:3942 10                      | cmp dword ptr ds:[rdx+10],r8d                                               |
+00007FF75B46C048 | 74 0B                           | je sansarclient.7FF75B46C055                                                |
+00007FF75B46C04A | 48:8B52 18                      | mov rdx,qword ptr ds:[rdx+18]                                               |
+00007FF75B46C04E | 48:85D2                         | test rdx,rdx                                                                |
+00007FF75B46C051 | 75 F1                           | jne sansarclient.7FF75B46C044                                               |
+00007FF75B46C053 | EB 6C                           | jmp sansarclient.7FF75B46C0C1                                               |
+00007FF75B46C055 | 48:8B0F                         | mov rcx,qword ptr ds:[rdi]                                                  |
+00007FF75B46C058 | 48:8D55 A0                      | lea rdx,qword ptr ss:[rbp-60]                                               |
+00007FF75B46C05C | 48:8B89 F8860000                | mov rcx,qword ptr ds:[rcx+86F8]                                             |
+00007FF75B46C063 | E8 0874E1FF                     | call <sansarclient.sub_7FF75B283470>                                        | <-- Second reference to the above function.  Should hit every frame
+00007FF75B46C068 | 48:8B45 A0                      | mov rax,qword ptr ss:[rbp-60]                                               |
+00007FF75B46C06C | 0F285C24 70                     | movaps xmm3,xmmword ptr ss:[rsp+70]                                         |
+00007FF75B46C071 | 8B55 98                         | mov edx,dword ptr ss:[rbp-68]                                               |
+00007FF75B46C074 | 49:8B4E 08                      | mov rcx,qword ptr ds:[r14+8]                                                |
+00007FF75B46C078 | 48:894424 40                    | mov qword ptr ss:[rsp+40],rax                                               |
+00007FF75B46C07D | 48:8B4424 40                    | mov rax,qword ptr ss:[rsp+40]                                               |
+00007FF75B46C082 | 4C:8D4424 40                    | lea r8,qword ptr ss:[rsp+40]                                                |
+00007FF75B46C087 | 4D:8B4E 10                      | mov r9,qword ptr ds:[r14+10]                                                |
+00007FF75B46C08B | 48:894424 40                    | mov qword ptr ss:[rsp+40],rax                                               |
+00007FF75B46C090 | 48:8D85 00010000                | lea rax,qword ptr ss:[rbp+100]                                              |
+00007FF75B46C097 | 48:894424 38                    | mov qword ptr ss:[rsp+38],rax                                               |
+00007FF75B46C09C | 48:8D4424 60                    | lea rax,qword ptr ss:[rsp+60]                                               |
+00007FF75B46C0A1 | 4C:897C24 30                    | mov qword ptr ss:[rsp+30],r15                                               |
+00007FF75B46C0A6 | 48:894424 28                    | mov qword ptr ss:[rsp+28],rax                                               |
+00007FF75B46C0AB | 48:8D4424 50                    | lea rax,qword ptr ss:[rsp+50]                                               |
+00007FF75B46C0B0 | 48:894424 20                    | mov qword ptr ss:[rsp+20],rax                                               |

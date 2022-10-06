@@ -127,22 +127,24 @@ int main()
     printf("Creating process...\n");
     auto result_create_process = CreateProcess(
         TEXT("C:\\Program Files\\Sansar\\Client\\SansarClient.exe"),
-        //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -sceneUri sansar://sansar.com/experience/nopnop/flatt "),
-      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -audio.attenuationVoiceFactor 0.01 -enableVR false"),
-      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -system.maxCores 1 -enableVR false"),
-       //   (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 -enableVR false"),
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -sceneUri sansar://sansar.com/experience/nopnop/flatt "),
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false -audio.attenuationVoiceFactor 0.01 -enableVR false"),
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -system.maxCores 1 -enableVR false"),
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 -enableVR false"),
        // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -logging.logFilePath \"r:\\sansar123log.txt\" -logging.logAllTagged 1 -logging.logUntagged 0 -logging.disableTags Inventory ResourceLoader ComponentManager MeshDuplicateCheck EventQueue AssetSystem TextureStreamingManager TextureBudgetShareholder UserInputHints Audio UIPanelManager UIWorkspaceManager MaterialTypeDictionary LLHttp::HttpMessageParser LoadingProgress"),
-      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 -enableVR false"),
-      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 0 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 "),
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 -enableVR false"),
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 0 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1 "),
        
-      // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  "), // -networking.useTcp 1
-      //  (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 0  "), // -networking.useTcp 1
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  "), // -networking.useTcp 1
+       // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 0  "), // -networking.useTcp 1
 
 
 
- //\\ (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -graphics.maxFps 30 -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -media.enabled false"), // -networking.useTcp 1
- (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -media.enabled false"), // -networking.useTcp 1
- // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 0  -enableVR true  -media.enabled false "), // -networking.useTcp 1
+ // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -graphics.maxFps 30 -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -media.enabled false"), // -networking.useTcp 1
+ 
+ (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false "), // -networking.useTcp 1
+// (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -log.logAllTagged true "), // -networking.useTcp 1
+ // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR true  -media.enabled false "), // -networking.useTcp 1
 
 
 
@@ -210,9 +212,27 @@ int main()
         ///////////////////////////////////
         /// GRAVITYS (right above collision hack, look for "skyCubemap", 4th one down)
         ///////////////////////////////////
+        /*
+            00007FF7B9780580 | 48:3BC1                         | cmp rax,rcx                                                  | Gravity hack...?
+            00007FF7B9780583 | 77 12                           | ja sansarclient.7FF7B9780597                                 |
+            00007FF7B9780585 | 8B02                            | mov eax,dword ptr ds:[rdx]                                   | rdx:EntryPoint
+            00007FF7B9780587 | 8987 B0020000                   | mov dword ptr ds:[rdi+2B0],eax                               |
+            00007FF7B978058D | 48:8383 681B0000 04             | add qword ptr ds:[rbx+1B68],4                                |
+            00007FF7B9780595 | EB 0E                           | jmp sansarclient.7FF7B97805A5                                |
+            00007FF7B9780597 | C683 581B0000 01                | mov byte ptr ds:[rbx+1B58],1                                 |
+            00007FF7B978059E | 48:898B 681B0000                | mov qword ptr ds:[rbx+1B68],rcx                              |
+            00007FF7B97805A5 | 83FD 08                         | cmp ebp,8                                                    |
+            00007FF7B97805A8 | 7C 41                           | jl sansarclient.7FF7B97805EB                                 |
+            00007FF7B97805AA | 48:8B93 681B0000                | mov rdx,qword ptr ds:[rbx+1B68]                              | rdx:EntryPoint
+            00007FF7B97805B1 | 48:8B8B 701B0000                | mov rcx,qword ptr ds:[rbx+1B70]                              |
+            00007FF7B97805B8 | 44:89AB 781B0000                | mov dword ptr ds:[rbx+1B78],r13d                             |
+            00007FF7B97805BF | 48:8D42 01                      | lea rax,qword ptr ds:[rdx+1]                                 | rax:EntryPoint, rdx+1:sub_7FF7B9E0624C+9
+            00007FF7B97805C3 | 48:3BC1                         | cmp rax,rcx                                                  | rax:EntryPoint
+            00007FF7B97805C6 | 77 15                           | ja sansarclient.7FF7B97805DD                                 |
+            00007FF7B97805C8 | 44:382A                         | cmp byte ptr ds:[rdx],r13b                                   | Avatar collision
+        */
 
-
-        auto gravityHackAddr = (void *)(base + 0x17A682B);
+        auto gravityHackAddr = (void *)(base + 0x17A6A3B);
         uint8_t gravityHack[] = {
             0xB8, 0x14, 0xAE, 0xE7, 0x3F, 0x90, 0x90
         };
@@ -225,8 +245,27 @@ int main()
         ///////////////////////////////////
         /// COLLISION - ALWAYS COLLIDE AVATARS (right above freecam hack, look for "skyCubemap")
         ///////////////////////////////////
+        /*
+            00007FF7B97805C8 | 44:382A                         | cmp byte ptr ds:[rdx],r13b                                   | Avatar collision
+            00007FF7B97805CB | 0F95C0                          | setne al                                                     |
+            00007FF7B97805CE | 8887 B4020000                   | mov byte ptr ds:[rdi+2B4],al                                 |
+            00007FF7B97805D4 | 48:FF83 681B0000                | inc qword ptr ds:[rbx+1B68]                                  |
+            00007FF7B97805DB | EB 0E                           | jmp sansarclient.7FF7B97805EB                                |
+            00007FF7B97805DD | C683 581B0000 01                | mov byte ptr ds:[rbx+1B58],1                                 |
+            00007FF7B97805E4 | 48:898B 681B0000                | mov qword ptr ds:[rbx+1B68],rcx                              |
+            00007FF7B97805EB | 83FD 0A                         | cmp ebp,A                                                    | A:'\n'
+            00007FF7B97805EE | 0F8C 84000000                   | jl sansarclient.7FF7B9780678                                 |
+            00007FF7B97805F4 | 48:8B93 681B0000                | mov rdx,qword ptr ds:[rbx+1B68]                              | rdx:EntryPoint
+            00007FF7B97805FB | 48:8B8B 701B0000                | mov rcx,qword ptr ds:[rbx+1B70]                              |
+            00007FF7B9780602 | 44:89AB 781B0000                | mov dword ptr ds:[rbx+1B78],r13d                             |
+            00007FF7B9780609 | 48:8D42 01                      | lea rax,qword ptr ds:[rdx+1]                                 | rax:EntryPoint, rdx+1:sub_7FF7B9E0624C+9
+            00007FF7B978060D | 48:3BC1                         | cmp rax,rcx                                                  | rax:EntryPoint
+            00007FF7B9780610 | 77 15                           | ja sansarclient.7FF7B9780627                                 |
+            00007FF7B9780612 | 44:382A                         | cmp byte ptr ds:[rdx],r13b                                   | AllowFreecamera
+            00007FF7B9780615 | 0F95C0                          | setne al                                                     |
+        */
 
-        auto collisionHackAddr = (void *)(base + 0x17A6874);
+        auto collisionHackAddr = (void *)(base + 0x17A6A84);
         uint8_t collisionHack[] = {
            // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
              0xB0, 0x01, 0x90
@@ -238,7 +277,27 @@ int main()
         ///////////////////////////////////
         /// FREECAM - ALLOW ALWAYS (rigth below freecam hack, look for "skyCubemap" (THIRD DOWN FROM 'defaultSkyCubeMap') (func below has 'environment' reference)
         ///////////////////////////////////
-        auto freecamHackAddr = (void *)(base + 0x17A68BF);
+         /*
+            00007FF7B9780612 | 44:382A                         | cmp byte ptr ds:[rdx],r13b                                   | AllowFreecamera
+            00007FF7B9780615 | 0F95C0                          | setne al                                                     |
+            00007FF7B9780618 | 8887 B5020000                   | mov byte ptr ds:[rdi+2B5],al                                 |
+            00007FF7B978061E | 48:FF83 681B0000                | inc qword ptr ds:[rbx+1B68]                                  |
+            00007FF7B9780625 | EB 0E                           | jmp sansarclient.7FF7B9780635                                |
+            00007FF7B9780627 | C683 581B0000 01                | mov byte ptr ds:[rbx+1B58],1                                 |
+            00007FF7B978062E | 48:898B 681B0000                | mov qword ptr ds:[rbx+1B68],rcx                              |
+            00007FF7B9780635 | 83FD 0A                         | cmp ebp,A                                                    | A:'\n'
+            00007FF7B9780638 | 7C 3E                           | jl sansarclient.7FF7B9780678                                 |
+            00007FF7B978063A | 48:8B93 681B0000                | mov rdx,qword ptr ds:[rbx+1B68]                              | rdx:EntryPoint
+            00007FF7B9780641 | 48:8B8B 701B0000                | mov rcx,qword ptr ds:[rbx+1B70]                              |
+            00007FF7B9780648 | 44:89AB 781B0000                | mov dword ptr ds:[rbx+1B78],r13d                             |
+            00007FF7B978064F | 48:8D42 04                      | lea rax,qword ptr ds:[rdx+4]                                 | rax:EntryPoint, rdx+4:sub_7FF7B9E0624C+C
+            00007FF7B9780653 | 48:3BC1                         | cmp rax,rcx                                                  | rax:EntryPoint
+            00007FF7B9780656 | 77 12                           | ja sansarclient.7FF7B978066A                                 |
+            00007FF7B9780658 | 8B02                            | mov eax,dword ptr ds:[rdx]                                   | eax = TeleportRangeMaximum
+            00007FF7B978065A | 8987 B8020000                   | mov dword ptr ds:[rdi+2B8],eax                               |
+        */
+
+        auto freecamHackAddr = (void *)(base + 0x17A6ACF);
         uint8_t freecamHack[] = {
             0xB0, 0x01, 0x90
         };
@@ -253,9 +312,27 @@ int main()
         /// INVENTORY - ALLOW ALWAYS (search for 'exposureBias', function just above that) 
         ///////////////////////////////////
         /*
+            00007FF7B9786640 | 48:895C24 10                    | mov qword ptr ss:[rsp+10],rbx                                |
+            00007FF7B9786645 | 57                              | push rdi                                                     |
+            00007FF7B9786646 | 48:83EC 20                      | sub rsp,20                                                   |
+            00007FF7B978664A | 48:8BDA                         | mov rbx,rdx                                                  | rdx:EntryPoint
+            00007FF7B978664D | 4C:8D05 2C45AAFF                | lea r8,qword ptr ds:[<VERSION_RuntimeInventorySettings>]     |
+            00007FF7B9786654 | 48:8BF9                         | mov rdi,rcx                                                  |
+            00007FF7B9786657 | BA 01000000                     | mov edx,1                                                    |
+            00007FF7B978665C | 48:8BCB                         | mov rcx,rbx                                                  |
+            00007FF7B978665F | E8 7C8EA7FF                     | call <sansarclient.ReadVersion>                              |
+            00007FF7B9786664 | 48:8B8B 681B0000                | mov rcx,qword ptr ds:[rbx+1B68]                              |
+            00007FF7B978666B | 45:33C0                         | xor r8d,r8d                                                  |
+            00007FF7B978666E | 48:8B93 701B0000                | mov rdx,qword ptr ds:[rbx+1B70]                              | rdx:EntryPoint
+            00007FF7B9786675 | 44:8983 781B0000                | mov dword ptr ds:[rbx+1B78],r8d                              |
+            00007FF7B978667C | 48:8D41 04                      | lea rax,qword ptr ds:[rcx+4]                                 | rax:EntryPoint
+            00007FF7B9786680 | 48:3BC2                         | cmp rax,rdx                                                  | rax:EntryPoint, rdx:EntryPoint
+            00007FF7B9786683 | 77 1C                           | ja sansarclient.7FF7B97866A1                                 |
+            00007FF7B9786685 | 8B01                            | mov eax,dword ptr ds:[rcx]                                   | 0 = None, 1= Sansar Library, 2 = self library? <-- patch here
+            00007FF7B9786687 | 8907                            | mov dword ptr ds:[rdi],eax                                   |
         */
 
-        auto inventoryAlwaysHackAddr = (void *)(base + 0x17ACCB5);
+        auto inventoryAlwaysHackAddr = (void *)(base + 0x17ACEC5);
         uint8_t inventoryAlwaysHack[] = {
            0xB0, 0x01, 0x88, 0x07
         };
@@ -282,9 +359,9 @@ int main()
         uint8_t no1minTelemetry[] = {
             0xEB, 0x08
         };
-        auto telemetryCallerAddress = 0x11674CB;
+        auto telemetryCallerAddress = 0x11676DB;
         written = 0;
-        WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
+      //  WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
         printf("Written to %X: %d bytes\n", base + telemetryCallerAddress, written);
         
     }

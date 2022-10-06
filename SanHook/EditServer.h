@@ -51,127 +51,127 @@ public:
         {
             case EditServerMessages::UserLogin: // TAG: 19B81B0
             {
-                this->OnUserLogin(reader);
+               // this->OnUserLogin(reader);
                 break;
             }
             case EditServerMessages::UserLoginReply: // TAG: 19B8220
             {
-                this->OnUserLoginReply(reader);
+               // this->OnUserLoginReply(reader);
                 break;
             }
             case EditServerMessages::AddUser: // TAG: 19B8290
             {
-                this->OnAddUser(reader);
+              //  this->OnAddUser(reader);
                 break;
             }
             case EditServerMessages::RemoveUser: // TAG: 19B8300
             {
-                this->OnRemoveUser(reader);
+              //  this->OnRemoveUser(reader);
                 break;
             }
             case EditServerMessages::OpenWorkspace: // TAG: 19B84C0
             {
-                this->OnOpenWorkspace(reader);
+              //  this->OnOpenWorkspace(reader);
                 break;
             }
             case EditServerMessages::CloseWorkspace: // TAG: 19B8530
             {
-                this->OnCloseWorkspace(reader);
+               // this->OnCloseWorkspace(reader);
                 break;
             }
             case EditServerMessages::EditWorkspaceCommand: // TAG: 19B86F0
             {
-                this->OnEditWorkspaceCommand(reader);
+              //  this->OnEditWorkspaceCommand(reader);
                 break;
             }
             case EditServerMessages::SaveWorkspace: // TAG: 19B88E0
             {
-                this->OnSaveWorkspace(reader);
+              //  this->OnSaveWorkspace(reader);
                 break;
             }
             case EditServerMessages::SaveWorkspaceReply: // TAG: 19B8950
             {
-                this->OnSaveWorkspaceReply(reader);
+              //  this->OnSaveWorkspaceReply(reader);
                 break;
             }
             case EditServerMessages::BuildWorkspace: // TAG: 19B89C0
             {
-                this->OnBuildWorkspace(reader);
+              //  this->OnBuildWorkspace(reader);
                 break;
             }
             case EditServerMessages::UpdateWorkspaceClientBuiltBakeData: // TAG: 19B8A30
             {
-                this->OnUpdateWorkspaceClientBuiltBakeData(reader);
+              //  this->OnUpdateWorkspaceClientBuiltBakeData(reader);
                 break;
             }
             case EditServerMessages::BuildWorkspaceCompileReply: // TAG: 19B8AA0
             {
-                this->OnBuildWorkspaceCompileReply(reader);
+               // this->OnBuildWorkspaceCompileReply(reader);
                 break;
             }
             case EditServerMessages::BuildWorkspaceProgressUpdate: // TAG: 19B8B10
             {
-                this->OnBuildWorkspaceProgressUpdate(reader);
+               // this->OnBuildWorkspaceProgressUpdate(reader);
                 break;
             }
             case EditServerMessages::BuildWorkspaceUploadReply: // TAG: 19B8B80
             {
-                this->OnBuildWorkspaceUploadReply(reader);
+               // this->OnBuildWorkspaceUploadReply(reader);
                 break;
             }
             case EditServerMessages::WorkspaceReadyReply: // TAG: 19B8BF0
             {
-                this->OnWorkspaceReadyReply(reader);
+               // this->OnWorkspaceReadyReply(reader);
                 break;
             }
             case EditServerMessages::SaveWorkspaceSelectionToInventory: // TAG: 19B8DB0
             {
-                this->OnSaveWorkspaceSelectionToInventory(reader);
+               // this->OnSaveWorkspaceSelectionToInventory(reader);
                 break;
             }
             case EditServerMessages::SaveWorkspaceSelectionToInventoryReply: // TAG: 19B8E20
             {
-                this->OnSaveWorkspaceSelectionToInventoryReply(reader);
+               // this->OnSaveWorkspaceSelectionToInventoryReply(reader);
                 break;
             }
             case EditServerMessages::InventoryCreateItem: // TAG: 19B8E90
             {
-                this->OnInventoryCreateItem(reader);
+               // this->OnInventoryCreateItem(reader);
                 break;
             }
             case EditServerMessages::InventoryDeleteItem: // TAG: 19B8F00
             {
-                this->OnInventoryDeleteItem(reader);
+               // this->OnInventoryDeleteItem(reader);
                 break;
             }
             case EditServerMessages::InventoryChangeItemName: // TAG: 19B8F70
             {
-                this->OnInventoryChangeItemName(reader);
+                //this->OnInventoryChangeItemName(reader);
                 break;
             }
             case EditServerMessages::InventoryChangeItemState: // TAG: 19B8FE0
             {
-                this->OnInventoryChangeItemState(reader);
+               // this->OnInventoryChangeItemState(reader);
                 break;
             }
             case EditServerMessages::InventoryModifyItemThumbnailAssetId: // TAG: 19B9050
             {
-                this->OnInventoryModifyItemThumbnailAssetId(reader);
+               // this->OnInventoryModifyItemThumbnailAssetId(reader);
                 break;
             }
             case EditServerMessages::InventoryModifyItemCapabilities: // TAG: 19B90C0
             {
-                this->OnInventoryModifyItemCapabilities(reader);
+               // this->OnInventoryModifyItemCapabilities(reader);
                 break;
             }
             case EditServerMessages::InventorySaveItem: // TAG: 19B9130
             {
-                this->OnInventorySaveItem(reader);
+               // this->OnInventorySaveItem(reader);
                 break;
             }
             case EditServerMessages::InventoryUpdateItemReply: // TAG: 19B91A0
             {
-                this->OnInventoryUpdateItemReply(reader);
+               // this->OnInventoryUpdateItemReply(reader);
                 break;
             }
             case EditServerMessages::InventoryItemUpload: // TAG: 19B9210
@@ -196,12 +196,12 @@ public:
             }
             case EditServerMessages::BeginEditServerSpawn: // TAG: 19B93D0
             {
-                this->OnBeginEditServerSpawn(reader);
+               // this->OnBeginEditServerSpawn(reader);
                 break;
             }
             case EditServerMessages::EditServerSpawnReady: // TAG: 19B9440
             {
-                this->OnEditServerSpawnReady(reader);
+               // this->OnEditServerSpawnReady(reader);
                 break;
             }
             default:
@@ -433,6 +433,14 @@ public:
         auto itemId = reader.ReadUUID();
         auto itemName = reader.ReadString();
         auto categoryName = reader.ReadString();
+
+        printf("[%s] this->OnInventoryCreateListing\n  authorization = %s\n  itemId = %s\n  itemName = %s\n categoryName = %s\n",
+            _isSender ? "OUT" : "IN",
+            authorization.c_str(),
+            itemId.c_str(),
+            itemName.c_str(),
+            categoryName.c_str()
+        );
     }
 
     void OnInventoryItemUploadReply(PacketReader &reader) // TAG: 19B9280
@@ -452,6 +460,15 @@ public:
         auto itemName = reader.ReadString();
         auto categoryName = reader.ReadString();
         auto bundleName = reader.ReadString();
+
+        printf("[%s] this->OnInventoryCreateListing\n  authorization = %s\n  itemId = %s\n  itemName = %s\n categoryName = %s\n bundleName = %s\n",
+            _isSender ? "OUT" : "IN",
+            authorization.c_str(),
+            itemId.c_str(),
+            itemName.c_str(),
+            categoryName.c_str(),
+            bundleName.c_str()
+        );
     }
 
     void OnInventoryCreateListingReply(PacketReader &reader) // TAG: 19B9360
@@ -460,6 +477,14 @@ public:
         auto itemId = reader.ReadUUID();
         auto itemName = reader.ReadString();
         auto categoryName = reader.ReadString();
+
+        printf("[%s] this->OnInventoryCreateListingReply\n  canBeListed = %d\n  itemId = %s\n  categoryName = %s\n",
+            _isSender ? "OUT" : "IN",
+            canBeListed,
+            itemId.c_str(),
+            itemName.c_str(),
+            categoryName.c_str()
+        );
     }
 
     void OnBeginEditServerSpawn(PacketReader &reader) // TAG: 19B93D0

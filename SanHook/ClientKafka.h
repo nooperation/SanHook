@@ -134,22 +134,22 @@ public:
             }
             case ClientKafkaMessages::InventoryItemCapabilities: // TAG: 17A1BA0
             {
-                //this->OnInventoryItemCapabilities(reader);
+                this->OnInventoryItemCapabilities(reader);
                 break;
             }
             case ClientKafkaMessages::InventoryItemRevision: // TAG: 17A1D80
             {
-                //this->OnInventoryItemRevision(reader);
+                this->OnInventoryItemRevision(reader);
                 break;
             }
             case ClientKafkaMessages::InventoryItemUpdate: // TAG: 17A1DF0
             {
-                //this->OnInventoryItemUpdate(reader);
+                this->OnInventoryItemUpdate(reader);
                 break;
             }
             case ClientKafkaMessages::InventoryItemDelete: // TAG: 17A1E60
             {
-                //this->OnInventoryItemDelete(reader);
+                this->OnInventoryItemDelete(reader);
                 break;
             }
             case ClientKafkaMessages::InventoryLoaded: // TAG: 17A1ED0
@@ -258,30 +258,30 @@ public:
 
     void OnScriptConsoleLog(PacketReader &reader) // TAG: 17A31F0
     {
-        auto logLevel = reader.ReadUint32();
-        auto tag = reader.ReadString();
-        auto message = reader.ReadString();
-        auto timestamp = reader.ReadUint64();
-        auto scriptId = reader.ReadUint32();
-        auto scriptClassName = reader.ReadString();
-        auto worldId = reader.ReadString();
-        auto instanceId = reader.ReadString();
-        auto ownerPersonaId = reader.ReadUUID();
-        auto offset = reader.ReadUint64();
+        //auto logLevel = reader.ReadUint32();
+        //auto tag = reader.ReadString();
+        //auto message = reader.ReadString();
+        //auto timestamp = reader.ReadUint64();
+        //auto scriptId = reader.ReadUint32();
+        //auto scriptClassName = reader.ReadString();
+        //auto worldId = reader.ReadString();
+        //auto instanceId = reader.ReadString();
+        //auto ownerPersonaId = reader.ReadUUID();
+        //auto offset = reader.ReadUint64();
 
-        printf("[%s] OnScriptConsoleLog: logLevel = %u\n  tag = %s\n  message = %s\n  timestamp = %llu\n  scriptId = %u\n  scriptClassName = %s\n  worldId = %s\n  instanceId = %s\n  ownerPersonaId = %s\n  offset = %llu\n",
-            _isSender ? "OUT" : "IN",
-            logLevel,
-            tag.c_str(),
-            message.c_str(),
-            timestamp,
-            scriptId,
-            scriptClassName.c_str(),
-            worldId.c_str(),
-            instanceId.c_str(),
-            ownerPersonaId.c_str(),
-            offset
-        );
+        //printf("[%s] OnScriptConsoleLog: logLevel = %u\n  tag = %s\n  message = %s\n  timestamp = %llu\n  scriptId = %u\n  scriptClassName = %s\n  worldId = %s\n  instanceId = %s\n  ownerPersonaId = %s\n  offset = %llu\n",
+        //    _isSender ? "OUT" : "IN",
+        //    logLevel,
+        //    tag.c_str(),
+        //    message.c_str(),
+        //    timestamp,
+        //    scriptId,
+        //    scriptClassName.c_str(),
+        //    worldId.c_str(),
+        //    instanceId.c_str(),
+        //    ownerPersonaId.c_str(),
+        //    offset
+        //);
     }
 
     void OnLoginReply(PacketReader &reader)  // TAG: 17A1300
@@ -297,80 +297,80 @@ public:
 
     void OnPresenceUpdate(PacketReader &reader)  // TAG: 17A1820
     {
-        auto personaId = reader.ReadUUID();
-        auto present = reader.ReadUint8();
-        auto sessionId = reader.ReadUUID();
-        auto state = reader.ReadString();
-        auto sansarUri = reader.ReadString();
-
-        personaId = Utils::ToUUID(personaId);
-        auto handle = Utils::KeyToName(personaId);
-
-        printf("[%s] OnPresenceUpdate:\n  personaId = %s [%s]\n  present = %u\n  sessionId = %s\n  state = %s\n  sansarUri = %s\n",
-            _isSender ? "OUT" : "IN",
-            handle.c_str(),
-            personaId.c_str(),
-            present,
-            sessionId.c_str(),
-            state.c_str(),
-            sansarUri.c_str()
-        );
+       // auto personaId = reader.ReadUUID();
+       // auto present = reader.ReadUint8();
+       // auto sessionId = reader.ReadUUID();
+       // auto state = reader.ReadString();
+       // auto sansarUri = reader.ReadString();
+       //
+       // personaId = Utils::ToUUID(personaId);
+       // auto handle = Utils::KeyToName(personaId);
+       //
+       // printf("[%s] OnPresenceUpdate:\n  personaId = %s [%s]\n  present = %u\n  sessionId = %s\n  state = %s\n  sansarUri = %s\n",
+       //     _isSender ? "OUT" : "IN",
+       //     handle.c_str(),
+       //     personaId.c_str(),
+       //     present,
+       //     sessionId.c_str(),
+       //     state.c_str(),
+       //     sansarUri.c_str()
+       // );
     }
 
     void OnRelationshipTable(PacketReader &reader) // TAG: 17A1B30
     {
-        auto other = reader.ReadUUID();
-        auto fromSelf = reader.ReadUint8();
-        auto fromOther = reader.ReadUint8();
-        auto status = reader.ReadUint32();
+        //auto other = reader.ReadUUID();
+        //auto fromSelf = reader.ReadUint8();
+        //auto fromOther = reader.ReadUint8();
+        //auto status = reader.ReadUint32();
 
-        printf("[%s] ClientKafkaMessages::RelationshipTable: other = %s, fromSelf = %u, fromOther = %u, status = %u\n",
-            _isSender ? "OUT" : "IN",
-            other.c_str(),
-            fromSelf,
-            fromOther,
-            status
-        );
+        //printf("[%s] ClientKafkaMessages::RelationshipTable: other = %s, fromSelf = %u, fromOther = %u, status = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    other.c_str(),
+        //    fromSelf,
+        //    fromOther,
+        //    status
+        //);
     }
 
     void OnInventoryItemUpdate(PacketReader &reader) // TAG: 17A1DF0
     {
-        auto id = reader.ReadString();
-        auto licensee_label = reader.ReadString();
-        auto licensor_label = reader.ReadString();
-        auto compat_version = reader.ReadString();
-        auto licensor_pid = reader.ReadString();
-        auto creationTime = reader.ReadString();
-        auto modificationTime = reader.ReadString();
+        //auto id = reader.ReadString();
+        //auto licensee_label = reader.ReadString();
+        //auto licensor_label = reader.ReadString();
+        //auto compat_version = reader.ReadString();
+        //auto licensor_pid = reader.ReadString();
+        //auto creationTime = reader.ReadString();
+        //auto modificationTime = reader.ReadString();
 
-        auto origin = reader.ReadUint32();
-        auto originReference = reader.ReadString();
-        auto revisionsLength = reader.ReadUint32();
+        //auto origin = reader.ReadUint32();
+        //auto originReference = reader.ReadString();
+        //auto revisionsLength = reader.ReadUint32();
 
-        // TODO: Test ot make sure this is still valid...
-        for (size_t i = 0; i < revisionsLength; i++)
-        {
-            OnInventoryItemRevision(reader);
-        }
+        //// TODO: Test ot make sure this is still valid...
+        //for (size_t i = 0; i < revisionsLength; i++)
+        //{
+        //    OnInventoryItemRevision(reader);
+        //}
 
-        auto offset = reader.ReadUint64();
-        auto state = reader.ReadUint8();
+        //auto offset = reader.ReadUint64();
+        //auto state = reader.ReadUint8();
 
-        printf("[%s] ClientKafkaMessages::InventoryItemUpdate:\n  id = %s\n  licensee_label = %s\n  licensor_label = %s\n  compat_version = %s\n  licensor_pid = %s\n  creationTime = %s\n  modificationTime = %s\n  origin = %u\n  originReference = %s\n  revisionsLength = %u\n  offset = %llu\n  state = %u\n",
-            _isSender ? "OUT" : "IN",
-            id.c_str(),
-            licensee_label.c_str(),
-            licensor_label.c_str(),
-            compat_version.c_str(),
-            licensor_pid.c_str(),
-            creationTime.c_str(),
-            modificationTime.c_str(),
-            origin,
-            originReference.c_str(),
-            revisionsLength,
-            offset,
-            state
-        );
+        //printf("[%s] ClientKafkaMessages::InventoryItemUpdate:\n  id = %s\n  licensee_label = %s\n  licensor_label = %s\n  compat_version = %s\n  licensor_pid = %s\n  creationTime = %s\n  modificationTime = %s\n  origin = %u\n  originReference = %s\n  revisionsLength = %u\n  offset = %llu\n  state = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    id.c_str(),
+        //    licensee_label.c_str(),
+        //    licensor_label.c_str(),
+        //    compat_version.c_str(),
+        //    licensor_pid.c_str(),
+        //    creationTime.c_str(),
+        //    modificationTime.c_str(),
+        //    origin,
+        //    originReference.c_str(),
+        //    revisionsLength,
+        //    offset,
+        //    state
+        //);
     }
 
     std::vector<std::vector<uint8_t>> autochatIds = {
@@ -562,8 +562,8 @@ public:
 
     void OnPrivateChatStatus(PacketReader &reader)  // TAG: 17A17B0
     {
-        auto offset = reader.ReadUint64();
-        auto status = reader.ReadUint32();
+       // auto offset = reader.ReadUint64();
+       // auto status = reader.ReadUint32();
 
         //printf("[%s] ClientKafkaMessages::PrivateChatStatus:\n  offset = %llu\n  status = %u\n",
         //    _isSender ? "OUT" : "IN",
@@ -606,17 +606,17 @@ public:
 
     void OnLongLivedNotificationsLoaded(PacketReader &reader) // TAG: 17A3460
     {
-        auto offset = reader.ReadUint64();
+      //  auto offset = reader.ReadUint64();
     }
 
     void OnLongLivedNotificationDelete(PacketReader &reader)  // TAG: 17A32D0
     {
-        auto id = reader.ReadUUID();
-
-        printf("[%s] ClientKafkaMessages::LongLivedNotificationDelete:\n  id = %s\n",
-            _isSender ? "OUT" : "IN",
-            id.c_str()
-        );
+        //auto id = reader.ReadUUID();
+        //
+        //printf("[%s] ClientKafkaMessages::LongLivedNotificationDelete:\n  id = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    id.c_str()
+        //);
     }
 
     void OnLongLivedNotification(PacketReader &reader) // TAG: 17A3260
@@ -653,120 +653,120 @@ public:
 
     void OnUnsubscribeScriptRegionConsole(PacketReader &reader) // TAG: 17A3040
     {
-        auto instanceId = reader.ReadString();
-
-        printf("[%s] ClientKafkaMessages::UnsubscriptScriptRegionConsole:\n  instanceId = %s\n",
-            _isSender ? "OUT" : "IN",
-            instanceId.c_str()
-        );
+        //auto instanceId = reader.ReadString();
+        //
+        //printf("[%s] ClientKafkaMessages::UnsubscriptScriptRegionConsole:\n  instanceId = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    instanceId.c_str()
+        //);
     }
 
     void OnSubscribeScriptRegionConsole(PacketReader &reader) // TAG: 17A2FD0
     {
-        auto instanceId = reader.ReadString();
-        auto offset = reader.ReadUint64();
-
-        printf("[%s] ClientKafkaMessages::SubscribeScriptRegionConsole:\n  instanceId = %s\n  offset = %llu\n",
-            _isSender ? "OUT" : "IN",
-            instanceId.c_str(),
-            offset
-        );
+       // auto instanceId = reader.ReadString();
+       // auto offset = reader.ReadUint64();
+       //
+       // printf("[%s] ClientKafkaMessages::SubscribeScriptRegionConsole:\n  instanceId = %s\n  offset = %llu\n",
+       //     _isSender ? "OUT" : "IN",
+       //     instanceId.c_str(),
+       //     offset
+       // );
     }
 
     void OnRegionEventMetric(PacketReader &reader) // TAG: 17A2F60
     {
-        auto ownerPersonaID = reader.ReadUUID();
-        auto eventName = reader.ReadString();
-        auto headcount = reader.ReadUint32();
-        auto grid = reader.ReadString();
-        auto ownerPersonaHandle = reader.ReadString();
-        auto experienceHandle = reader.ReadString();
-        auto instanceId = reader.ReadString();
-        auto buildID = reader.ReadString();
-        auto locationHandle = reader.ReadString();
-        auto sansarURI = reader.ReadString();
-        auto compatVersion = reader.ReadString();
-        auto protoVersion = reader.ReadString();
-        auto accessGroup = reader.ReadString();
-        auto configuration = reader.ReadString();
-        auto worldId = reader.ReadString();
-
-        printf("ClientKafkaMessages::RegionEventMetric:\n  ownerPersonaID = %s\n  eventName = %s\n  headcount = %u\n  grid = %s\n  ownerPersonaHandle = %s\n  experienceHandle = %s\n  instanceId = %s\n  buildID = %s\n  locationHandle = %s\n  sansarURI = %s\n  compatVersion = %s\n  protoVersion = %s\n  accessGroup = %s\n  configuration = %s\n  worldId = %s\n",
-            ownerPersonaID.c_str(),
-            eventName.c_str(),
-            headcount,
-            grid.c_str(),
-            ownerPersonaHandle.c_str(),
-            experienceHandle.c_str(),
-            instanceId.c_str(),
-            buildID.c_str(),
-            locationHandle.c_str(),
-            sansarURI.c_str(),
-            compatVersion.c_str(),
-            protoVersion.c_str(),
-            accessGroup.c_str(),
-            configuration.c_str(),
-            worldId.c_str()
-        );
+        //auto ownerPersonaID = reader.ReadUUID();
+        //auto eventName = reader.ReadString();
+        //auto headcount = reader.ReadUint32();
+        //auto grid = reader.ReadString();
+        //auto ownerPersonaHandle = reader.ReadString();
+        //auto experienceHandle = reader.ReadString();
+        //auto instanceId = reader.ReadString();
+        //auto buildID = reader.ReadString();
+        //auto locationHandle = reader.ReadString();
+        //auto sansarURI = reader.ReadString();
+        //auto compatVersion = reader.ReadString();
+        //auto protoVersion = reader.ReadString();
+        //auto accessGroup = reader.ReadString();
+        //auto configuration = reader.ReadString();
+        //auto worldId = reader.ReadString();
+        //
+        //printf("ClientKafkaMessages::RegionEventMetric:\n  ownerPersonaID = %s\n  eventName = %s\n  headcount = %u\n  grid = %s\n  ownerPersonaHandle = %s\n  experienceHandle = %s\n  instanceId = %s\n  buildID = %s\n  locationHandle = %s\n  sansarURI = %s\n  compatVersion = %s\n  protoVersion = %s\n  accessGroup = %s\n  configuration = %s\n  worldId = %s\n",
+        //    ownerPersonaID.c_str(),
+        //    eventName.c_str(),
+        //    headcount,
+        //    grid.c_str(),
+        //    ownerPersonaHandle.c_str(),
+        //    experienceHandle.c_str(),
+        //    instanceId.c_str(),
+        //    buildID.c_str(),
+        //    locationHandle.c_str(),
+        //    sansarURI.c_str(),
+        //    compatVersion.c_str(),
+        //    protoVersion.c_str(),
+        //    accessGroup.c_str(),
+        //    configuration.c_str(),
+        //    worldId.c_str()
+        //);
     }
 
     void OnRegionHeartbeatMetric(PacketReader &reader) // TAG: 17A2EF0
     {
-        auto ownerPersonaID = reader.ReadUUID();
-        auto averageFrameRate = reader.ReadFloat();
-        auto minFrameRate = reader.ReadFloat();
-        auto maxFrameRate = reader.ReadFloat();
-        auto headcount = reader.ReadUint32();
-        auto grid = reader.ReadString();
-        auto ownerPersonaHandle = reader.ReadString();
-        auto experienceHandle = reader.ReadString();
-        auto instanceId = reader.ReadString();
-        auto buildID = reader.ReadString();
-        auto locationHandle = reader.ReadString();
-        auto sansarURI = reader.ReadString();
-        auto compatVersion = reader.ReadString();
-        auto protoVersion = reader.ReadString();
-        auto accessGroup = reader.ReadString();
-        auto configuration = reader.ReadString();
-        auto worldId = reader.ReadString();
-
-        printf("ClientKafkaMessages::RegionHeartbeatMetric:\n  ownerPersonaID = %s\n  averageFrameRate = %f\n  minFrameRate = %f\n  maxFrameRate = %f\n  headcount = %u\n  grid = %s\n  ownerPersonaHandle = %s\n  experienceHandle = %s\n  instanceId = %s\n  buildID = %s\n  locationHandle = %s\n  sansarURI = %s\n  compatVersion = %s\n  protoVersion = %s\n  accessGroup = %s\n  configuration = %s\n  worldId = %s\n",
-            ownerPersonaID.c_str(),
-            averageFrameRate,
-            minFrameRate,
-            maxFrameRate,
-            headcount,
-            grid.c_str(),
-            ownerPersonaHandle.c_str(),
-            experienceHandle.c_str(),
-            instanceId.c_str(),
-            buildID.c_str(),
-            locationHandle.c_str(),
-            sansarURI.c_str(),
-            compatVersion.c_str(),
-            protoVersion.c_str(),
-            accessGroup.c_str(),
-            configuration.c_str(),
-            worldId.c_str()
-        );
+        //auto ownerPersonaID = reader.ReadUUID();
+        //auto averageFrameRate = reader.ReadFloat();
+        //auto minFrameRate = reader.ReadFloat();
+        //auto maxFrameRate = reader.ReadFloat();
+        //auto headcount = reader.ReadUint32();
+        //auto grid = reader.ReadString();
+        //auto ownerPersonaHandle = reader.ReadString();
+        //auto experienceHandle = reader.ReadString();
+        //auto instanceId = reader.ReadString();
+        //auto buildID = reader.ReadString();
+        //auto locationHandle = reader.ReadString();
+        //auto sansarURI = reader.ReadString();
+        //auto compatVersion = reader.ReadString();
+        //auto protoVersion = reader.ReadString();
+        //auto accessGroup = reader.ReadString();
+        //auto configuration = reader.ReadString();
+        //auto worldId = reader.ReadString();
+        //
+        //printf("ClientKafkaMessages::RegionHeartbeatMetric:\n  ownerPersonaID = %s\n  averageFrameRate = %f\n  minFrameRate = %f\n  maxFrameRate = %f\n  headcount = %u\n  grid = %s\n  ownerPersonaHandle = %s\n  experienceHandle = %s\n  instanceId = %s\n  buildID = %s\n  locationHandle = %s\n  sansarURI = %s\n  compatVersion = %s\n  protoVersion = %s\n  accessGroup = %s\n  configuration = %s\n  worldId = %s\n",
+        //    ownerPersonaID.c_str(),
+        //    averageFrameRate,
+        //    minFrameRate,
+        //    maxFrameRate,
+        //    headcount,
+        //    grid.c_str(),
+        //    ownerPersonaHandle.c_str(),
+        //    experienceHandle.c_str(),
+        //    instanceId.c_str(),
+        //    buildID.c_str(),
+        //    locationHandle.c_str(),
+        //    sansarURI.c_str(),
+        //    compatVersion.c_str(),
+        //    protoVersion.c_str(),
+        //    accessGroup.c_str(),
+        //    configuration.c_str(),
+        //    worldId.c_str()
+        //);
     }
 
     void OnClientMetric(PacketReader &reader) // TAG: 17A2D40
     {
         if (_isSender) {
-            auto jsonString = reader.ReadString();
+            //auto jsonString = reader.ReadString();
             //printf("ClientKafkaMessages::ClientMetric:\n  jsonString = %s\n",
             //    jsonString.c_str()
             //);
-
+        
             reader.Reset();
-
+        
             auto buffer = reader.GetBuffer();
             auto pMessageId = (uint32_t *)&buffer[0];
             auto pStringLength = (uint32_t *)&buffer[4];
-
+        
             auto existingMessageId = *pMessageId;
-
+        
             memset(buffer, 0, reader.GetBufferSize());
             *pMessageId = existingMessageId;
             pStringLength = 0;
@@ -775,198 +775,198 @@ public:
 
     void OnScriptRegionConsoleLoaded(PacketReader &reader) // TAG: 17A2CD0
     {
-        auto instanceId = reader.ReadString();
-        auto offset = reader.ReadUint64();
-
-        printf("[%s] ClientKafkaMessages::ScriptRegionConsoleLoaded:\n  instanceId = %s\n  offset = %llu\n",
-            _isSender ? "OUT" : "IN",
-            instanceId.c_str(),
-            offset
-        );
+       // auto instanceId = reader.ReadString();
+       // auto offset = reader.ReadUint64();
+       //
+       // printf("[%s] ClientKafkaMessages::ScriptRegionConsoleLoaded:\n  instanceId = %s\n  offset = %llu\n",
+       //     _isSender ? "OUT" : "IN",
+       //     instanceId.c_str(),
+       //     offset
+       // );
     }
 
     void OnPrivateChatStatusLoaded(PacketReader &reader) // TAG: 17A2B10
     {
-        auto offset = reader.ReadUint64();
+        //auto offset = reader.ReadUint64();
     }
 
     void OnPrivateChatLoaded(PacketReader &reader) // TAG: 17A2950
     {
-        auto offset = reader.ReadUint64();
+       // auto offset = reader.ReadUint64();
     }
 
     void OnRelationshipTableLoaded(PacketReader &reader) // TAG: 17A2790
     {
-        auto offset = reader.ReadUint64();
+       // auto offset = reader.ReadUint64();
     }
 
     void OnFriendTableLoaded(PacketReader &reader) // TAG: 17A25D0
     {
-        auto offset = reader.ReadUint64();
+       // auto offset = reader.ReadUint64();
     }
 
     void OnPresenceUpdateFanoutLoaded(PacketReader &reader) // TAG: 17A2410
     {
-        auto offset = reader.ReadUint64();
+       // auto offset = reader.ReadUint64();
     }
 
     void OnFriendResponseLoaded(PacketReader &reader) // TAG: 17A2250
     {
-        auto offset = reader.ReadUint64();
+        //auto offset = reader.ReadUint64();
     }
 
     void OnFriendRequestLoaded(PacketReader &reader) // TAG: 17A2090
     {
-        auto offset = reader.ReadUint64();
+        //auto offset = reader.ReadUint64();
     }
 
     void OnInventoryLoaded(PacketReader &reader) // TAG: 17A1ED0
     {
-        auto offset = reader.ReadUint64();
+        //auto offset = reader.ReadUint64();
     }
 
     void OnInventoryItemDelete(PacketReader &reader) // TAG: 17A1E60
     {
-        auto id = reader.ReadString();
-        auto offset = reader.ReadUint64();
-
-        printf("[%s] ClientKafkaMessages::InventoryItemDelete:\n  id = %s\n  offset = %llu\n",
-            _isSender ? "OUT" : "IN",
-            id.c_str(),
-            offset
-        );
+        //auto id = reader.ReadString();
+        //auto offset = reader.ReadUint64();
+        //
+        //printf("[%s] ClientKafkaMessages::InventoryItemDelete:\n  id = %s\n  offset = %llu\n",
+        //    _isSender ? "OUT" : "IN",
+        //    id.c_str(),
+        //    offset
+        //);
     }
 
     void OnInventoryItemRevision(PacketReader &reader) // TAG: 17A1D80
     {
-        auto asset_id = reader.ReadString();
-        auto asset_type = reader.ReadString();
-        auto asset_hint = reader.ReadUint32();
-        auto thumbnail_asset_id = reader.ReadString();
-        auto license_asset_id = reader.ReadString();
-        auto capabilities = reader.ReadStringList();
-
-        printf("[%s] ClientKafkaMessages::InventoryItemRevision:\n  asset_id = %s\n  asset_type = %s\n  asset_hint = %u\n  thumbnail_asset_id = %s\n  license_asset_id = %s\n  capabilities =",
-            _isSender ? "OUT" : "IN",
-            asset_id.c_str(),
-            asset_type.c_str(),
-            asset_hint,
-            thumbnail_asset_id.c_str(),
-            license_asset_id.c_str()
-        );
-        for (auto &item : capabilities)
-        {
-            printf("    %s\n", item.c_str());
-        }
+        //auto asset_id = reader.ReadString();
+        //auto asset_type = reader.ReadString();
+        //auto asset_hint = reader.ReadUint32();
+        //auto thumbnail_asset_id = reader.ReadString();
+        //auto license_asset_id = reader.ReadString();
+        //auto capabilities = reader.ReadStringList();
+        //
+        //printf("[%s] ClientKafkaMessages::InventoryItemRevision:\n  asset_id = %s\n  asset_type = %s\n  asset_hint = %u\n  thumbnail_asset_id = %s\n  license_asset_id = %s\n  capabilities =",
+        //    _isSender ? "OUT" : "IN",
+        //    asset_id.c_str(),
+        //    asset_type.c_str(),
+        //    asset_hint,
+        //    thumbnail_asset_id.c_str(),
+        //    license_asset_id.c_str()
+        //);
+        //for (auto &item : capabilities)
+        //{
+        //    printf("    %s\n", item.c_str());
+        //}
         
     }
 
     void OnInventoryItemCapabilities(PacketReader &reader)  // TAG: 17A1BA0
     {
-        auto capabilities = reader.ReadStringList();
-
-        printf("[%s] ClientKafkaMessages::InventoryItemCapabilities:\n",
-            _isSender ? "OUT" : "IN"
-        );
-        for (auto &item : capabilities)
-        {
-            printf("  %s\n", item.c_str());
-        }
+        //auto capabilities = reader.ReadStringList();
+        //
+        //printf("[%s] ClientKafkaMessages::InventoryItemCapabilities:\n",
+        //    _isSender ? "OUT" : "IN"
+        //);
+        //for (auto &item : capabilities)
+        //{
+        //    printf("  %s\n", item.c_str());
+        //}
     }
 
     void OnRelationshipOperation(PacketReader &reader)  // TAG: 17A1AC0
     {
-        auto other = reader.ReadUUID();
-        auto operation = reader.ReadUint32();
+        //auto other = reader.ReadUUID();
+        //auto operation = reader.ReadUint32();
 
-        // 0 = friend request / friend accept
-        // 1 = ignore / remove friend
-        // 2 = block
-        // 3 = unblock
+        //// 0 = friend request / friend accept
+        //// 1 = ignore / remove friend
+        //// 2 = block
+        //// 3 = unblock
 
-        printf("[%s] ClientKafkaMessages::RelationshipOperation:\n  other = %s\n  operation = %u\n",
-            _isSender ? "OUT" : "IN",
-            other.c_str(),
-            operation
-        );
+        //printf("[%s] ClientKafkaMessages::RelationshipOperation:\n  other = %s\n  operation = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    other.c_str(),
+        //    operation
+        //);
     }
 
     void OnFriendTable(PacketReader &reader)  // TAG: 17A1A50
     {
-        auto fromPersonaId = reader.ReadUUID();
-        auto toPersonaId = reader.ReadUUID();
-        auto status = reader.ReadUint32();
+        //auto fromPersonaId = reader.ReadUUID();
+        //auto toPersonaId = reader.ReadUUID();
+        //auto status = reader.ReadUint32();
 
-        printf("[%s] ClientKafkaMessages::FriendTable:\n  fromPersonaId = %s\n  toPersonaId = %s\n  status = %u\n",
-            _isSender ? "OUT" : "IN",
-            fromPersonaId.c_str(),
-            toPersonaId.c_str(),
-            status
-        );
+        //printf("[%s] ClientKafkaMessages::FriendTable:\n  fromPersonaId = %s\n  toPersonaId = %s\n  status = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    fromPersonaId.c_str(),
+        //    toPersonaId.c_str(),
+        //    status
+        //);
     }
 
     void OnFriendResponseStatus(PacketReader &reader)  // TAG: 17A19E0
     {
-        auto offset = reader.ReadUint64();
-        auto status = reader.ReadUint32();
+        //auto offset = reader.ReadUint64();
+        //auto status = reader.ReadUint32();
 
-        printf("[%s] ClientKafkaMessages::FriendResponseStatus:\n  offset = %llu\n  status = %u\n",
-            _isSender ? "OUT" : "IN",
-            offset,
-            status
-        );
+        //printf("[%s] ClientKafkaMessages::FriendResponseStatus:\n  offset = %llu\n  status = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    offset,
+        //    status
+        //);
     }
 
     void OnFriendResponse(PacketReader &reader)  // TAG: 17A1970
     {
-        auto offset = reader.ReadUint64();;
-        auto fromPersonaId = reader.ReadUUID();
-        auto toPersonaId = reader.ReadUUID();
-        auto timestamp = reader.ReadString(); // WHAT
-        auto fromSignature = reader.ReadString();
-        auto response = reader.ReadUint32();
-        auto toSignature = reader.ReadString();
+        //auto offset = reader.ReadUint64();;
+        //auto fromPersonaId = reader.ReadUUID();
+        //auto toPersonaId = reader.ReadUUID();
+        //auto timestamp = reader.ReadString(); // WHAT
+        //auto fromSignature = reader.ReadString();
+        //auto response = reader.ReadUint32();
+        //auto toSignature = reader.ReadString();
 
-        printf("[%s] ClientKafkaMessages::FriendRequest:\n  offset = %llu\n  fromPersonaId = %s\n  toPersonaId = %s\n  timestamp = %s\n  fromSignature = %s\n  response = %u\n  toSignature = %s\n",
-            _isSender ? "OUT" : "IN",
-            offset,
-            fromPersonaId.c_str(),
-            toPersonaId.c_str(),
-            timestamp.c_str(),
-            fromSignature.c_str(),
-            response,
-            toSignature.c_str()
-        );
+        //printf("[%s] ClientKafkaMessages::FriendRequest:\n  offset = %llu\n  fromPersonaId = %s\n  toPersonaId = %s\n  timestamp = %s\n  fromSignature = %s\n  response = %u\n  toSignature = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    offset,
+        //    fromPersonaId.c_str(),
+        //    toPersonaId.c_str(),
+        //    timestamp.c_str(),
+        //    fromSignature.c_str(),
+        //    response,
+        //    toSignature.c_str()
+        //);
     }
 
     void OnFriendRequestStatus(PacketReader &reader)  // TAG: 17A1900
     {
-        auto offset = reader.ReadUint64();
-        auto status = reader.ReadUint32();
+        //auto offset = reader.ReadUint64();
+        //auto status = reader.ReadUint32();
 
-        printf("[%s] ClientKafkaMessages::FriendRequestStatus:\n  offset = %llu\n  status = %u\n",
-            _isSender ? "OUT" : "IN",
-            offset,
-            status
-        );
+        //printf("[%s] ClientKafkaMessages::FriendRequestStatus:\n  offset = %llu\n  status = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    offset,
+        //    status
+        //);
     }
 
     void OnFriendRequest(PacketReader &reader)  // TAG: 17A1890
     {
-        auto offset = reader.ReadUint64();;
-        auto fromPersonaId = reader.ReadUUID();
-        auto toPersonaId = reader.ReadUUID();
-        auto timestamp = reader.ReadString(); // WHAT
-        auto fromSignature = reader.ReadString();
+        //auto offset = reader.ReadUint64();;
+        //auto fromPersonaId = reader.ReadUUID();
+        //auto toPersonaId = reader.ReadUUID();
+        //auto timestamp = reader.ReadString(); // WHAT
+        //auto fromSignature = reader.ReadString();
 
-        printf("[%s] ClientKafkaMessages::FriendRequest:\n  offset = %llu\n  fromPersonaId = %s\n  toPersonaId = %s\n  timestamp = %s\n  fromSignature = %s\n",
-            _isSender ? "OUT" : "IN",
-            offset,
-            fromPersonaId.c_str(),
-            toPersonaId.c_str(),
-            timestamp.c_str(),
-            fromSignature.c_str()
-        );
+        //printf("[%s] ClientKafkaMessages::FriendRequest:\n  offset = %llu\n  fromPersonaId = %s\n  toPersonaId = %s\n  timestamp = %s\n  fromSignature = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    offset,
+        //    fromPersonaId.c_str(),
+        //    toPersonaId.c_str(),
+        //    timestamp.c_str(),
+        //    fromSignature.c_str()
+        //);
     }
 
     void OnLeaveRegion(PacketReader &reader)  // TAG: 17A1520

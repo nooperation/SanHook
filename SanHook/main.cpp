@@ -9,8 +9,12 @@
 #include <vector>
 #include <thread>
 #include <map>
+#include <iostream>
+#include <windows.h>
 
 #pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "ntdll")
+
 
 static int (WINAPI *original_recvfrom)(SOCKET s, char *buf, int len, int flags, struct sockaddr *from, int *fromlen) = recvfrom;
 static int (WINAPI *original_sendto)(SOCKET s, const char *buf, int len, int flags, const struct sockaddr *to, int tolen) = sendto;
@@ -38,6 +42,13 @@ std::string GetAddressFromAddr(const sockaddr *addr);
 #include "Utils.hpp"
 
 #include "Magic.h"
+
+extern "C" {
+    NTSYSAPI NTSTATUS NtQueryTimerResolution(OUT PULONG minimumResolution, OUT PULONG maximumResolution, OUT PULONG currentResolution);
+    NTSYSAPI NTSTATUS NtSetTimerResolution(IN ULONG desiredResolution, IN BOOLEAN setResolution, OUT PULONG currentResoultion);
+}
+
+
 unsigned long long ReturnPoint_ProcessPacketRecv = 0;
 unsigned long long ReturnPoint_ProcessPacketSend = 0;
 unsigned long long ReturnPoint_ProcessHttpBodyRecv = 0;
@@ -574,12 +585,16 @@ void ProcessPacketSend(uint8_t *packet, uint64_t length)
 
         auto handled_packet = false;
 
-        //auto foundMessage = idToMessageMap.find(messageId);
-        //if (foundMessage != idToMessageMap.end())
+        //if (messageId != 0xE945D8B8 && messageId != 0xFCA3EF20 && messageId != 0x8FB6F456 && messageId != 0x217192BE && messageId != 0x3D490CAB && messageId != 0xA7D6EFD1 && messageId != 0xAB2F1EB1  &&messageId != 0x970F93D4) 
         //{
-        //    printf("[OUT] %s [%08X]\n", foundMessage->second.c_str(), foundMessage->first);
+        //    auto foundMessage = idToMessageMap.find(messageId);
+        //    if (foundMessage != idToMessageMap.end())
+        //    {
+        //        printf("[OUT] %s [%08X]\n", foundMessage->second.c_str(), foundMessage->first);
+        //    }
+        //
         //}
-    
+
         for (auto &item : messageHandlers)
         {
                 // printf("SendMessage %08X\n",
@@ -615,6 +630,10 @@ void ProcessPacketRecv(uint64_t messageId, uint8_t *packet, uint64_t length)
         messageId = reader.ReadUint32();
 
         auto handled_packet = false;
+
+       // if (messageId == ClientKafkaMessages::InventoryItemUpdate || messageId == ClientKafkaMessages::InventoryLoaded) {
+       //     return;
+       // }
 
         //auto foundMessage = idToMessageMap.find(messageId);
         //if (foundMessage != idToMessageMap.end())
@@ -736,6 +755,9 @@ void ProcessPositionUpdate(float *avatarPositionOffset)
     }
 }
 
+#include <timeapi.h>
+#pragma comment(lib, "Winmm.lib")
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 {
     if (DetourIsHelperProcess())
@@ -751,6 +773,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         AllocConsole();
         freopen_s(&pFile, "CONOUT$", "w", stdout);
 
+        ULONG currentResolution;
+   //    NtSetTimerResolution(12345, 1, &currentResolution);
+       timeBeginPeriod(1);
+
+    //    ULONG currentResolution;
+     //   NtSetTimerResolution(10000, 1, &currentResolution);
         printf("++++++++++++++++++++++++++++++++++\n");
         printf("++++++++++++++++++++++++++++++++++\n");
         printf("++++++++++++++++++++++++++++++++++\n");
@@ -787,7 +815,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x1504F52, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + 0x1505162, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // TODO: May be outdated...
             /// WARNING
@@ -796,7 +824,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             /// WARNING
             /// WARNING
 
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x1504F52 + sizeof(hijack_ProcessPacketRecv));
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x1505162 + sizeof(hijack_ProcessPacketRecv));
         }
 
         if (true)
@@ -816,10 +844,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x1372426, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + 0x1372636, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1372426 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1372636 + sizeof(hijack_ProcessPacketSend));
         }
+
+
+
+
 
         //if (false)  // OLD http recv
         //{
@@ -839,12 +871,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         //    };
 
         //    *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-        //    RewriteCode(base + 0x138F40E, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+        //    RewriteCode(base + 0x138F5CE, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
 
-        //    ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138F40E + sizeof(hijack_ProcessHttpBodyRecv));
+        //    ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138F5CE + sizeof(hijack_ProcessHttpBodyRecv));
         //}
 
-        if (false) // always false
+        if (0) // always false
         {
             // 48 3B 7C 24 60 4C 8B F7 4C 0F 4C 74 24 60 45 33 FF 4C 89 74 24 60 48 8B 5C 24 58
             // NOT UPDATEd
@@ -860,16 +892,17 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSend;
-            RewriteCode(base + 0x138DFCE, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
+            RewriteCode(base + 0x138E1DE, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
 
-            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x138DFCE + sizeof(hijack_ProcessHttpSend));
+            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x138E1DE + sizeof(hijack_ProcessHttpSend));
         }
 
 
 
-
+        // NOTUPDATED OCT 2022
         if (0) // Hack to force the logging flag for HTTP logs?
         {
+            // 48 8B 88 B8 0F 00 00 48 C1 E9 25 F6 C1 01 0F 84 7D 01 00 00
             // search for "%.*s". There's some condition nearby which skips and referrs to "HttpClient" something
             uint8_t force_loghttp[] = {
 	            0x48, 0x33, 0xC9,                          // XOR RCX, RCX
@@ -883,7 +916,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                 0x90                                       // NOP
             };
 
-            RewriteCode(base + 0x138E0F9, force_loghttp, sizeof(force_loghttp));
+            RewriteCode(base + 0x138E2B9, force_loghttp, sizeof(force_loghttp));
         }
         
         //if (false)  // DELETEME
@@ -937,9 +970,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-            RewriteCode(base + 0x138E8E0, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+            RewriteCode(base + 0x138EAB7, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
 
-            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138E8E0 + sizeof(hijack_ProcessHttpBodyRecv));
+            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138EAB7 + sizeof(hijack_ProcessHttpBodyRecv));
         }
 
 
@@ -948,6 +981,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
         if (true)
         {
+            // 0F 10 00 0F 11 07 0F 10 48 10 0F 11 4F 10  (right after a je - call - jmp - mov rax)
+
             // waaaaaay above 'AppletMenu'
             // waaaaaay below 'fullbody_user_slots' (about 0x2543 below)
             // scan down until even handler
@@ -962,77 +997,107 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
-            RewriteCode(base + 0x1705B3C, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+            RewriteCode(base + 0x1705D4C, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
 
-            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x1705B3C + sizeof(hijack_PositionUpdate));
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x1705D4C + sizeof(hijack_PositionUpdate));
         }
 
-        if (false) // always falseish  // NOT YET UPDATED (2020-09-30)
-        {
-            // NOT YET TESTED for 2020-09-10
-
-            // TODO: Rewrite BodyCinfo... this has the actual body type in it at offset 0x40
-            //   0x02 = dyamic
-            //   0x00 = static
-
-            //this is clientside only lol, boo
-            // search for "bodyResourceHandle" (right after 3rd call) a little above "shape" (right after 4th call above it)
-            // further down is the canGrabEverything stuff
-            auto processBodyCinfoRva = 0x17A6571;
-            unsigned char processBodyCinfoData[] = {
-                0x48, 0xB9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RCX, <address>
-                0xFF, 0xE1                                                   // JMP RCX
-            };
-            *((uint64_t *)&processBodyCinfoData[2]) = (uint64_t)intercept_ProcessBodyCinfo;
-            RewriteCode(base + processBodyCinfoRva, processBodyCinfoData, sizeof(processBodyCinfoData));
-            ReturnPoint_ProcessBodyCinfo = (uint64_t)(base + processBodyCinfoRva + sizeof(processBodyCinfoData));
-
-
-            // NOT UPDATED
-            // search for "bodyResourceHandle" between "shape" and "name" (dealing with al). patch right after 'ja' (before al stuff happens)
-            auto canGrabEverythingRva = 0x17A6860;
-            unsigned char canGrabEverythingData[6] = {
-                0xB0, 0x01,                   // MOV AL, 1
-                0x90,                         // NOP
-                0x90,                         // NOP
-                0x90,                         // NOP
-                0x90                          // NOP
-            };
-            RewriteCode(base + canGrabEverythingRva, canGrabEverythingData, sizeof(canGrabEverythingData));
-
-
-            // NOT UPDATED
-            // search for "spawnPointComponentDef", after "name". patch right after last 'ja', dealing with 'al'
-            auto nothingFixedInWorldRva = 0x1796762;
-            unsigned char nothingFixedInWorldData[6] = {
-                0xB0, 0x00,                   // MOV AL, 0
-                0x90,                         // NOP
-                0x90,                         // NOP
-                0x90,                         // NOP
-                0x90                          // NOP
-            };
-            RewriteCode(base + nothingFixedInWorldRva, nothingFixedInWorldData, sizeof(nothingFixedInWorldData));
-        }
+        // if (false) // always falseish  // NOT YET UPDATED (2020-09-30)
+        // {
+        //     // NOT YET TESTED for 2020-09-10
+        // 
+        //     // TODO: Rewrite BodyCinfo... this has the actual body type in it at offset 0x40
+        //     //   0x02 = dyamic
+        //     //   0x00 = static
+        // 
+        //     //this is clientside only lol, boo
+        //     // search for "bodyResourceHandle" (right after 3rd call) a little above "shape" (right after 4th call above it)
+        //     // further down is the canGrabEverything stuff
+        //     auto processBodyCinfoRva = 0x17A6571;
+        //     unsigned char processBodyCinfoData[] = {
+        //         0x48, 0xB9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RCX, <address>
+        //         0xFF, 0xE1                                                   // JMP RCX
+        //     };
+        //     *((uint64_t *)&processBodyCinfoData[2]) = (uint64_t)intercept_ProcessBodyCinfo;
+        //     RewriteCode(base + processBodyCinfoRva, processBodyCinfoData, sizeof(processBodyCinfoData));
+        //     ReturnPoint_ProcessBodyCinfo = (uint64_t)(base + processBodyCinfoRva + sizeof(processBodyCinfoData));
+        // 
+        // 
+        //     // NOT UPDATED
+        //     // search for "bodyResourceHandle" between "shape" and "name" (dealing with al). patch right after 'ja' (before al stuff happens)
+        //     auto canGrabEverythingRva = 0x17A6860;
+        //     unsigned char canGrabEverythingData[6] = {
+        //         0xB0, 0x01,                   // MOV AL, 1
+        //         0x90,                         // NOP
+        //         0x90,                         // NOP
+        //         0x90,                         // NOP
+        //         0x90                          // NOP
+        //     };
+        //     RewriteCode(base + canGrabEverythingRva, canGrabEverythingData, sizeof(canGrabEverythingData));
+        // 
+        // 
+        //     // NOT UPDATED
+        //     // search for "spawnPointComponentDef", after "name". patch right after last 'ja', dealing with 'al'
+        //     auto nothingFixedInWorldRva = 0x1796762;
+        //     unsigned char nothingFixedInWorldData[6] = {
+        //         0xB0, 0x00,                   // MOV AL, 0
+        //         0x90,                         // NOP
+        //         0x90,                         // NOP
+        //         0x90,                         // NOP
+        //         0x90                          // NOP
+        //     };
+        //     RewriteCode(base + nothingFixedInWorldRva, nothingFixedInWorldData, sizeof(nothingFixedInWorldData));
+        // }
 
         if (true) 
         {
-            // Search: See research
+            // The JBE after:
+            // 66 0F 70 C3 55 66 0F 70 CB AA 0F 58 D8 0F 58 D9 0F C6 DB 00 0F 2E DA
 
-            // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
-            // for seating?
-            auto unlimitedItemPickRangeRva = 0x176C4A4;
-            unsigned char unlimitedItemPickRangeData[1] = {
+
+            // Seating (desktop)
+            auto unlimitedItemPickRangeRva_DesktopSeat = 0x176C6B4;
+            unsigned char unlimitedItemPickRangeData_DesktopSeat[1] = {
                 0xeb                            // JB -> JMP
             };
-            RewriteCode(base + unlimitedItemPickRangeRva, unlimitedItemPickRangeData, sizeof(unlimitedItemPickRangeData));
-
-
-            // add rax, 0x7E0 then a bunch of xmm ending in seta, test al, al, je
-            // for actual item pickup/selection ?
-            auto unlimitedItemPickRangeRva2 = 0x176C872;
-            RewriteCode(base + unlimitedItemPickRangeRva2, unlimitedItemPickRangeData, sizeof(unlimitedItemPickRangeData));
+            RewriteCode(base + unlimitedItemPickRangeRva_DesktopSeat, unlimitedItemPickRangeData_DesktopSeat, sizeof(unlimitedItemPickRangeData_DesktopSeat));
+            
+            
+            // Items (desktop)
+            auto unlimitedItemPickRangeRva_DesktopItems = 0x176CA82;
+            unsigned char unlimitedItemPickRangeData_DesktopItems[1] = {
+                0xeb                            // JB -> JMP
+            };
+            RewriteCode(base + unlimitedItemPickRangeRva_DesktopItems, unlimitedItemPickRangeData_DesktopItems, sizeof(unlimitedItemPickRangeData_DesktopItems));
+            
+            // UnknownA
+            auto unlimitedItemPickRangeRva_UnknownA = 0x176CCE1;
+            unsigned char unlimitedItemPickRangeData_UnknownA[1] = {
+                0xeb                            // JB -> JMP
+            };
+            RewriteCode(base + unlimitedItemPickRangeRva_UnknownA, unlimitedItemPickRangeData_UnknownA, sizeof(unlimitedItemPickRangeData_UnknownA));
+                        
+            
+            // UnknownB
+            auto unlimitedItemPickRangeRva_UnknownB = 0x176CF7F;
+            unsigned char unlimitedItemPickRangeData_UnknownB[1] = {
+                0xeb                            // JB -> JMP
+            };
+            RewriteCode(base + unlimitedItemPickRangeRva_UnknownB, unlimitedItemPickRangeData_UnknownB, sizeof(unlimitedItemPickRangeData_UnknownB));
         }
 
+
+        if (true)
+        {
+            // 48 83 F9 01 7C 2F 48 69 C9 D0 00 00 00  (above, the sub,je,sub,je,sub,  just nop it all and jjump to the exit state
+            auto skipUnknownEventCrash = 0x1707411;
+            unsigned char skipUnknownEventCrashData[] = {
+	            0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
+	            0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xE9, 0xAF,
+	            0x01, 0x00, 0x00, 0x90  // Nop a bunch of stuff and force jump to exit state
+            };
+            RewriteCode(base + skipUnknownEventCrash, skipUnknownEventCrashData, sizeof(skipUnknownEventCrashData));
+        }
 
         // We got this constant from memory.
         // Search for "no-input-source".
@@ -1040,26 +1105,38 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         // Right below a call to RotMatrix, enter that call (no longer called there directly. just look between the two for the call. it's there)
         // rcx+30 = our pointer
         // Function above it with a bunch of xmm stuff going on (see screenshots)
-        //const static auto kCameraPositionOffset = 0x4CA1020;
-        CameraPositionOffset = (float *)(base + 0x4CA2020);
+        //const static auto kCameraPositionOffset = 0x4C8A060;
+         CameraPositionOffset = (float *)(base + 0x4C8A060);
 
-        auto aabbCheckBypassAvatar1 = (char *)(base + 0x217341B);
-        RewriteCode(aabbCheckBypassAvatar1, (uint8_t*)"\x90\x90", 2);
 
-        auto aabbCheckBypassAvatar2 = (char *)(base + 0x217343C);
-        RewriteCode(aabbCheckBypassAvatar2, (uint8_t*)"\x90\x90", 2);
 
-        auto aabbCheckBypassAttachment = (char *)(base + 0x21715D3);
-        RewriteCode(aabbCheckBypassAttachment, (uint8_t*)"\xEB", 1);
 
-        auto maxVertsClothingHair = (char *)(base + 0x2171EA8 + 3);
-        RewriteCode(maxVertsClothingHair, (uint8_t*)"\xFF\xFF\xFF\x7F", 4);
-        
-        auto maxVertsAttachment = (char *)(base + 0x2171627 + 3);
-        RewriteCode(maxVertsAttachment, (uint8_t*)"\xFF\xFF\xFF\x7F", 4);
-        
-        auto maxVertsAvatar = (char *)(base + 0x217324D + 7);
-        RewriteCode(maxVertsAvatar, (uint8_t*)"\xFF\xFF\xFF\x7F", 4);
+
+
+
+
+        //auto aabbCheckBypassAvatar1 = (char *)(base + 0x217341B);
+        //RewriteCode(aabbCheckBypassAvatar1, (uint8_t*)"\x90\x90", 2);
+        //
+        //auto aabbCheckBypassAvatar2 = (char *)(base + 0x217343C);
+        //RewriteCode(aabbCheckBypassAvatar2, (uint8_t*)"\x90\x90", 2);
+        //
+        //auto aabbCheckBypassAttachment = (char *)(base + 0x2171A03);
+        //RewriteCode(aabbCheckBypassAttachment, (uint8_t*)"\xEB", 1);
+
+        //auto maxVertsClothingHair = (char *)(base + 0x2171EA8 + 3);
+        //RewriteCode(maxVertsClothingHair, (uint8_t*)"\xFF\xFF\xFF\x7F", 4);
+        //
+        //auto maxVertsAttachment = (char *)(base + 0x2171627 + 3);
+        //RewriteCode(maxVertsAttachment, (uint8_t*)"\xFF\xFF\xFF\x7F", 4);
+        //
+        //auto maxVertsAvatar = (char *)(base + 0x217324D + 7);
+        //RewriteCode(maxVertsAvatar, (uint8_t*)"\xFF\xFF\xFF\x7F", 4);
+
+
+
+
+
 
         // 37 66 35 39 31 31 35 38 35 63 35 30 31 36 34 34 35 31 35 31
        // auto licenseAddr = (char *)(base + 0x4769A80);
@@ -1074,9 +1151,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
       //   DetourAttach(&(PVOID &)original_recvfrom, Hooked_Recvfrom); // This is too much to handle. A million different edge cases in packets and ordering. Just going to let the program take care of all the work for us and hook the end calls...
-       // DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
+      //  DetourAttach(&(PVOID &)original_sendto, Hooked_Sendto);
       //   DetourAttach(&(PVOID &)original_recv, Hooked_Recv); // need to hard hook into ssl functions or post-decrypted recv handler...
-       // DetourAttach(&(PVOID &)original_send, Hooked_Send);
+      //  DetourAttach(&(PVOID &)original_send, Hooked_Send);
 
         DetourTransactionCommit();
 

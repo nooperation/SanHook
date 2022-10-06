@@ -55,37 +55,37 @@ public:
         {
             case AgentControllerMessages::ControlPoint:  // TAG: 170F790
             {
-                this->OnControlPoint(reader);
+                //this->OnControlPoint(reader);
                 break;
             }
             case AgentControllerMessages::WarpCharacter: // TAG: 170F800
             {
-                this->OnWarpCharacter(reader);
+                //this->OnWarpCharacter(reader);
                 break;
             }
             case AgentControllerMessages::RequestWarpCharacter:  // TAG: 170F870
             {
-                this->OnRequestWarpCharacter(reader);
+                //this->OnRequestWarpCharacter(reader);
                 break;
             }
             case AgentControllerMessages::CharacterControlPointInput:  // TAG: 170F8E0
             {
-                this->OnCharacterControlPointInput(reader);
+                //this->OnCharacterControlPointInput(reader);
                 break;
             }
             case AgentControllerMessages::CharacterControlPointInputReliable:  // TAG: 170F950
             {
-                this->OnCharacterControlPointInputReliable(reader);
+                //this->OnCharacterControlPointInputReliable(reader);
                 break;
             }
             case AgentControllerMessages::CharacterControllerInput: // TAG: 170F9C0
             {
-                this->OnCharacterControllerInput(reader);
+                //this->OnCharacterControllerInput(reader);
                 break;
             }
             case AgentControllerMessages::CharacterControllerInputReliable: // TAG: 170FA30
             {
-                this->OnCharacterControllerInputReliable(reader);
+               // this->OnCharacterControllerInputReliable(reader);
                 break;
             }
             case AgentControllerMessages::AgentPlayAnimation:  // TAG: 170FAA0
@@ -95,7 +95,7 @@ public:
             }
             case AgentControllerMessages::RequestAgentPlayAnimation:  // TAG: 170FB10
             {
-                this->OnRequestAgentPlayAnimation(reader);
+               // this->OnRequestAgentPlayAnimation(reader);
                 break;
             }
             case AgentControllerMessages::RequestBehaviorStateUpdate:  // TAG: 170FB80
@@ -245,19 +245,19 @@ public:
         //    *pAgentControllerId = myControllerId;
         //}
 
-        auto frame = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
-        auto jumpState = reader.ReadUint8();
-        auto jumpBtnPressed = reader.ReadUint8();
+        //auto frame = reader.ReadUint64();
+        //auto agentControllerId = reader.ReadUint32();
+        //auto jumpState = reader.ReadUint8();
+        //auto jumpBtnPressed = reader.ReadUint8();
 
-        auto moveRight = reader.ReadBits(12); //  - 2047) * 0.0004885197850512946
-        auto moveForward = reader.ReadBits(12); // - 2047) * 0.0004885197850512946
-        auto cameraYaw = reader.ReadBits(13); // - 4095) * 0.0002442002442002442
-        auto cameraPitch = reader.ReadBits(13); // - 4095) * 0.0002442002442002442
-        auto behaviorYawDelta = reader.ReadBits(11); // - 1023) * 0.0009775171065493646
-        auto behaviorPitchDelta = reader.ReadBits(11); // - 1023) * 0.0009775171065493646
-        auto characterForward = reader.ReadBits(15); // - 0x3FFF) * 0.00006103888176768602
-        auto cameraForward = reader.ReadBits(28);
+        //auto moveRight = reader.ReadBits(12); //  - 2047) * 0.0004885197850512946
+        //auto moveForward = reader.ReadBits(12); // - 2047) * 0.0004885197850512946
+        //auto cameraYaw = reader.ReadBits(13); // - 4095) * 0.0002442002442002442
+        //auto cameraPitch = reader.ReadBits(13); // - 4095) * 0.0002442002442002442
+        //auto behaviorYawDelta = reader.ReadBits(11); // - 1023) * 0.0009775171065493646
+        //auto behaviorPitchDelta = reader.ReadBits(11); // - 1023) * 0.0009775171065493646
+        //auto characterForward = reader.ReadBits(15); // - 0x3FFF) * 0.00006103888176768602
+        //auto cameraForward = reader.ReadBits(28);
 
         
 
@@ -317,29 +317,29 @@ public:
 
     void OnObjectInteractionUpdate(PacketReader &reader)  // TAG: 17102D0
     {
-        auto frame = reader.ReadUint64();
-        auto clusterId = reader.ReadUint32();
-        auto objectId = reader.ReadUint32();
-        auto enabled = reader.ReadUint8();
+        //auto frame = reader.ReadUint64();
+        //auto clusterId = reader.ReadUint32();
+        //auto objectId = reader.ReadUint32();
+        //auto enabled = reader.ReadUint8();
 
-        if (_isVerbose)
-        {
-            printf("[%s] AnimationComponentMessages::BehaviorInitializationData:\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  enabled = %u\n",
-                _isSender ? "OUT" : "IN",
-                frame,
-                clusterId,
-                objectId,
-                enabled
-            );
-        }
+        //if (_isVerbose)
+        //{
+        //    printf("[%s] AnimationComponentMessages::BehaviorInitializationData:\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  enabled = %u\n",
+        //        _isSender ? "OUT" : "IN",
+        //        frame,
+        //        clusterId,
+        //        objectId,
+        //        enabled
+        //    );
+        //}
     }
 
     void OnCreateSpeechGraphicsPlayer(PacketReader &reader) // TAG: 17106C0
     {
         // REMOVED 40.11.0.1810696  (2020-08-13)
 
-        auto agentControllerId = reader.ReadUint32();
-        auto sinkConfigData = reader.ReadArray();
+       // auto agentControllerId = reader.ReadUint32();
+       // auto sinkConfigData = reader.ReadArray();
 
         //printf("OnCreateSpeechGraphicsPlayer:\n  sinkConfigData = Array[%u]\n",
         //    numElements
@@ -348,10 +348,10 @@ public:
 
     void OnCharacterIKPoseDelta(PacketReader &reader)  // TAG: 17100B0
     {
-        auto agentControllerId = reader.ReadUint32();
-        auto frame = reader.ReadUint64();
+       // auto agentControllerId = reader.ReadUint32();
+       // auto frame = reader.ReadUint64();
 
-        auto boneRotationsLength = reader.ReadUint32();
+        //auto boneRotationsLength = reader.ReadUint32();
         //for (size_t i = 0; i < boneRotationsLength; i++)
         //{
         //    auto boneIndex = reader.ReadBits(6);
@@ -371,9 +371,9 @@ public:
     {
         // TODO: Nope, not handling this one
 
-        auto agentControllerId = reader.ReadUint32();
-        auto frame = reader.ReadUint64();
-        auto boneRotationsLength = reader.ReadUint32();
+        //auto agentControllerId = reader.ReadUint32();
+        //auto frame = reader.ReadUint64();
+        //auto boneRotationsLength = reader.ReadUint32();
 
         /*
         for (size_t i = 0; i < boneRotationsLength; i++)
@@ -393,20 +393,20 @@ public:
 
     void OnCharacterControlPointInputReliable(PacketReader &reader)  // TAG: 170F950
     {
-        OnCharacterControlPointInput(reader);
+        //OnCharacterControlPointInput(reader);
     }
 
     void OnCharacterControllerInputReliable(PacketReader &reader) // TAG: 170FA30
     {
-        OnCharacterControllerInput(reader);
+       // OnCharacterControllerInput(reader);
     }
 
     void OnCharacterControlPointInput(PacketReader &reader)  // TAG: 170F8E0
     {
-        auto frame = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
-
-        auto controlPointsLength = reader.ReadUint32();
+       // auto frame = reader.ReadUint64();
+       // auto agentControllerId = reader.ReadUint32();
+//
+       // auto controlPointsLength = reader.ReadUint32();
 
         //auto leftIndexTrigger = reader.ReadBits(8);
         //auto rightIndexTrigger = reader.ReadBits(8);
@@ -434,15 +434,15 @@ public:
         //    *pAgentControllerId = myControllerId;
         //}
 
-        auto frame = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
-        auto position_x = reader.ReadFloat();
-        auto position_y = reader.ReadFloat();
-        auto position_z = reader.ReadFloat();
-        auto rotation_x = reader.ReadFloat();
-        auto rotation_y = reader.ReadFloat();
-        auto rotation_z = reader.ReadFloat();
-        auto rotation_w = reader.ReadFloat();
+        //auto frame = reader.ReadUint64();
+        //auto agentControllerId = reader.ReadUint32();
+        //auto position_x = reader.ReadFloat();
+        //auto position_y = reader.ReadFloat();
+        //auto position_z = reader.ReadFloat();
+        //auto rotation_x = reader.ReadFloat();
+        //auto rotation_y = reader.ReadFloat();
+        //auto rotation_z = reader.ReadFloat();
+        //auto rotation_w = reader.ReadFloat();
 
         //printf("[%s] AgentControllerMessages::WarpCharacter:\n  frame = %llu\n  agentControllerId = %u\n  position = <%f, %f, %f>\n  rotation = <%f, %f, %f, %f>\n",
         //    _isSender ? "OUT" : "IN",
@@ -460,16 +460,16 @@ public:
 
     void OnControlPoint(PacketReader &reader)  // TAG: 170F790
     {
-        auto position = reader.ReadBits(0x30);
-        auto orientation = reader.ReadBits(0x28);
-        auto enabled = reader.ReadBits(1);
-        auto controlPointType = reader.ReadBits(4);
+        //auto position = reader.ReadBits(0x30);
+        //auto orientation = reader.ReadBits(0x28);
+        //auto enabled = reader.ReadBits(1);
+        //auto controlPointType = reader.ReadBits(4);
     }
 
     void OnRequestWarpCharacter(PacketReader &reader)  // TAG: 170F870
     {
         // double check...
-        OnWarpCharacter(reader);
+        //OnWarpCharacter(reader);
     }
 
     void OnAgentPlayAnimation(PacketReader &reader)   // TAG: 170FAA0
@@ -549,7 +549,7 @@ public:
     void OnRequestAgentPlayAnimation(PacketReader &reader)  // TAG: 170FB10
     {
         // double check...
-        OnAgentPlayAnimation(reader);
+       // OnAgentPlayAnimation(reader);
     }
 
     void OnRequestBehaviorStateUpdate(PacketReader &reader) // TAG: 170FB80
@@ -560,112 +560,112 @@ public:
 
     void OnAttachToCharacterNode(PacketReader &reader)   // TAG: 170FBF0
     {
-        auto frame = reader.ReadUint64();
-        auto componentId = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
-        auto attachmentOffsetPosition = reader.ReadVectorF(3);
-        auto attachmentOffsetOrientation = reader.ReadVectorF(4);
-        auto nodeType = reader.ReadUint8();
-        auto ownershipWatermark = reader.ReadUint8();
-        auto broadcastToSelf = reader.ReadUint8();
+        //auto frame = reader.ReadUint64();
+        //auto componentId = reader.ReadUint64();
+        //auto agentControllerId = reader.ReadUint32();
+        //auto attachmentOffsetPosition = reader.ReadVectorF(3);
+        //auto attachmentOffsetOrientation = reader.ReadVectorF(4);
+        //auto nodeType = reader.ReadUint8();
+        //auto ownershipWatermark = reader.ReadUint8();
+        //auto broadcastToSelf = reader.ReadUint8();
 
-        auto buffer = reader.GetBuffer();
-        auto componentIdPtr = (uint64_t *)&buffer[4 + 8];
-        auto agentControllerIdPtr = (uint32_t *)&buffer[4 + 8 + 8];
+        //auto buffer = reader.GetBuffer();
+        //auto componentIdPtr = (uint64_t *)&buffer[4 + 8];
+        //auto agentControllerIdPtr = (uint32_t *)&buffer[4 + 8 + 8];
 
-        if (_isVerbose)
-        {
-            printf("[%s] AgentControllerMessages::AttachToCharacterNode\n  frame = %llu\n  componentId = %llu\n  agentControllerId = %u\n",
-                _isSender ? "OUT" : "IN",
-                frame,
-                componentId,
-                agentControllerId
-            );
-        }
+        //if (_isVerbose)
+        //{
+        //    printf("[%s] AgentControllerMessages::AttachToCharacterNode\n  frame = %llu\n  componentId = %llu\n  agentControllerId = %u\n",
+        //        _isSender ? "OUT" : "IN",
+        //        frame,
+        //        componentId,
+        //        agentControllerId
+        //    );
+        //}
     }
 
     void OnDetachFromCharacterNode(PacketReader &reader)  // TAG: 170FC60
     {
-        auto frame = reader.ReadUint64();
-        auto componentId = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
-        auto bodyPosition = reader.ReadVectorF(3);
-        auto botyOrientation = reader.ReadVectorF(4);
-        auto bodyVelocity = reader.ReadVectorF(3);
-        auto bodyAngularVelocity = reader.ReadVectorF(3);
-        auto nodeType = reader.ReadUint8();
+        //auto frame = reader.ReadUint64();
+        //auto componentId = reader.ReadUint64();
+        //auto agentControllerId = reader.ReadUint32();
+        //auto bodyPosition = reader.ReadVectorF(3);
+        //auto botyOrientation = reader.ReadVectorF(4);
+        //auto bodyVelocity = reader.ReadVectorF(3);
+        //auto bodyAngularVelocity = reader.ReadVectorF(3);
+        //auto nodeType = reader.ReadUint8();
 
-        if (_isVerbose)
-        {
-            printf("[%s] AgentControllerMessages::DetachFromCharacterNode\n  frame = %llu\n  componentId = %u\n  agentControllerId = %u\n",
-                _isSender ? "OUT" : "IN",
-                frame,
-                componentId,
-                agentControllerId
-            );
-        }
+        //if (_isVerbose)
+        //{
+        //    printf("[%s] AgentControllerMessages::DetachFromCharacterNode\n  frame = %llu\n  componentId = %u\n  agentControllerId = %u\n",
+        //        _isSender ? "OUT" : "IN",
+        //        frame,
+        //        componentId,
+        //        agentControllerId
+        //    );
+        //}
     }
 
     void OnRequestDetachFromCharacterNode(PacketReader &reader)  // TAG: 170FCD0
     {
-        OnDetachFromCharacterNode(reader);
+        //OnDetachFromCharacterNode(reader);
     }
 
     void OnSetCharacterNodePhysics(PacketReader &reader)  // TAG: 170FD40
     {
-        auto frame = reader.ReadUint64();
+       /* auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
         auto nodeType = reader.ReadUint8();
         auto collisionsEnabled = reader.ReadUint8();
-        auto broadcastToSelf = reader.ReadUint8();
+       */ auto broadcastToSelf = reader.ReadUint8();
     }
 
     void OnWarpCharacterNode(PacketReader &reader) // TAG: 170FDB0
     {
-        auto agentControllerId = reader.ReadUint32();
-        auto nodeType = reader.ReadUint32(); /// why is this node type 4bytes?
+     //   auto agentControllerId = reader.ReadUint32();
+   //     auto nodeType = reader.ReadUint32(); /// why is this node type 4bytes?
     }
 
     void OnCharacterIKBone(PacketReader &reader) // TAG: 170FE20
     {
-        auto boneIndex = reader.ReadBits(6);
-        auto localOrientation = reader.ReadBits(0x28);
+//        auto boneIndex = reader.ReadBits(6);
+ //       auto localOrientation = reader.ReadBits(0x28);
     }
 
     void OnCharacterIKBoneDelta(PacketReader &reader)  // TAG: 1710040
     {
-        auto boneIndex = reader.ReadBits(6);
-        auto localOrientation = reader.ReadBits(0x19);
+        //auto boneIndex = reader.ReadBits(6);
+        //auto localOrientation = reader.ReadBits(0x19);
     }
 
     void OnObjectInteraction(PacketReader &reader)   // TAG: 1710260
     {
-        auto frame = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
-        auto objectId = reader.ReadUint32();
-        auto targetedPosition = reader.ReadVectorF(3);
-        auto targetedNormal = reader.ReadVectorF(3);
-        auto origin = reader.ReadVectorF(3);
-       // auto controlPointType = reader.ReadBits(4);
-        auto controlPointType = reader.ReadUint8();
+       // auto frame = reader.ReadUint64();
+       // auto agentControllerId = reader.ReadUint32();
+       // auto objectId = reader.ReadUint32();
+       // auto targetedPosition = reader.ReadVectorF(3);
+       // auto targetedNormal = reader.ReadVectorF(3);
+       // auto origin = reader.ReadVectorF(3);
+       //// auto controlPointType = reader.ReadBits(4);
+       // auto controlPointType = reader.ReadUint8();
 
-        if (_isVerbose)
-        {
-            printf("[%s] ObjectInteraction\n  agentControllerId = %u\n  objectId = %u\n  controlPointType = %u\n",
-                _isSender ? "OUT" : "IN",
-                agentControllerId,
-                objectId,
-                controlPointType
-            );
-        }
+       // if (_isVerbose)
+       // {
+       //     printf("[%s] ObjectInteraction\n  agentControllerId = %u\n  objectId = %u\n  controlPointType = %u\n",
+       //         _isSender ? "OUT" : "IN",
+       //         agentControllerId,
+       //         objectId,
+       //         controlPointType
+       //     );
+       // }
     }
 
     void OnObjectInteractionPromptUpdate(PacketReader &reader)   // TAG: 1710340
     {
-        auto frame = reader.ReadUint64();
-        auto clusterId = reader.ReadUint32();
-        auto objectId = reader.ReadUint32();
-        auto prompt = reader.ReadString();
+        //auto frame = reader.ReadUint64();
+        //auto clusterId = reader.ReadUint32();
+        //auto objectId = reader.ReadUint32();
+        //auto prompt = reader.ReadString();
 
         //printf("[%s] AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n",
         //    _isSender ? "OUT" : "IN",
@@ -678,28 +678,28 @@ public:
 
     void OnObjectInteractionCreate(PacketReader &reader)  // TAG: 17103B0
     {
-        auto frame = reader.ReadUint64();
-        auto clusterId = reader.ReadUint32();
-        auto objectId = reader.ReadUint32();
-        auto prompt = reader.ReadString();
-        auto enabled = reader.ReadUint8();
+        //auto frame = reader.ReadUint64();
+        //auto clusterId = reader.ReadUint32();
+        //auto objectId = reader.ReadUint32();
+        //auto prompt = reader.ReadString();
+        //auto enabled = reader.ReadUint8();
 
-        if (_isVerbose)
-        {
-            printf("[%s] AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n  enabled = %u\n",
-                _isSender ? "OUT" : "IN",
-                frame,
-                clusterId,
-                objectId,
-                prompt.c_str(),
-                enabled
-            );
-        }
+        //if (_isVerbose)
+        //{
+        //    printf("[%s] AgentControllerMessages::ObjectInteractionCreate\n  frame = %llu\n  clusterId = %u\n  objectId = %u\n  prompt = %s\n  enabled = %u\n",
+        //        _isSender ? "OUT" : "IN",
+        //        frame,
+        //        clusterId,
+        //        objectId,
+        //        prompt.c_str(),
+        //        enabled
+        //    );
+        //}
     }
 
     void OnRequestSitOnObject(PacketReader &reader)  // TAG: 1710420
     {
-        OnSitOnObject(reader);
+       // OnSitOnObject(reader);
     }
 
     void OnSitOnObject(PacketReader &reader)  // TAG: 1710490
@@ -715,19 +715,19 @@ public:
         //    *pAgentControllerId = myControllerId;
         //}
 
-        auto frame = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
-        auto componentId = reader.ReadUint64();
-        
-        //auto ownershipWatermark = reader.ReadUint8(); // REMOVED 2020-12-10 - dynamic sitpoints update
-        //auto skipAnimation = reader.ReadUint8(); // REMOVED 2020-12-10 - dynamic sitpoints update
+        //auto frame = reader.ReadUint64();
+        //auto agentControllerId = reader.ReadUint32();
+        //auto componentId = reader.ReadUint64();
+        //
+        ////auto ownershipWatermark = reader.ReadUint8(); // REMOVED 2020-12-10 - dynamic sitpoints update
+        ////auto skipAnimation = reader.ReadUint8(); // REMOVED 2020-12-10 - dynamic sitpoints update
 
-        printf("[%s] AgentControllerMessages::SitOnObject\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            agentControllerId,
-            componentId
-        );
+        //printf("[%s] AgentControllerMessages::SitOnObject\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    agentControllerId,
+        //    componentId
+        //);
     }
 
     void OnExitSit(PacketReader &reader)  // TAG: 1710500
@@ -740,26 +740,26 @@ public:
         //    *pAgentControllerId = myControllerId;
         //}
 
-        auto frame = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
-        auto componentId = reader.ReadUint64();
-        // auto skipAnimation = reader.ReadBits(1); // REMOVED 2020-12-10 - dynamic sitpoints update
-        auto skipExitTeleport = reader.ReadBits(1);
+        //auto frame = reader.ReadUint64();
+        //auto agentControllerId = reader.ReadUint32();
+        //auto componentId = reader.ReadUint64();
+        //// auto skipAnimation = reader.ReadBits(1); // REMOVED 2020-12-10 - dynamic sitpoints update
+        //auto skipExitTeleport = reader.ReadBits(1);
 
-        printf("[%s] AgentControllerMessages::ExitSit\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            agentControllerId,
-            componentId
-        );
+        //printf("[%s] AgentControllerMessages::ExitSit\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    agentControllerId,
+        //    componentId
+        //);
     }
 
     void OnSetAgentFiltersBody(PacketReader &reader) // TAG: 1710570
     {
-        auto frame = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
-        auto componentId = reader.ReadUint64();
-        auto filterBody = reader.ReadUint8();
+        //auto frame = reader.ReadUint64();
+        //auto agentControllerId = reader.ReadUint32();
+        //auto componentId = reader.ReadUint64();
+        //auto filterBody = reader.ReadUint8();
 
         //printf("[%s] AgentControllerMessages::SetAgentFiltersBody\n  frame = %llu\n  agentControllerId = %u\n  componentId = %llu\n  filterBody = %u\n",
         //    _isSender ? "OUT" : "IN",
@@ -772,15 +772,15 @@ public:
 
     void OnRequestSetAgentFiltersBody(PacketReader &reader)  // TAG: 17105E0
     {
-        OnSetAgentFiltersBody(reader);
+       // OnSetAgentFiltersBody(reader);
     }
 
     void OnSetCharacterUserProperty(PacketReader &reader)  // TAG: 1710650
     {
-        auto frame = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
-        auto value = reader.ReadFloat();
-        auto propertyType = reader.ReadUint8();
+        //auto frame = reader.ReadUint64();
+        //auto agentControllerId = reader.ReadUint32();
+        //auto value = reader.ReadFloat();
+        //auto propertyType = reader.ReadUint8();
 
         //printf("[%s] AgentControllerMessages::SetCharacterUserProperty\n  frame = %llu\n  agentControllerId = %u\n  value = %f\n  propertyType = %u\n",
         //    _isSender ? "OUT" : "IN",
@@ -956,26 +956,26 @@ public:
 
     void OnRequestDeleteLatestSpawn(PacketReader &reader)  // TAG: 17107A0
     {
-        auto frame = reader.ReadUint64();
-        auto agentControllerId = reader.ReadUint32();
+        //auto frame = reader.ReadUint64();
+        //auto agentControllerId = reader.ReadUint32();
 
-        printf("[%s] AgentControllerMessages::RequestDeleteLatestSpawn\n  frame = %llu\n  agentControllerId = %u\n",
-            _isSender ? "OUT" : "IN",
-            frame,
-            agentControllerId
-        );
+        //printf("[%s] AgentControllerMessages::RequestDeleteLatestSpawn\n  frame = %llu\n  agentControllerId = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    frame,
+        //    agentControllerId
+        //);
     }
 
     void OnRequestDeleteAllSpawns(PacketReader &reader)  // TAG: 1710810
     {
-        auto frame = reader.ReadUint64();
+    /*    auto frame = reader.ReadUint64();
         auto agentControllerId = reader.ReadUint32();
 
         printf("[%s] AgentControllerMessages::RequestDeleteAllSpawns\n  frame = %llu\n  agentControllerId = %u\n",
             _isSender ? "OUT" : "IN",
             frame,
             agentControllerId
-        );
+        );*/
     }
 
     void OnUserReaction(PacketReader &reader)  // TAG: 16D52F0 
@@ -1004,9 +1004,9 @@ public:
 
     void OnPlayAnimation(PacketReader &reader) // TAG: 1581210
     {
-        auto frame = reader.ReadUint64();
+       /* auto frame = reader.ReadUint64();
         auto componentId = reader.ReadUint64();
-        auto resourceId = reader.ReadUUID();
+        auto resourceId = reader.ReadUUID();*/
         #define _CRT_SECURE_NO_DEPRECATE
         //if (_isSender)
         //{

@@ -27,37 +27,37 @@ public:
         {
             case SimulationMessages::InitialTimestamp:  // TAG: 15733C0 
             {
-                this->OnInitialTimestamp(reader);
+               // this->OnInitialTimestamp(reader);
                 break;
             }
             case SimulationMessages::Timestamp: // TAG: 1573430 
             {
-                this->OnTimestamp(reader);
+              //  this->OnTimestamp(reader);
                 break;
             }
             case SimulationMessages::SetWorldGravityMagnitude:  // TAG: 15734A0
             {
-                this->OnSetWorldGravityMagnitude(reader);
+              //  this->OnSetWorldGravityMagnitude(reader);
                 break;
             }
             case SimulationMessages::ActiveRigidBodyUpdate:  // TAG: 1573510
             {
-                this->OnActiveRigidBodyUpdate(reader);
+               // this->OnActiveRigidBodyUpdate(reader);
                 break;
             }
             case SimulationMessages::RigidBodyDeactivated:  // TAG: 1573580
             {
-                this->OnRigidBodyDeactivated(reader);
+               // this->OnRigidBodyDeactivated(reader);
                 break;
             }
             case SimulationMessages::RigidBodyPropertyChanged:  // TAG: 15735F0
             {
-                this->OnRigidBodyPropertyChanged(reader);
+               // this->OnRigidBodyPropertyChanged(reader);
                 break;
             }
             case SimulationMessages::RigidBodyDestroyed:  // TAG: 1573660
             {
-                this->OnRigidBodyDestroyed(reader);
+               // this->OnRigidBodyDestroyed(reader);
                 break;
             }
             default:

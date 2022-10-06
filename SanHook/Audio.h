@@ -31,52 +31,52 @@ public:
         {
             case AudioMessages::LoadSound:  // TAG: 15B6490
             {
-                this->OnLoadSound(reader);
+                //this->OnLoadSound(reader);
                 break;
             }
             case AudioMessages::PlaySound:  // TAG: 15B6620
             {
-                this->OnPlaySound(reader);
+               // this->OnPlaySound(reader);
                 break;
             }
             case AudioMessages::PlayStream:  // TAG: 15B6690
             {
-                this->OnPlayStream(reader);
+               // this->OnPlayStream(reader);
                 break;
             }
             case AudioMessages::StopBroadcastingSound:  // TAG: 15B6700
             {
-                this->OnStopBroadcastingSound(reader);
+               // this->OnStopBroadcastingSound(reader);
                 break;
             }
             case AudioMessages::SetAudioStream:  // TAG: 15B68C0
             {
-                this->OnSetAudioStream(reader);
+               // this->OnSetAudioStream(reader);
                 break;
             }
             case AudioMessages::SetMediaSource:  // TAG: 15B6930
             {
-                this->OnSetMediaSource(reader);
+               // this->OnSetMediaSource(reader);
                 break;
             }
             case AudioMessages::PerformMediaAction:  // TAG: 15B69A0
             {
-                this->OnPerformMediaAction(reader);
+               // this->OnPerformMediaAction(reader);
                 break;
             }
             case AudioMessages::StopSound:  // TAG: 15B6A10
             {
-                this->OnStopSound(reader);
+               // this->OnStopSound(reader);
                 break;
             }
             case AudioMessages::SetLoudness: // TAG: 15B6A80
             {
-                this->OnSetLoudness(reader);
+               // this->OnSetLoudness(reader);
                 break;
             }
             case AudioMessages::SetPitch: // TAG: 15B6AF0
             {
-                this->OnSetPitch(reader);
+                //this->OnSetPitch(reader);
                 break;
             }
             default:

@@ -26,68 +26,68 @@ class GameWorld : public MessageHandler
 public:
     bool OnMessage(uint32_t messageId, PacketReader &reader, bool isSending)
     {
-        this->_isSender = isSending; // todo: get rid of this garbage
+         this->_isSender = isSending; // todo: get rid of this garbage
 
         switch (messageId)
         {
             case GameWorldMessages::Timestamp:  // TAG: 16E9DC0
             {
-                this->OnTimestamp(reader);
+                // this->OnTimestamp(reader);
                 break;
             }
             case GameWorldMessages::MoveEntity: // TAG: 16E9E30
             {
-                this->OnMoveEntity(reader);
+                // this->OnMoveEntity(reader);
                 break;
             }
             case GameWorldMessages::ChangeMaterialVectorParam:  // TAG: 16E9EA0
             {
-                this->OnChangeMaterialVectorParam(reader);
+                // this->OnChangeMaterialVectorParam(reader);
                 break;
             }
             case GameWorldMessages::ChangeMaterialFloatParam:  // TAG: 16E9F10
             {
-                this->OnChangeMaterialFloatParam(reader);
+                // this->OnChangeMaterialFloatParam(reader);
                 break;
             }
             case GameWorldMessages::ChangeMaterial:  // TAG: 16E9F80
             {
-                this->OnChangeMaterial(reader);
+                // this->OnChangeMaterial(reader);
                 break;
             }
             case GameWorldMessages::StaticMeshFlagsChanged:  // TAG: 16E9FF0
             {
-                this->OnStaticMeshFlagsChanged(reader);
+                // this->OnStaticMeshFlagsChanged(reader);
                 break;
             }
             case GameWorldMessages::StaticMeshScaleChanged:  // TAG: 16EA060
             {
-                this->OnStaticMeshScaleChanged(reader);
+                // this->OnStaticMeshScaleChanged(reader);
                 break;
             }
             case GameWorldMessages::RiggedMeshFlagsChange:  // TAG: 16EA0D0
             {
-                this->OnRiggedMeshFlagsChange(reader);
+                // this->OnRiggedMeshFlagsChange(reader);
                 break;
             }
             case GameWorldMessages::RiggedMeshScaleChanged:  // TAG: 16EA140
             {
-                this->OnRiggedMeshScaleChanged(reader);
+                // this->OnRiggedMeshScaleChanged(reader);
                 break;
             }
             case GameWorldMessages::ScriptCameraMessage:  // TAG: 16EA1B0
             {
-                this->OnScriptCameraMessage(reader);
+                // this->OnScriptCameraMessage(reader);
                 break;
             }
             case GameWorldMessages::ScriptCameraCapture:  // 
             {
-                this->OnScriptCameraCapture(reader);
+                // this->OnScriptCameraCapture(reader);
                 break;
             }
             case GameWorldMessages::UpdateRuntimeInventorySettings:  // TAG: 16EA220
             {
-                this->OnUpdateRuntimeInventorySettings(reader);
+                // this->OnUpdateRuntimeInventorySettings(reader);
                 break;
             }
             default:

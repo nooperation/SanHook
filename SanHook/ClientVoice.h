@@ -36,22 +36,22 @@ public:
         {
             case ClientVoiceMessages::Login:  // TAG: 1DF9BD0
             {
-                this->OnLogin(reader);
+               // this->OnLogin(reader);
                 break;
             }
             case ClientVoiceMessages::LoginReply:  // TAG: 1DF9C40
             {
-                this->OnLoginReply(reader);
+               // this->OnLoginReply(reader);
                 break;
             }
             case ClientVoiceMessages::AudioData:  // TAG: 1DF9CB0
             {
-                this->OnAudioData(reader);
+                //this->OnAudioData(reader);
                 break;
             }
             case ClientVoiceMessages::SpeechGraphicsData:  // TAG: 1DF9D20
             {
-                this->OnSpeechGraphicsData(reader);
+                //this->OnSpeechGraphicsData(reader);
                 break;
             }
             case ClientVoiceMessages::LocalAudioData:  // TAG: 1DF9D90
@@ -61,57 +61,57 @@ public:
             }
             case ClientVoiceMessages::LocalAudioStreamState:  // TAG: 1DF9E00
             {
-                this->OnLocalAudioStreamState(reader);
+               // this->OnLocalAudioStreamState(reader);
                 break;
             }
             case ClientVoiceMessages::LocalAudioPosition:  // TAG: 1DF9E70
             {
-                this->OnLocalAudioPosition(reader);
+               // this->OnLocalAudioPosition(reader);
                 break;
             }
             case ClientVoiceMessages::LocalAudioMute:  // TAG: 1DF9EE0
             {
-                this->OnLocalAudioMute(reader);
+               // this->OnLocalAudioMute(reader);
                 break;
             }
             case ClientVoiceMessages::LocalSetRegionBroadcasted:  // TAG: 1DF9F50
             {
-                this->OnLocalSetRegionBroadcasted(reader);
+               // this->OnLocalSetRegionBroadcasted(reader);
                 break;
             }
             case ClientVoiceMessages::LocalSetMuteAll:  // TAG: 1DFA110
             {
-                this->OnLocalSetMuteAll(reader);
+               // this->OnLocalSetMuteAll(reader);
                 break;
             }
             case ClientVoiceMessages::GroupAudioData:  // TAG: 1DFA2D0
             {
-                this->OnGroupAudioData(reader);
+               // this->OnGroupAudioData(reader);
                 break;
             }
             case ClientVoiceMessages::LocalTextData:  // TAG: 1DFA340
             {
-                this->OnLocalTextData(reader);
+               // this->OnLocalTextData(reader);
                 break;
             }
             case ClientVoiceMessages::MasterInstance:  // TAG: 1DFA3B0
             {
-                this->OnMasterInstance(reader);
+               // this->OnMasterInstance(reader);
                 break;
             }
             case ClientVoiceMessages::VoiceModerationCommand:  // TAG: 1DFA540
             {
-                this->OnVoiceModerationCommand(reader);
+                //this->OnVoiceModerationCommand(reader);
                 break;
             }
             case ClientVoiceMessages::VoiceModerationCommandResponse:  // TAG: 1DFA6F0
             {
-                this->OnVoiceModerationCommandResponse(reader);
+               // this->OnVoiceModerationCommandResponse(reader);
                 break;
             }
             case ClientVoiceMessages::VoiceNotification:  // TAG: 1DFA760
             {
-                this->OnVoiceNotification(reader);
+               // this->OnVoiceNotification(reader);
                 break;
             }
             default:

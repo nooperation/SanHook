@@ -24,22 +24,22 @@ public:
         {
             case RegionRegionMessages::DynamicSubscribe: // TAG: 1BB19B0
             {
-                this->OnDynamicSubscribe(reader);
+               // this->OnDynamicSubscribe(reader);
                 break;
             }
             case RegionRegionMessages::DynamicPlayback: // TAG: 1BB1B00
             {
-                this->OnDynamicPlayback(reader);
+               // this->OnDynamicPlayback(reader);
                 break;
             }
             case RegionRegionMessages::MasterFrameSync: // TAG: 1BB1C50
             {
-                this->OnMasterFrameSync(reader);
+               // this->OnMasterFrameSync(reader);
                 break;
             }
             case RegionRegionMessages::AgentControllerMapping: // TAG: 1BB1E10
             {
-                this->OnAgentControllerMapping(reader);
+               // this->OnAgentControllerMapping(reader);
                 break;
             }
             default:

@@ -7,10 +7,16 @@
 #include <chrono>
 #include <filesystem>
 #include <algorithm>
+#include <Windows.h>
 
 #include "MessageHandler.h"
 #include "PacketReader.hpp"
 #include "Utils.hpp"
+
+extern "C" {
+    NTSYSAPI NTSTATUS NtQueryTimerResolution(OUT PULONG minimumResolution, OUT PULONG maximumResolution, OUT PULONG currentResolution);
+    NTSYSAPI NTSTATUS NtSetTimerResolution(IN ULONG desiredResolution, IN BOOLEAN setResolution, OUT PULONG currentResoultion);
+}
 
 //void OnClientRegionUserLogin(PacketReader &reader);
 //void OnClientRegionUserLoginReply(PacketReader &reader);
@@ -481,29 +487,29 @@ public:
 
     void OnRemoveUser(PacketReader &reader) // TAG: 1B9B600
     {
-        auto sessionId = reader.ReadUint32();
+        //auto sessionId = reader.ReadUint32();
 
-        auto userName = std::string();
-        auto foundName = sessionIdToNameMap.find(sessionId);
-        if (foundName != sessionIdToNameMap.end())
-        {
-            userName = foundName->second;
-        }
-        else
-        {
-            userName = "UNKNOWN";
-        }
+        //auto userName = std::string();
+        //auto foundName = sessionIdToNameMap.find(sessionId);
+        //if (foundName != sessionIdToNameMap.end())
+        //{
+        //    userName = foundName->second;
+        //}
+        //else
+        //{
+        //    userName = "UNKNOWN";
+        //}
 
-        printf("[%s] ClientRegionMessages::RemoveUser -> (%s) %d\n",
-            _isSender ? "OUT" : "IN",
-            userName.c_str(),
-            sessionId
-        );
+        //printf("[%s] ClientRegionMessages::RemoveUser -> (%s) %d\n",
+        //    _isSender ? "OUT" : "IN",
+        //    userName.c_str(),
+        //    sessionId
+        //);
     }
 
     void OnRenameUser(PacketReader &reader) // TAG: 1B9B7C0
     {
-        auto sessionId = reader.ReadUint32();
+        /*auto sessionId = reader.ReadUint32();
         auto userName = reader.ReadString();
 
         auto previousUsername = std::string();
@@ -522,7 +528,7 @@ public:
             previousUsername.c_str(),
             sessionId,
             userName.c_str()
-        );
+        );*/
 
 
 
@@ -531,14 +537,14 @@ public:
 
     void OnChatMessageToServer(PacketReader &reader) // TAG: 1B9B830
     {
-        auto toSessionId = reader.ReadUint32();
-        auto message = reader.ReadString();
+        //auto toSessionId = reader.ReadUint32();
+        //auto message = reader.ReadString();
 
-        printf("[%s] ClientRegionMessages::ChatMessageToServer -> (%u) %s\n",
-            _isSender ? "OUT" : "IN",
-            toSessionId,
-            message.c_str()
-        );
+        //printf("[%s] ClientRegionMessages::ChatMessageToServer -> (%u) %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    toSessionId,
+        //    message.c_str()
+        //);
 
         /*
         auto buffer = reader.GetBuffer();
@@ -552,7 +558,7 @@ public:
 
     void OnChatMessageToClient(PacketReader &reader) // TAG: 1B9B8A0
     {
-        auto fromSessionId = reader.ReadUint32();
+     /*   auto fromSessionId = reader.ReadUint32();
         auto toSessionId = reader.ReadUint32();
         auto message = reader.ReadString();
 
@@ -574,14 +580,14 @@ public:
             fromSessionId,
             toSessionId,
             message.c_str()
-        );
+        );*/
     }
 
     void OnVibrationPulseToClient(PacketReader &reader) // TAG: 1B9B910
     {
-        auto controlPointType = reader.ReadUint32();
+       /* auto controlPointType = reader.ReadUint32();
         auto intensity = reader.ReadFloat();
-        auto duration = reader.ReadFloat();
+        auto duration = reader.ReadFloat();*/
     }
 
     void OnSetAgentController(PacketReader &reader) // TAG: 1B9B980
@@ -600,148 +606,148 @@ public:
 
     void OnTeleportTo(PacketReader &reader) // TAG: 1B9B9F0
     {
-        auto personaHandle = reader.ReadString();
+    /*    auto personaHandle = reader.ReadString();
         auto locationHandle = reader.ReadString();
 
         printf("[%s] OnTeleportTo:\n  personaHandle = %s\n  locationHandle = %s\n",
             _isSender ? "OUT" : "IN",
             personaHandle.c_str(),
             locationHandle.c_str()
-        );
+        );*/
     }
 
     void OnTeleportToUri(PacketReader &reader) // TAG: 1B9BA60
     {
-        auto sansarUri = reader.ReadString();
+        //auto sansarUri = reader.ReadString();
 
-        printf("[%s] OnTeleportToUri:\n  sansarUri = %s\n",
-            _isSender ? "OUT" : "IN",
-            sansarUri.c_str()
-        );
+        //printf("[%s] OnTeleportToUri:\n  sansarUri = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    sansarUri.c_str()
+        //);
     }
 
     void OnTeleportToEditMode(PacketReader &reader) // TAG: 1B9BC10
     {
-        auto returnSpawnPointName = reader.ReadString();
-        auto workspaceEditView = reader.ReadUint8();
+        //auto returnSpawnPointName = reader.ReadString();
+        //auto workspaceEditView = reader.ReadUint8();
 
-        // 2 = fashon picker thingy for avatar
-        // 3 = select avatar
-        // 4 = select your new avatar
-        printf("[%s] OnTeleportToEditMode:\n  returnSpawnPointName = %s\n  workspaceEditView = %u\n",
-            _isSender ? "OUT" : "IN",
-            returnSpawnPointName.c_str(),
-            workspaceEditView
-        );
+        //// 2 = fashon picker thingy for avatar
+        //// 3 = select avatar
+        //// 4 = select your new avatar
+        //printf("[%s] OnTeleportToEditMode:\n  returnSpawnPointName = %s\n  workspaceEditView = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    returnSpawnPointName.c_str(),
+        //    workspaceEditView
+        //);
     }
 
     void OnDebugTimeChangeToServer(PacketReader &reader) // TAG: 1B9BC80
     {
-        auto requestId = reader.ReadUint32();
-        auto clientDeltaTimeForced = reader.ReadFloat();
-        auto clientDeltaTimeScale = reader.ReadFloat();
+        //auto requestId = reader.ReadUint32();
+        //auto clientDeltaTimeForced = reader.ReadFloat();
+        //auto clientDeltaTimeScale = reader.ReadFloat();
 
-        printf("[%s] OnDebugTimeChangeToServer:\n  requestId = %u\n  clientDeltaTimeForced = %f\n  clientDeltaTimeScale = %f\n",
-            _isSender ? "OUT" : "IN",
-            requestId,
-            clientDeltaTimeForced,
-            clientDeltaTimeScale
-        );
+        //printf("[%s] OnDebugTimeChangeToServer:\n  requestId = %u\n  clientDeltaTimeForced = %f\n  clientDeltaTimeScale = %f\n",
+        //    _isSender ? "OUT" : "IN",
+        //    requestId,
+        //    clientDeltaTimeForced,
+        //    clientDeltaTimeScale
+        //);
     }
 
     void OnDebugTimeChangeToClient(PacketReader &reader) // TAG: 1B9BCF0
     {
-        auto requestId = reader.ReadUint32();
-        auto clientDeltaTimeForced = reader.ReadFloat();
-        auto clientDeltaTimeScale = reader.ReadFloat();
-        auto requestAccepted = reader.ReadUint8();
-        auto errorMessage = reader.ReadString();
+        //auto requestId = reader.ReadUint32();
+        //auto clientDeltaTimeForced = reader.ReadFloat();
+        //auto clientDeltaTimeScale = reader.ReadFloat();
+        //auto requestAccepted = reader.ReadUint8();
+        //auto errorMessage = reader.ReadString();
 
-        printf("[%s] OnDebugTimeChangeToServer:\n  requestId = %u\n  clientDeltaTimeForced = %f\n  clientDeltaTimeScale = %f\n  requestAccepted = %u\n  errorMessage = %s\n",
-            _isSender ? "OUT" : "IN",
-            requestId,
-            clientDeltaTimeForced,
-            clientDeltaTimeScale,
-            requestAccepted,
-            errorMessage.c_str()
-        );
+        //printf("[%s] OnDebugTimeChangeToServer:\n  requestId = %u\n  clientDeltaTimeForced = %f\n  clientDeltaTimeScale = %f\n  requestAccepted = %u\n  errorMessage = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    requestId,
+        //    clientDeltaTimeForced,
+        //    clientDeltaTimeScale,
+        //    requestAccepted,
+        //    errorMessage.c_str()
+        //);
     }
 
     void OnVisualDebuggerCaptureToServer(PacketReader &reader) // TAG: 1B9BD60
     {
-        auto startTimeFormatted = reader.ReadString();
-        auto beginCapture = reader.ReadUint8();
-        auto viewers = reader.ReadStringList();
+        //auto startTimeFormatted = reader.ReadString();
+        //auto beginCapture = reader.ReadUint8();
+        //auto viewers = reader.ReadStringList();
 
-        printf("[%s] OnVisualDebuggerCaptureToServer:\n  startTimeFormatted = %s\n  beginCapture = %u\n  viewers =\n",
-            _isSender ? "OUT" : "IN",
-            startTimeFormatted.c_str(),
-            beginCapture
-        );
+        //printf("[%s] OnVisualDebuggerCaptureToServer:\n  startTimeFormatted = %s\n  beginCapture = %u\n  viewers =\n",
+        //    _isSender ? "OUT" : "IN",
+        //    startTimeFormatted.c_str(),
+        //    beginCapture
+        //);
 
-        for (auto &item: viewers)
-        {
-            printf("     %s\n", item.c_str());
-        }
+        //for (auto &item: viewers)
+        //{
+        //    printf("     %s\n", item.c_str());
+        //}
     }
 
     void OnVisualDebuggerCaptureToClient(PacketReader &reader) // TAG: 1B9BDD0
     {
-        auto startTimeFormatted = reader.ReadString();
-        auto compressedHkmBytes = reader.ReadArray();
-        auto uncompressedSize = reader.ReadUint64();
-        auto beginCapture = reader.ReadUint8();
-        auto succeeded = reader.ReadUint8();
-        auto errorMessage = reader.ReadString();
+        //auto startTimeFormatted = reader.ReadString();
+        //auto compressedHkmBytes = reader.ReadArray();
+        //auto uncompressedSize = reader.ReadUint64();
+        //auto beginCapture = reader.ReadUint8();
+        //auto succeeded = reader.ReadUint8();
+        //auto errorMessage = reader.ReadString();
     }
 
     void OnScriptModalDialog(PacketReader &reader) // TAG: 1B9BE40
     {
-        auto eventId = reader.ReadUint64();
-        auto message = reader.ReadString();
-        auto leftButtonLabel = reader.ReadString();
-        auto rightButtonLabel = reader.ReadString();
+        //auto eventId = reader.ReadUint64();
+        //auto message = reader.ReadString();
+        //auto leftButtonLabel = reader.ReadString();
+        //auto rightButtonLabel = reader.ReadString();
 
-        printf("[%s] OnScriptModalDialog:\n  eventId = %llu\n  message = %s\n  leftButtonLabel = %s\n  rightButtonLabel = %s\n",
-            _isSender ? "OUT" : "IN",
-            eventId,
-            message.c_str(),
-            leftButtonLabel.c_str(),
-            rightButtonLabel.c_str()
-        );
+        //printf("[%s] OnScriptModalDialog:\n  eventId = %llu\n  message = %s\n  leftButtonLabel = %s\n  rightButtonLabel = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    eventId,
+        //    message.c_str(),
+        //    leftButtonLabel.c_str(),
+        //    rightButtonLabel.c_str()
+        //);
     }
 
     void OnScriptModalDialogResponse(PacketReader &reader) // TAG: 1B9BEB0
     {
-        auto eventId = reader.ReadUint64();
-        auto response = reader.ReadString();
+        //auto eventId = reader.ReadUint64();
+        //auto response = reader.ReadString();
 
-        printf("[%s] OnScriptModalDialogResponse:\n  eventId = %llu\n  response = %s\n",
-            _isSender ? "OUT" : "IN",
-            eventId,
-            response.c_str()
-        );
+        //printf("[%s] OnScriptModalDialogResponse:\n  eventId = %llu\n  response = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    eventId,
+        //    response.c_str()
+        //);
     }
 
     void OnTwitchEventSubscription(PacketReader &reader) // TAG: 1B9BF20
     {
-        auto eventMask = reader.ReadUint32();
+//        auto eventMask = reader.ReadUint32();
     }
 
     void OnTwitchEvent(PacketReader &reader) // TAG: 1B9C0E0
     {
-        auto eventType = reader.ReadUint32();
-        auto intensity = reader.ReadFloat();
+  //      auto eventType = reader.ReadUint32();
+    //  auto intensity = reader.ReadFloat();
     }
 
     void OnClientStaticReady(PacketReader &reader) // TAG: 1B9C150
     {
-        auto ready = reader.ReadUint8();
+        //auto ready = reader.ReadUint8();
     }
 
     void OnClientDynamicReady(PacketReader &reader) // TAG: 1B9C310
     {
-        auto position = reader.ReadVectorF(3);
+    /*    auto position = reader.ReadVectorF(3);
         auto orientation = reader.ReadVectorF(4);
         auto targetPersonaId_0 = reader.ReadUint64();
         auto targetPersonaId_1 = reader.ReadUint64();
@@ -756,12 +762,12 @@ public:
                 targetPersonaId_1,
                 targetSpawnPointName.c_str()
             );
-        }
+        }*/
     }
 
     void OnInitialChunkSubscribed(PacketReader &reader) // TAG: 1B9C380
     {
-        auto unused = reader.ReadUint8();
+      //  auto unused = reader.ReadUint8();
     }
 
     // whenever a user does %%command we send this and the voicemoderationcommand packets
@@ -834,6 +840,23 @@ public:
             isFlyMode = !isFlyMode;
             printf("FlyMode = %s!\n", isFlyMode ? "TRUE" : "FALSE");
         }
+        //if (command == "fix0")
+        //{
+        //    ULONG currentResolution;
+        //    NtSetTimerResolution(10000, 1, &currentResolution);
+        //}
+        //if (command == "fix6")
+        //{
+        //    timeBeginPeriod(6);
+        //}
+        //if (command == "fix3")
+        //{
+        //    timeBeginPeriod(3);
+        //}
+        //if (command == "fix1")
+        //{
+        //    timeBeginPeriod(1);
+        //}
         if (command == "spawn-target" || command == "st") {
             auto handle = args;
             followMode = 0;
@@ -922,163 +945,163 @@ public:
 
     void OnClientKickNotification(PacketReader &reader) // TAG: 1B9C6F0
     {
-        auto message = reader.ReadString();
+        //auto message = reader.ReadString();
 
-        printf("[%s] OnClientKickNotification:\n  message = %s\n",
-            _isSender ? "OUT" : "IN",
-            message.c_str()
-        );
+        //printf("[%s] OnClientKickNotification:\n  message = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    message.c_str()
+        //);
     }
 
     void OnClientSmiteNotification(PacketReader &reader) // TAG: 1B9C8A0
     {
-        auto message = reader.ReadString();
+        //auto message = reader.ReadString();
 
-        printf("[%s] OnClientSmiteNotification:\n  message = %s\n",
-            _isSender ? "OUT" : "IN",
-            message.c_str()
-        );
+        //printf("[%s] OnClientSmiteNotification:\n  message = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    message.c_str()
+        //);
     }
 
     void OnClientMuteNotification(PacketReader &reader) // TAG: 1B9CA50
     {
-        auto message = reader.ReadString();
+        //auto message = reader.ReadString();
 
-        printf("[%s] OnClientMuteNotification:\n  message = %s\n",
-            _isSender ? "OUT" : "IN",
-            message.c_str()
-        );
+        //printf("[%s] OnClientMuteNotification:\n  message = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    message.c_str()
+        //);
     }
 
     void OnClientVoiceBroadcastStartNotification(PacketReader &reader) // TAG: 1B9CC00
     {
-        auto message = reader.ReadString();
+        //auto message = reader.ReadString();
 
-        printf("[%s] OnClientVoiceBroadcastStartNotification:\n  message = %s\n",
-            _isSender ? "OUT" : "IN",
-            message.c_str()
-        );
+        //printf("[%s] OnClientVoiceBroadcastStartNotification:\n  message = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    message.c_str()
+        //);
     }
 
     void OnClientVoiceBroadcastStopNotification(PacketReader &reader) // TAG: 1B9CDB0
     {
-        auto message = reader.ReadString();
+        //auto message = reader.ReadString();
 
 
-        printf("[%s] OnClientVoiceBroadcastStopNotification:\n  message = %s\n",
-            _isSender ? "OUT" : "IN",
-            message.c_str()
-        );
+        //printf("[%s] OnClientVoiceBroadcastStopNotification:\n  message = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    message.c_str()
+        //);
     }
 
     // %%backpack-on  %%backpack-off  %%backpack-clear
     void OnClientRuntimeInventoryUpdatedNotification(PacketReader &reader) // TAG: 1B9CF60
     {
-        auto message = reader.ReadString();
+        //auto message = reader.ReadString();
 
-        printf("[%s] OnClientRuntimeInventoryUpdatedNotification:\n  message = %s\n",
-            _isSender ? "OUT" : "IN",
-            message.c_str()
-        );
+        //printf("[%s] OnClientRuntimeInventoryUpdatedNotification:\n  message = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    message.c_str()
+        //);
     }
 
     void OnClientSetRegionBroadcasted(PacketReader &reader) // TAG: 1B9D110
     {
-        auto broadcasted = reader.ReadUint8();
+        //auto broadcasted = reader.ReadUint8();
     }
 
     void OnSubscribeCommand(PacketReader &reader) // TAG: 1B9D2D0
     {
-        auto command = reader.ReadString();
-        auto action = reader.ReadUint8();
+        //auto command = reader.ReadString();
+        //auto action = reader.ReadUint8();
 
-        printf("[%s] OnSubscribeCommand:\n  command = %s\n  action = %u\n",
-            _isSender ? "OUT" : "IN",
-            command.c_str(),
-            action
-        );
+        //printf("[%s] OnSubscribeCommand:\n  command = %s\n  action = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    command.c_str(),
+        //    action
+        //);
     }
 
     void OnUnsubscribeCommand(PacketReader &reader) // TAG: 1B9D340
     {
-        auto action = reader.ReadUint8(); // yes, this is reverse from subscribecommand?
-        auto command = reader.ReadString();
+        //auto action = reader.ReadUint8(); // yes, this is reverse from subscribecommand?
+        //auto command = reader.ReadString();
 
-        printf("[%s] OnUnsubscribeCommand:\n  command = %s\n  action = %u\n",
-            _isSender ? "OUT" : "IN",
-            command.c_str(),
-            action
-        );
+        //printf("[%s] OnUnsubscribeCommand:\n  command = %s\n  action = %u\n",
+        //    _isSender ? "OUT" : "IN",
+        //    command.c_str(),
+        //    action
+        //);
     }
 
     void OnClientCommand(PacketReader &reader) // TAG: 1B9D3B0
     {
-        auto command = reader.ReadString();
-        auto action = reader.ReadUint8();
-        auto origin = reader.ReadVectorF(3);
-        auto targetPosition = reader.ReadVectorF(3);
-        auto normal = reader.ReadVectorF(3);
-        auto componentId = reader.ReadUint64();
-        auto frame = reader.ReadUint64();
-        auto device = reader.ReadUint8();
-        auto mouseLook = reader.ReadUint8();
-        auto controlMode = reader.ReadUint8();
-        auto isAimTarget = reader.ReadUint8();
+        //auto command = reader.ReadString();
+        //auto action = reader.ReadUint8();
+        //auto origin = reader.ReadVectorF(3);
+        //auto targetPosition = reader.ReadVectorF(3);
+        //auto normal = reader.ReadVectorF(3);
+        //auto componentId = reader.ReadUint64();
+        //auto frame = reader.ReadUint64();
+        //auto device = reader.ReadUint8();
+        //auto mouseLook = reader.ReadUint8();
+        //auto controlMode = reader.ReadUint8();
+        //auto isAimTarget = reader.ReadUint8();
 
-        printf("[%s] OnClientCommand:\n  command = %s\n  action = %u\n  origin = <%f, %f, %f>\n  targetPosition = <%f, %f, %f>\n",
-            _isSender ? "OUT" : "IN",
-            command.c_str(),
-            action,
-            origin[0], origin[1], origin[2],
-            targetPosition[0], targetPosition[1], targetPosition[2]
-        );
+        //printf("[%s] OnClientCommand:\n  command = %s\n  action = %u\n  origin = <%f, %f, %f>\n  targetPosition = <%f, %f, %f>\n",
+        //    _isSender ? "OUT" : "IN",
+        //    command.c_str(),
+        //    action,
+        //    origin[0], origin[1], origin[2],
+        //    targetPosition[0], targetPosition[1], targetPosition[2]
+        //);
     }
 
     void OnRequestDropPortal(PacketReader &reader) // TAG: 1B9D420
     {
-        auto sansarUri = reader.ReadString();
-        auto sansarUriDescription = reader.ReadString();
+        //auto sansarUri = reader.ReadString();
+        //auto sansarUriDescription = reader.ReadString();
 
-        printf("[%s] OnRequestDropPortal:\n  sansarUri = %s\n  sansarUriDescription = %s\n",
-            _isSender ? "OUT" : "IN",
-            sansarUri.c_str(),
-            sansarUriDescription.c_str()
-        );
+        //printf("[%s] OnRequestDropPortal:\n  sansarUri = %s\n  sansarUriDescription = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    sansarUri.c_str(),
+        //    sansarUriDescription.c_str()
+        //);
     }
 
     void OnOpenStoreListing(PacketReader &reader) // TAG: 1B9D490
     {
-        auto listingId = reader.ReadUUID();
+        //auto listingId = reader.ReadUUID();
 
-        printf("[%s] OnOpenStoreListing:\n  listingId = %s\n",
-            _isSender ? "OUT" : "IN",
-            listingId.c_str()
-        );
+        //printf("[%s] OnOpenStoreListing:\n  listingId = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    listingId.c_str()
+        //);
     }
 
     void OnOpenUserStore(PacketReader &reader) // TAG: 1B9D620
     {
-        auto creatorHandle = reader.ReadString();
-
-        printf("[%s] OnOpenUserStore:\n  creatorHandle = %s\n",
-            _isSender ? "OUT" : "IN",
-            creatorHandle.c_str()
-        );
+        //auto creatorHandle = reader.ReadString();
+        //
+        //printf("[%s] OnOpenUserStore:\n  creatorHandle = %s\n",
+        //    _isSender ? "OUT" : "IN",
+        //    creatorHandle.c_str()
+        //);
     }
 
     void OnOpenQuestCharacterDialog(PacketReader &reader) // TAG: 1B9D7D0
     {
-        auto characterId = reader.ReadUUID();
-
-        printf("[%s] OnOpenQuestCharacterDialog:\n  characterId = %s\n",
-            _isSender ? "OUT" : "IN",
-            characterId.c_str()
-        );
+       // auto characterId = reader.ReadUUID();
+       //
+       // printf("[%s] OnOpenQuestCharacterDialog:\n  characterId = %s\n",
+       //     _isSender ? "OUT" : "IN",
+       //     characterId.c_str()
+       // );
     }
 
     void OnUIScriptableBarStart(PacketReader &reader) // TAG: 1B9D960
     {
-        auto barId = reader.ReadUint32();
+      /*  auto barId = reader.ReadUint32();
         auto scriptEventId = reader.ReadUint64();
         auto label = reader.ReadString();
         auto duration = reader.ReadFloat();
@@ -1086,128 +1109,128 @@ public:
         auto startPct = reader.ReadFloat();
         auto endPct = reader.ReadFloat();
         auto options = reader.ReadUint8();
-        auto start = reader.ReadUint8();
+        auto start = reader.ReadUint8();*/
     }
 
     void OnUIScriptableBarStopped(PacketReader &reader) // TAG: 1B9D9D0
     {
-        auto barId = reader.ReadUint32();
-        auto scriptEventId = reader.ReadUint64();
-        auto completed = reader.ReadUint8();
+      //  auto barId = reader.ReadUint32();
+      //  auto scriptEventId = reader.ReadUint64();
+      //  auto completed = reader.ReadUint8();
     }
 
     void OnUIScriptableBarCancel(PacketReader &reader) // TAG: 1B9DA40
     {
-        auto barId = reader.ReadUint32();
+      //  auto barId = reader.ReadUint32();
     }
 
     void OnUIHintTextUpdate(PacketReader &reader) // TAG: 1B9DC00
     {
-        auto text = reader.ReadString();
+      //  auto text = reader.ReadString();
     }
 
     void OnQuestOfferResponse(PacketReader &reader) // TAG: 1B9DDB0
     {
-        auto questId = reader.ReadUUID();
-        auto questDefinitionId = reader.ReadUUID();
-        auto accepted = reader.ReadUint8();
+      //  auto questId = reader.ReadUUID();
+      //  auto questDefinitionId = reader.ReadUUID();
+      //  auto accepted = reader.ReadUint8();
     }
 
     void OnQuestCompleted(PacketReader &reader) // TAG: 1B9DE20
     {
-        auto questId = reader.ReadUUID();
-        auto questDefinitionId = reader.ReadUUID();
-        auto completedState = reader.ReadUint32();
+      //  auto questId = reader.ReadUUID();
+      //  auto questDefinitionId = reader.ReadUUID();
+      //  auto completedState = reader.ReadUint32();
     }
 
     void OnQuestRemoved(PacketReader &reader) // TAG: 1B9DE90
     {
-        auto questId = reader.ReadUUID();
+     //   auto questId = reader.ReadUUID();
     }
 
     void OnShowWorldDetail(PacketReader &reader) // TAG: 1B9E020
     {
-        auto sansarUri = reader.ReadString();
-        auto show = reader.ReadUint8();
-
-        printf("[%s] OnShowWorldDetail:\n  sansarUri = %s\n  show = %u\n",
-            _isSender ? "OUT" : "IN",
-            sansarUri.c_str(),
-            show
-        );
+     //   auto sansarUri = reader.ReadString();
+     //   auto show = reader.ReadUint8();
+     //
+     //   printf("[%s] OnShowWorldDetail:\n  sansarUri = %s\n  show = %u\n",
+     //       _isSender ? "OUT" : "IN",
+     //       sansarUri.c_str(),
+     //       show
+     //   );
     }
 
     void OnShowTutorialHint(PacketReader &reader) // TAG: 1B9E090
     {
-        auto tutorialHintEnum = reader.ReadUint32();
-        auto variant = reader.ReadUint32();
+      // auto tutorialHintEnum = reader.ReadUint32();
+      // auto variant = reader.ReadUint32();
     }
 
     void OnTutorialHintsSetEnabled(PacketReader &reader) // TAG: 1B9E100
     {
-        auto enabled = reader.ReadUint8();
+      //  auto enabled = reader.ReadUint8();
     }
 
     void OnReactionDefinition(PacketReader &reader) // TAG: 1C2EBF0
     {
         // NEW: 2021-03-25
-        auto reactionType = reader.ReadString();
-        auto displayText = reader.ReadString();
-        auto thumbnailId = reader.ReadUUID();
-
-        printf("[%s] OnReactionDefinition:\n  reactionType = %s\n  displayText = %s\n  thumbnailId = %s\n",
-            _isSender ? "OUT" : "IN",
-            reactionType.c_str(),
-            displayText.c_str(),
-            thumbnailId.c_str()
-        );
+      //  auto reactionType = reader.ReadString();
+      //  auto displayText = reader.ReadString();
+      //  auto thumbnailId = reader.ReadUUID();
+      //
+      //  printf("[%s] OnReactionDefinition:\n  reactionType = %s\n  displayText = %s\n  thumbnailId = %s\n",
+      //      _isSender ? "OUT" : "IN",
+      //      reactionType.c_str(),
+      //      displayText.c_str(),
+      //      thumbnailId.c_str()
+      //  );
     }
 
     void OnSystemReactionDefinition(PacketReader &reader) // TAG: 1C2EC60
     {
         // NEW: 2021-03-25
 
-        auto reactionType = reader.ReadString();
-        auto displayText = reader.ReadString();
-        auto thumbnailPath = reader.ReadString();
-
-        printf("[%s] OnSystemReactionDefinition:\n  reactionType = %s\n  displayText = %s\n  thumbnailPath = %s\n",
-            _isSender ? "OUT" : "IN",
-            reactionType.c_str(),
-            displayText.c_str(),
-            thumbnailPath.c_str()
-        );
+       // auto reactionType = reader.ReadString();
+       // auto displayText = reader.ReadString();
+       // auto thumbnailPath = reader.ReadString();
+       //
+       // printf("[%s] OnSystemReactionDefinition:\n  reactionType = %s\n  displayText = %s\n  thumbnailPath = %s\n",
+       //     _isSender ? "OUT" : "IN",
+       //     reactionType.c_str(),
+       //     displayText.c_str(),
+       //     thumbnailPath.c_str()
+       // );
     }
 
     void OnUpdateReactions(PacketReader &reader) // TAG: 1C2ECD0
     {
         // NEW: 2021-03-25
-        auto reactionsLength = reader.ReadUint32();
-        for (size_t i = 0; i < reactionsLength; i++)
-        {
-            printf("[%s] OnUpdateReactions: (handled as the following definitions):\n", _isSender ? "OUT" : "IN");
-            OnReactionDefinition(reader);
-        }
-
-        auto systemReactionsLength = reader.ReadUint32();
-        for (size_t i = 0; i < systemReactionsLength; i++)
-        {
-            printf("[%s] OnUpdateReactions: (handled as the following definitions):\n", _isSender ? "OUT" : "IN");
-            OnSystemReactionDefinition(reader);
-        }
+       // auto reactionsLength = reader.ReadUint32();
+       // for (size_t i = 0; i < reactionsLength; i++)
+       // {
+       //     printf("[%s] OnUpdateReactions: (handled as the following definitions):\n", _isSender ? "OUT" : "IN");
+       //     OnReactionDefinition(reader);
+       // }
+       //
+       // auto systemReactionsLength = reader.ReadUint32();
+       // for (size_t i = 0; i < systemReactionsLength; i++)
+       // {
+       //     printf("[%s] OnUpdateReactions: (handled as the following definitions):\n", _isSender ? "OUT" : "IN");
+       //     OnSystemReactionDefinition(reader);
+       // }
     }
 
     void OnAddReaction(PacketReader &reader) // TAG: 1C2EE60
     {
         // NEW: 2021-03-25
-        OnReactionDefinition(reader);
-
-        printf("[%s] OnAddReaction: (handled as the following OnReactionDefinition output):\n", _isSender ? "OUT" : "IN");
+      //  OnReactionDefinition(reader);
+      //
+      //  printf("[%s] OnAddReaction: (handled as the following OnReactionDefinition output):\n", _isSender ? "OUT" : "IN");
     }
 
     void OnRemoveReaction(PacketReader &reader) // TAG: 1C2EED0
     {
         // NEW: 2021-03-25
-        auto reactionType = reader.ReadString();
+      //  auto reactionType = reader.ReadString();
     }
 };
