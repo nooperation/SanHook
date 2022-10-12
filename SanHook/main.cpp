@@ -898,7 +898,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
 
         // NOTUPDATED OCT 2022
-        if (1) // Hack to force the logging flag for HTTP logs?
+        if (0) // Hack to force the logging flag for HTTP logs?
         {
             // 48 8B 88 B8 0F 00 00 48 C1 E9 25 F6 C1 01 0F 84 7D 01 00 00
             // search for "%.*s". There's some condition nearby which skips and referrs to "HttpClient" something
@@ -1112,6 +1112,18 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             //  RewriteCode(base + skipUnknownEventCrash_Logging, skipUnknownEventCrashData_Logging, sizeof(skipUnknownEventCrashData_Logging));
            // }
         }
+
+        // OUT OF DATE, update me
+        if (false)
+        {
+            // 2B D1 75 07 48 FF C0 85 C9 75 ED 85 D2 75 42   nop the jne before 'client version is latest'
+            auto skipUnknownEventCrash = 0x1CE68C5;
+            unsigned char skipUnknownEventCrashData[] = {
+	            0x90, 0x90,
+            };
+            RewriteCode(base + skipUnknownEventCrash, skipUnknownEventCrashData, sizeof(skipUnknownEventCrashData));
+        }
+
 
         // We got this constant from memory.
         // Search for "no-input-source".
