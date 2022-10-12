@@ -297,24 +297,24 @@ public:
 
     void OnPresenceUpdate(PacketReader &reader)  // TAG: 17A1820
     {
-       // auto personaId = reader.ReadUUID();
-       // auto present = reader.ReadUint8();
-       // auto sessionId = reader.ReadUUID();
-       // auto state = reader.ReadString();
-       // auto sansarUri = reader.ReadString();
-       //
-       // personaId = Utils::ToUUID(personaId);
-       // auto handle = Utils::KeyToName(personaId);
-       //
-       // printf("[%s] OnPresenceUpdate:\n  personaId = %s [%s]\n  present = %u\n  sessionId = %s\n  state = %s\n  sansarUri = %s\n",
-       //     _isSender ? "OUT" : "IN",
-       //     handle.c_str(),
-       //     personaId.c_str(),
-       //     present,
-       //     sessionId.c_str(),
-       //     state.c_str(),
-       //     sansarUri.c_str()
-       // );
+       auto personaId = reader.ReadUUID();
+       auto present = reader.ReadUint8();
+       auto sessionId = reader.ReadUUID();
+       auto state = reader.ReadString();
+       auto sansarUri = reader.ReadString();
+       
+       personaId = Utils::ToUUID(personaId);
+       auto handle = Utils::KeyToName(personaId);
+       
+       printf("[%s] OnPresenceUpdate:\n  personaId = %s [%s]\n  present = %u\n  sessionId = %s\n  state = %s\n  sansarUri = %s\n",
+           _isSender ? "OUT" : "IN",
+           handle.c_str(),
+           personaId.c_str(),
+           present,
+           sessionId.c_str(),
+           state.c_str(),
+           sansarUri.c_str()
+       );
     }
 
     void OnRelationshipTable(PacketReader &reader) // TAG: 17A1B30

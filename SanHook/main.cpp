@@ -772,13 +772,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         FILE *pFile = nullptr;
         AllocConsole();
         freopen_s(&pFile, "CONOUT$", "w", stdout);
+        timeBeginPeriod(1);
 
-        ULONG currentResolution;
-   //    NtSetTimerResolution(12345, 1, &currentResolution);
-       timeBeginPeriod(1);
-
-    //    ULONG currentResolution;
-     //   NtSetTimerResolution(10000, 1, &currentResolution);
         printf("++++++++++++++++++++++++++++++++++\n");
         printf("++++++++++++++++++++++++++++++++++\n");
         printf("++++++++++++++++++++++++++++++++++\n");
@@ -805,7 +800,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         {
             // Search for "Illegally formatted message received. You probably failed to bind a callback for this message. Message was: %s (id: 0x%x)\n"'
             // Scan down 3 jumps. Patch after last jump containing just a mov mov mov call [rax + 8]
-            //
+            //hijack_ProcessPacketRecv  intercept_ProcessPacketRecv
+            // 49 8B 7E 08 45 8B 46 10 48 8B D7 ff 50 08
 
             uint8_t hijack_ProcessPacketRecv[] = {
                 0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
@@ -815,7 +811,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x1505162, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + 0x15051F2, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // TODO: May be outdated...
             /// WARNING
@@ -824,13 +820,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             /// WARNING
             /// WARNING
 
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x1505162 + sizeof(hijack_ProcessPacketRecv));
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x15051F2 + sizeof(hijack_ProcessPacketRecv));
         }
 
         if (true)
         {
             // Search for "OutgoingPacket"
             // next call, call qword ptr[rax+18] or whatever
+            // intercept_ProcessPacketSend hijack_ProcessPacketSend
+            // 4C 89 7C 24 68 48 8D 88 88 17 00 00 48 8B D3 4C 8B FB
 
             /// WARNING
             /// WARNING
@@ -844,9 +842,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x1372636, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + 0x13726C6, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
 
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x1372636 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x13726C6 + sizeof(hijack_ProcessPacketSend));
         }
 
 
@@ -892,15 +890,15 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSend;
-            RewriteCode(base + 0x138E1DE, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
+            RewriteCode(base + 0x138E26E, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
 
-            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x138E1DE + sizeof(hijack_ProcessHttpSend));
+            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x138E26E + sizeof(hijack_ProcessHttpSend));
         }
 
 
 
         // NOTUPDATED OCT 2022
-        if (0) // Hack to force the logging flag for HTTP logs?
+        if (1) // Hack to force the logging flag for HTTP logs?
         {
             // 48 8B 88 B8 0F 00 00 48 C1 E9 25 F6 C1 01 0F 84 7D 01 00 00
             // search for "%.*s". There's some condition nearby which skips and referrs to "HttpClient" something
@@ -916,7 +914,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                 0x90                                       // NOP
             };
 
-            RewriteCode(base + 0x138E2B9, force_loghttp, sizeof(force_loghttp));
+            RewriteCode(base + 0x138E399, force_loghttp, sizeof(force_loghttp));
         }
         
         //if (false)  // DELETEME
@@ -970,9 +968,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-            RewriteCode(base + 0x138EAB7, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+            RewriteCode(base + 0x138EB47, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
 
-            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138EAB7 + sizeof(hijack_ProcessHttpBodyRecv));
+            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138EB47 + sizeof(hijack_ProcessHttpBodyRecv));
         }
 
 
@@ -997,9 +995,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
-            RewriteCode(base + 0x1705D4C, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+            RewriteCode(base + 0x1705DDC, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
 
-            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x1705D4C + sizeof(hijack_PositionUpdate));
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x1705DDC + sizeof(hijack_PositionUpdate));
         }
 
         // if (false) // always falseish  // NOT YET UPDATED (2020-09-30)
@@ -1056,7 +1054,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
 
             // Seating (desktop)
-            auto unlimitedItemPickRangeRva_DesktopSeat = 0x176C6B4;
+            auto unlimitedItemPickRangeRva_DesktopSeat = 0x176C744;
             unsigned char unlimitedItemPickRangeData_DesktopSeat[1] = {
                 0xeb                            // JB -> JMP
             };
@@ -1064,14 +1062,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             
             
             // Items (desktop)
-            auto unlimitedItemPickRangeRva_DesktopItems = 0x176CA82;
+            auto unlimitedItemPickRangeRva_DesktopItems = 0x176CB12;
             unsigned char unlimitedItemPickRangeData_DesktopItems[1] = {
                 0xeb                            // JB -> JMP
             };
             RewriteCode(base + unlimitedItemPickRangeRva_DesktopItems, unlimitedItemPickRangeData_DesktopItems, sizeof(unlimitedItemPickRangeData_DesktopItems));
             
             // UnknownA
-            auto unlimitedItemPickRangeRva_UnknownA = 0x176CCE1;
+            auto unlimitedItemPickRangeRva_UnknownA = 0x176CD71;
             unsigned char unlimitedItemPickRangeData_UnknownA[1] = {
                 0xeb                            // JB -> JMP
             };
@@ -1079,7 +1077,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                         
             
             // UnknownB
-            auto unlimitedItemPickRangeRva_UnknownB = 0x176CF7F;
+            auto unlimitedItemPickRangeRva_UnknownB = 0x176D00F;
             unsigned char unlimitedItemPickRangeData_UnknownB[1] = {
                 0xeb                            // JB -> JMP
             };
@@ -1087,16 +1085,32 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         }
 
 
-        if (true)
+        if (false)
         {
-            // 48 83 F9 01 7C 2F 48 69 C9 D0 00 00 00  (above, the sub,je,sub,je,sub,  just nop it all and jjump to the exit state
-            auto skipUnknownEventCrash = 0x1707411;
+            // 48 83 F9 01 7C 2F 48 69 C9 D0 00 00 00  (above. sub,je,sub,je,sub,  just nop it all and jjump to the exit state
+            auto skipUnknownEventCrash = 0x17074A1;
             unsigned char skipUnknownEventCrashData[] = {
 	            0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
 	            0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xE9, 0xAF,
 	            0x01, 0x00, 0x00, 0x90  // Nop a bunch of stuff and force jump to exit state
             };
             RewriteCode(base + skipUnknownEventCrash, skipUnknownEventCrashData, sizeof(skipUnknownEventCrashData));
+
+
+            //{
+            //    auto skipUnknownEventCrash_Logging = 0x1C339AC;
+            //    unsigned char skipUnknownEventCrashData_Logging[] = {
+	        //        0xEB // JMP
+            //    };
+            //    RewriteCode(base + skipUnknownEventCrash_Logging, skipUnknownEventCrashData_Logging, sizeof(skipUnknownEventCrashData_Logging));
+            //}
+            //{
+            //  auto skipUnknownEventCrash_Logging = 0x1C3C481;
+            //   unsigned char skipUnknownEventCrashData_Logging[] = {
+	        //       0xE9, 0xA2, 0x00, 0x00, 0x00, 0x90  // JE -> JMP
+            //  };
+            //  RewriteCode(base + skipUnknownEventCrash_Logging, skipUnknownEventCrashData_Logging, sizeof(skipUnknownEventCrashData_Logging));
+           // }
         }
 
         // We got this constant from memory.
@@ -1106,6 +1120,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         // rcx+30 = our pointer
         // Function above it with a bunch of xmm stuff going on (see screenshots)
         //const static auto kCameraPositionOffset = 0x4C8A060;
+
+        // CameraPositionOffset: (Do not just copy rva - we have to break here, follow [rcx+30 in dump, copy rva of address)
+        // 0F 28 49 30 0F 29 4B 30 48 8B 5C 24 70
          CameraPositionOffset = (float *)(base + 0x4C8A060);
 
 
@@ -1157,7 +1174,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
         DetourTransactionCommit();
 
-      //  Utils::InitKeyToNameDatabase();
+        Utils::InitKeyToNameDatabase();
 
         break;
     }

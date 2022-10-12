@@ -24,7 +24,7 @@ hijack_ProcessHttpSend
 hijack_PositionUpdate  intercept_ProcessPositionUpdate
  0F 10 00 0F 11 07 0F 10 48 10 0F 11 4F 10  (right after a je - call - jmp - mov rax)
 
- unlimitedItemPickRangeRva:
+ unlimitedItemPickRangeRva (deprecated):
 418BC025FFFFFF004C69C0B0000000
 
 CameraPositionOffset: (Do not just copy rva - we have to break here, follow [rcx+30 in dump, copy rva of address)

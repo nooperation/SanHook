@@ -68,7 +68,7 @@ namespace Utils
             _key2NameDb[key] = value;
         }
 
-        printf("Read %d keys\n", _key2NameDb.size());
+        printf("Read %zu keys\n", _key2NameDb.size());
     }
 
     std::string KeyToName(const std::string &key)
