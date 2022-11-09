@@ -27,44 +27,27 @@ namespace Utils
 
         printf("Reading Key2Name DB...\n");
 
-        FILE *inFile = nullptr;
-        fopen_s(&inFile, "r:\\dec\\new_sansar_dec\\personas.csv", "r");
-        if (inFile == nullptr || feof(inFile))
-        {
-            printf("FAILED TO READ KEY2NAME DB\n");
-            return;
-        }
-
-        fseek(inFile, 0, SEEK_END);
-        auto fileLength = ftell(inFile);
-        fseek(inFile, 0, SEEK_SET);
-
-        std::vector<char> buffer(fileLength);
-
-        fread(&buffer[0], 1, fileLength, inFile);
-        fclose(inFile);
-
-        auto contents = std::string(buffer.begin(), buffer.end());
-
+        std::ifstream inFile("r:\\dec\\new_sansar_dec\\personas.csv");
         std::size_t currentIndex = 0;
-        while (currentIndex < fileLength)
+        while (inFile.good() && inFile.is_open() && !inFile.eof())
         {
-            auto commaIndex = contents.find_first_of(',', currentIndex);
+            std::string line;
+            std::getline(inFile, line);
+            if (inFile.fail())
+            {
+                break;
+            }
+
+            auto commaIndex = line.find_first_of(',', currentIndex);
             if (commaIndex == std::string::npos)
             {
                 break;
             }
 
-            auto lineBreakIndex = contents.find_first_of('\n', currentIndex);
-            if (lineBreakIndex == std::string::npos)
-            {
-                lineBreakIndex = fileLength;
-            }
 
-            auto key = contents.substr(currentIndex, commaIndex - currentIndex);
-            auto value = contents.substr(commaIndex + 1, lineBreakIndex - commaIndex - 1);
+            auto key = line.substr(currentIndex, commaIndex - currentIndex);
+            auto value = line.substr(commaIndex + 1);
 
-            currentIndex = lineBreakIndex + 1;
             _key2NameDb[key] = value;
         }
 
