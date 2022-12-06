@@ -720,13 +720,80 @@ void ProcessBodyCinfo(uint8_t *clusterPtrAtBodyCInfo, uint8_t *realBodyCinfo, ui
         
         auto materialVersion = reader.ReadUint32();
         auto materialCount = reader.ReadUint32();
-        auto shapeUuidPtr = reader.ReadUUID();
+       // if (materialCount > 0) {
+       //     printf("materialCount = %d\n", materialCount);
+       //     return;
+       // }
 
-        if (shapeUuidPtr == "176327e45ff2c3276466c3e492a1eb27")
-        {
-            printf("Updating bodytype to dynamic...\n");
-            *bodyType = 2; // lol
-        }
+        // Not sure if this is actually shapeuuidptr. need to double check. Whatever it is, it's something we can use
+        auto shapeUuidPtr = reader.ReadUUID();
+        //auto audioMaetrialUuid = reader.ReadUUID();
+        //
+        //printf("shapeUuidPtr = %s\n", shapeUuidPtr.c_str());
+        //printf("audioMaetrialUuid = %s\n", audioMaetrialUuid.c_str());
+        //auto pCanGrab = (bool *)reader.GetCurrentPointer();
+        //reader.ReadUint32();
+        //
+        //auto grabPointDefsLen = reader.ReadUint32();
+        //if (grabPointDefsLen != 0)
+        //{
+        //    printf("grabPointDefsLen = %d\n", grabPointDefsLen);
+        //    return;
+        //}
+        //
+        //auto AudioResourcePoolSoundsLen = reader.ReadUint32();
+        //if (AudioResourcePoolSoundsLen != 0)
+        //{
+        //    printf("AudioResourcePoolSoundsLen = %d\n", AudioResourcePoolSoundsLen);
+        //    return;
+        //}
+        //
+        //auto SitPointDefinitionsLen = reader.ReadUint32();
+        //if (SitPointDefinitionsLen != 0)
+        //{
+        //    printf("SitPointDefinitionsLen = %d\n", SitPointDefinitionsLen);
+        //    return;
+        //}
+
+        //auto pCanRide = (bool *)reader.GetCurrentPointer();
+        //reader.ReadUint32();
+        //
+        //printf("pCanGrab = %d\n", *pCanGrab);
+        //printf("pCanRide = %d\n", *pCanRide);
+        //
+        //*pCanRide = 1;
+        //*pCanGrab = 1;
+
+        // c679963060d4ed71c457a03f90747cfb
+        // 9bb11f9fbd317048b1353576ca290277
+        // 4d014c542da8c8cd18ce9631b581a77a
+        // 04f97845facf7ea404bd0e371827fc2d
+      // if (shapeUuidPtr == "176327e45ff2c3276466c3e492a1eb27")
+       {
+           printf("Updating bodytype to dynamic...\n");
+           *bodyType = 1; // lol
+       }
+       // 
+       ////if (shapeUuidPtr == "c679963060d4ed71c457a03f90747cfb")
+       ////{
+       ////    printf("Updating bodytype to dynamic...\n");
+       ////    *bodyType = 1; // lol
+       ////}
+       ////if (shapeUuidPtr == "9bb11f9fbd317048b1353576ca290277")
+       ////{
+       ////    printf("Updating bodytype to dynamic...\n");
+       ////    *bodyType = 1; // lol
+       ////}
+       ////if (shapeUuidPtr == "4d014c542da8c8cd18ce9631b581a77a")
+       ////{
+       ////    printf("Updating bodytype to dynamic...\n");
+       ////    *bodyType = 1; // lol
+       ////}
+       ////if (shapeUuidPtr == "04f97845facf7ea404bd0e371827fc2d")
+       ////{
+       ////    printf("Updating bodytype to dynamic...\n");
+       ////    *bodyType = 1; // lol
+       ////}
 
         printf("Shape: %s BodyType = %d\n", shapeUuidPtr.c_str(), *bodyType);
         // 0 = static
@@ -1000,52 +1067,68 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x170602C + sizeof(hijack_PositionUpdate));
         }
 
-        // if (false) // always falseish  // NOT YET UPDATED (2020-09-30)
-        // {
+         if (0) // always falseish  // NOT YET UPDATED (2020-09-30)
+         {
         //     // NOT YET TESTED for 2020-09-10
         // 
-        //     // TODO: Rewrite BodyCinfo... this has the actual body type in it at offset 0x40
+        //     // TODO: Rewrite BodyCinfo... thisw has the actual body type in it at offset 0x40
         //     //   0x02 = dyamic
         //     //   0x00 = static
         // 
         //     //this is clientside only lol, boo
         //     // search for "bodyResourceHandle" (right after 3rd call) a little above "shape" (right after 4th call above it)
         //     // further down is the canGrabEverything stuff
-        //     auto processBodyCinfoRva = 0x17A6571;
-        //     unsigned char processBodyCinfoData[] = {
-        //         0x48, 0xB9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RCX, <address>
-        //         0xFF, 0xE1                                                   // JMP RCX
-        //     };
-        //     *((uint64_t *)&processBodyCinfoData[2]) = (uint64_t)intercept_ProcessBodyCinfo;
-        //     RewriteCode(base + processBodyCinfoRva, processBodyCinfoData, sizeof(processBodyCinfoData));
-        //     ReturnPoint_ProcessBodyCinfo = (uint64_t)(base + processBodyCinfoRva + sizeof(processBodyCinfoData));
+
+            // 48 01 AB 68 1B 00 00 4C 39 64 24 40
+            auto processBodyCinfoRva = 0x17C8C31;
+            unsigned char processBodyCinfoData[] = {
+                0x48, 0xB9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RCX, <address>
+                0xFF, 0xE1                                                   // JMP RCX
+            };
+            *((uint64_t *)&processBodyCinfoData[2]) = (uint64_t)intercept_ProcessBodyCinfo;
+            RewriteCode(base + processBodyCinfoRva, processBodyCinfoData, sizeof(processBodyCinfoData));
+            ReturnPoint_ProcessBodyCinfo = (uint64_t)(base + processBodyCinfoRva + sizeof(processBodyCinfoData));
+         
+         
+            // search for "bodyResourceHandle" between "shape" and "name" (dealing with al). patch right after 'ja' (before al stuff happens)
+            // 44 38 22 0F 95 C0 88 87 F0 03 00 00
+           auto canGrabEverythingRva = 0x17C8D4E; // 0x17C8D4E
+           unsigned char canGrabEverythingData[6] = {
+               0xB0, 0x01,                   // MOV AL, 1
+               0x90,                         // NOP
+               0x90,                         // NOP
+               0x90,                         // NOP
+               0x90                          // NOP
+           };
+           RewriteCode(base + canGrabEverythingRva, canGrabEverythingData, sizeof(canGrabEverythingData));
+
+
+           // 44 38 22 0F 95 C0 88 87 F1 03 00 00 48 FF 83 68 1B 00 00
+           // 17C8DD0
+           auto canRideEverythingRva = 0x17C8DD0; // 0x17C8D4E
+           unsigned char canRideEverythingData[6] = {
+               0xB0, 0x00,                   // MOV AL, 1
+               0x90,                         // NOP
+               0x90,                         // NOP
+               0x90,                         // NOP
+               0x90                          // NOP
+           };
+           RewriteCode(base + canRideEverythingRva, canRideEverythingData, sizeof(canRideEverythingData));
+
+
+        // search for "spawnPointComponentDef", after "name". patch right after last 'ja', dealing with 'al'
         // 
-        // 
-        //     // NOT UPDATED
-        //     // search for "bodyResourceHandle" between "shape" and "name" (dealing with al). patch right after 'ja' (before al stuff happens)
-        //     auto canGrabEverythingRva = 0x17A6860;
-        //     unsigned char canGrabEverythingData[6] = {
-        //         0xB0, 0x01,                   // MOV AL, 1
-        //         0x90,                         // NOP
-        //         0x90,                         // NOP
-        //         0x90,                         // NOP
-        //         0x90                          // NOP
-        //     };
-        //     RewriteCode(base + canGrabEverythingRva, canGrabEverythingData, sizeof(canGrabEverythingData));
-        // 
-        // 
-        //     // NOT UPDATED
-        //     // search for "spawnPointComponentDef", after "name". patch right after last 'ja', dealing with 'al'
-        //     auto nothingFixedInWorldRva = 0x1796762;
-        //     unsigned char nothingFixedInWorldData[6] = {
-        //         0xB0, 0x00,                   // MOV AL, 0
-        //         0x90,                         // NOP
-        //         0x90,                         // NOP
-        //         0x90,                         // NOP
-        //         0x90                          // NOP
-        //     };
-        //     RewriteCode(base + nothingFixedInWorldRva, nothingFixedInWorldData, sizeof(nothingFixedInWorldData));
-        // }
+        // 80 3A 00 0F 95 C0 88 87 C0 00 00 00 48 FF 83 68 1B 00 00
+              auto nothingFixedInWorldRva = 0x17BB5C2;
+              unsigned char nothingFixedInWorldData[6] = {
+                  0xB0, 0x00,                   // MOV AL, 0
+                  0x90,                         // NOP
+                  0x90,                         // NOP
+                  0x90,                         // NOP
+                  0x90                          // NOP
+              };
+              RewriteCode(base + nothingFixedInWorldRva, nothingFixedInWorldData, sizeof(nothingFixedInWorldData));
+        }
 
         if (true) 
         {

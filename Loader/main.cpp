@@ -142,7 +142,7 @@ int main()
 
  // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -graphics.maxFps 30 -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -media.enabled false"), // -networking.useTcp 1
  
-        (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false "), // -networking.useTcp 1
+        (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false -media.enabled true"), // -networking.useTcp 1
 //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -log.logAllTagged true -log.disableTags ComponentManager MeshDuplicateCheck AssetSystem EventQueue ResourceLoader TextureStreamingManager"), // -networking.useTcp 1
 //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -log.tags Configuration Application"), // -networking.useTcp 1
 
@@ -240,9 +240,9 @@ int main()
         uint8_t gravityHack[] = {
             0xB8, 0x14, 0xAE, 0xE7, 0x3F, 0x90, 0x90
         };
-        *((float*)&gravityHack[1]) = 7.00f;
+        *((float*)&gravityHack[1]) = 6.0f;
 
-        WriteProcessMemory(process_info.hProcess, gravityHackAddr, gravityHack, sizeof(gravityHack), &written);
+       WriteProcessMemory(process_info.hProcess, gravityHackAddr, gravityHack, sizeof(gravityHack), &written);
         printf("Written to %X: %d bytes\n", gravityHackAddr, written);
 
 
@@ -274,7 +274,7 @@ int main()
            // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
              0xB0, 0x01, 0x90
         };
-       // WriteProcessMemory(process_info.hProcess, collisionHackAddr, collisionHack, sizeof(collisionHack), &written);
+        //WriteProcessMemory(process_info.hProcess, collisionHackAddr, collisionHack, sizeof(collisionHack), &written);
        // printf("Written to %X: %d bytes\n", collisionHackAddr, written);
     
 
