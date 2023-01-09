@@ -319,18 +319,26 @@ public:
 
     void OnRelationshipTable(PacketReader &reader) // TAG: 17A1B30
     {
-        //auto other = reader.ReadUUID();
-        //auto fromSelf = reader.ReadUint8();
-        //auto fromOther = reader.ReadUint8();
-        //auto status = reader.ReadUint32();
+        auto other = reader.ReadUUID();
+        auto fromSelf = reader.ReadUint8();
+        auto fromOther = reader.ReadUint8();
 
-        //printf("[%s] ClientKafkaMessages::RelationshipTable: other = %s, fromSelf = %u, fromOther = %u, status = %u\n",
-        //    _isSender ? "OUT" : "IN",
-        //    other.c_str(),
-        //    fromSelf,
-        //    fromOther,
-        //    status
-        //);
+        auto statusPtr = (int *)reader.GetCurrentPointer();
+
+        if (fromOther && (*statusPtr == 3 || *statusPtr == 2))
+        {
+            *statusPtr = 0;
+        }
+
+        auto status = reader.ReadUint32();
+
+        printf("[%s] ClientKafkaMessages::RelationshipTable: other = %s, fromSelf = %u, fromOther = %u, status = %u\n",
+            _isSender ? "OUT" : "IN",
+            other.c_str(),
+            fromSelf,
+            fromOther,
+            status
+        );
     }
 
     void OnInventoryItemUpdate(PacketReader &reader) // TAG: 17A1DF0
@@ -876,19 +884,23 @@ public:
 
     void OnRelationshipOperation(PacketReader &reader)  // TAG: 17A1AC0
     {
-        //auto other = reader.ReadUUID();
-        //auto operation = reader.ReadUint32();
+        auto other = reader.ReadUUID();
+
+        int *operationPtr = (int *)reader.GetCurrentPointer();
+
+        auto operation = reader.ReadUint32();
+
 
         //// 0 = friend request / friend accept
         //// 1 = ignore / remove friend
         //// 2 = block
         //// 3 = unblock
 
-        //printf("[%s] ClientKafkaMessages::RelationshipOperation:\n  other = %s\n  operation = %u\n",
-        //    _isSender ? "OUT" : "IN",
-        //    other.c_str(),
-        //    operation
-        //);
+        printf("[%s] ClientKafkaMessages::RelationshipOperation:\n  other = %s\n  operation = %u\n",
+            _isSender ? "OUT" : "IN",
+            other.c_str(),
+            operation
+        );
     }
 
     void OnFriendTable(PacketReader &reader)  // TAG: 17A1A50
@@ -896,7 +908,7 @@ public:
         //auto fromPersonaId = reader.ReadUUID();
         //auto toPersonaId = reader.ReadUUID();
         //auto status = reader.ReadUint32();
-
+        //
         //printf("[%s] ClientKafkaMessages::FriendTable:\n  fromPersonaId = %s\n  toPersonaId = %s\n  status = %u\n",
         //    _isSender ? "OUT" : "IN",
         //    fromPersonaId.c_str(),
