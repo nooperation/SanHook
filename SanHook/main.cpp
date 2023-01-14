@@ -1208,6 +1208,31 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         }
 
 
+        if (true)
+        {
+            // Before 'started jumping'
+            // 0F 85 A6 00 00 00 40 38 73 52 0F 84 9C 00 00 00 48 8B 4B 10 48 8B 81 80 8E 00 00 80 78 38 01
+            auto doubleJumpFix1 = 0x17478FB;
+            unsigned char doubleJumpFix1Data[] = {
+	            0x90, 0x90, 0x90, 0x90,0x90, 0x90,
+            };
+            RewriteCode(base + doubleJumpFix1, doubleJumpFix1Data, sizeof(doubleJumpFix1Data));
+
+            // 0F 84 9C 00 00 00 48 8B 4B 10 48 8B 81 80 8E 00 00 80 78 38 01 0F 84 87 00 00 00 48 8B 89 98 8E 00 00
+            auto doubleJumpFix2 = 0x1747905;
+            unsigned char doubleJumpFix2Data[] = {
+	            0x90, 0x90, 0x90, 0x90,0x90, 0x90,
+            };
+            RewriteCode(base + doubleJumpFix2, doubleJumpFix2Data, sizeof(doubleJumpFix2Data));
+
+            // je right above 'started jumping'
+            auto doubleJumpFix3 = 0x174793F;
+            unsigned char doubleJumpFix3Data[] = {
+	            0x90, 0x90,
+            };
+            RewriteCode(base + doubleJumpFix3, doubleJumpFix3Data, sizeof(doubleJumpFix3Data));
+        }
+
         // We got this constant from memory.
         // Search for "no-input-source".
         // Between "room scale" and "no-input-source"
