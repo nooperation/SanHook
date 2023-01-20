@@ -4,6 +4,9 @@ EXTERN ProcessPacketRecv:PROC
 EXTERN ReturnPoint_ProcessPacketSend:QWORD
 EXTERN ProcessPacketSend:PROC
 
+EXTERN ProcessPacketSendB:PROC
+
+
 EXTERN ReturnPoint_ProcessHttpBodyRecv:QWORD
 EXTERN ProcessHttpBodyRecv:PROC
 
@@ -197,6 +200,103 @@ EXTERN ProcessPositionUpdate:PROC
 
 		jmp ReturnPoint_ProcessPacketSend ; Jump back to where we left off
 	intercept_ProcessPacketSend ENDP
+
+	
+	intercept_ProcessPacketSendB PROC
+		pop rdx
+		mov rcx, qword ptr [rcx + 0F8h]
+		test rcx,rcx
+		je abortThing
+		jmp continueOn
+
+		abortThing:
+		xor al,al
+		ret 
+
+
+		continueOn:
+		push rax
+		push rbx
+		push rcx
+		push rdx
+		push rbp
+		push rdi
+		push rsi
+		push r8
+		push r9
+		push r10
+		push r11
+		push r12
+		push r13
+		push r14
+		push r15
+		
+		sub rsp, 16*16
+		movdqu  [rsp + 16*0], xmm0
+		movdqu  [rsp + 16*1], xmm1
+		movdqu  [rsp + 16*2], xmm2
+		movdqu  [rsp + 16*3], xmm3
+		movdqu  [rsp + 16*4], xmm4
+		movdqu  [rsp + 16*5], xmm5
+		movdqu  [rsp + 16*6], xmm6
+		movdqu  [rsp + 16*7], xmm7
+		movdqu  [rsp + 16*8], xmm8
+		movdqu  [rsp + 16*9], xmm9
+		movdqu  [rsp + 16*10], xmm10
+		movdqu  [rsp + 16*11], xmm11
+		movdqu  [rsp + 16*12], xmm12
+		movdqu  [rsp + 16*13], xmm13
+		movdqu  [rsp + 16*14], xmm14
+		movdqu  [rsp + 16*15], xmm15
+		
+		sub rsp, 24
+		
+		; RDX = [packet including messageIdPrefix]
+		; R8 = packetLength
+		
+		mov rcx, rdx  ; arg1 = packet
+		mov rdx, r8   ; arg2 = packetLength
+		call ProcessPacketSendB ; ProcessPacketSendB(packet, packetLength)
+		
+		add rsp, 24
+		
+		movdqu  xmm15, [rsp + 16*15]
+		movdqu  xmm14, [rsp + 16*14]
+		movdqu  xmm13, [rsp + 16*13]
+		movdqu  xmm12, [rsp + 16*12]
+		movdqu  xmm11, [rsp + 16*11]
+		movdqu  xmm10, [rsp + 16*10]
+		movdqu  xmm9, [rsp + 16*9]
+		movdqu  xmm8, [rsp + 16*8]
+		movdqu  xmm7, [rsp + 16*7]
+		movdqu  xmm6, [rsp + 16*6]
+		movdqu  xmm5, [rsp + 16*5]
+		movdqu  xmm4, [rsp + 16*4]
+		movdqu  xmm3, [rsp + 16*3]
+		movdqu  xmm2, [rsp + 16*2]
+		movdqu  xmm1, [rsp + 16*1]
+		movdqu  xmm0, [rsp + 16*0]
+		add rsp, 16*16
+		
+		pop r15
+		pop r14
+		pop r13
+		pop r12
+		pop r11
+		pop r10
+		pop r9
+		pop r8
+		pop rsi
+		pop rdi
+		pop rbp
+		pop rdx
+		pop rcx
+		pop rbx
+		pop rax
+
+		mov rax,qword ptr [rcx]
+		jmp qword ptr [rax+050h]
+	intercept_ProcessPacketSendB ENDP
 
 	intercept_ProcessHttpBodyRecv PROC
 		; we don't care about preserving RAX before entering here, it'll be overwritten when we call back anyways

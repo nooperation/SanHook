@@ -802,6 +802,12 @@ public:
 
            // Utils::DumpPacket((const char *)buffer, 0x2D, true);
 
+           // DWORD oldProtection = 0;
+           // if (!VirtualProtect(buffer, reader.GetBufferSize(), PAGE_EXECUTE_READWRITE, &oldProtection))
+           // {
+           //     printf("Failed to VirtualProtect address...\n");
+           // }
+
             BitReader br((uint8_t *)&buffer[33], 10);
             auto positionX = br.ReadFloat(26, false);
             auto positionY = br.ReadFloat(26, false);

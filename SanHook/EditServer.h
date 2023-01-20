@@ -51,127 +51,127 @@ public:
         {
             case EditServerMessages::UserLogin: // TAG: 19B81B0
             {
-               // this->OnUserLogin(reader);
+                this->OnUserLogin(reader);
                 break;
             }
             case EditServerMessages::UserLoginReply: // TAG: 19B8220
             {
-               // this->OnUserLoginReply(reader);
+                this->OnUserLoginReply(reader);
                 break;
             }
             case EditServerMessages::AddUser: // TAG: 19B8290
             {
-              //  this->OnAddUser(reader);
+                this->OnAddUser(reader);
                 break;
             }
             case EditServerMessages::RemoveUser: // TAG: 19B8300
             {
-              //  this->OnRemoveUser(reader);
+                this->OnRemoveUser(reader);
                 break;
             }
             case EditServerMessages::OpenWorkspace: // TAG: 19B84C0
             {
-              //  this->OnOpenWorkspace(reader);
+                this->OnOpenWorkspace(reader);
                 break;
             }
             case EditServerMessages::CloseWorkspace: // TAG: 19B8530
             {
-               // this->OnCloseWorkspace(reader);
+                this->OnCloseWorkspace(reader);
                 break;
             }
             case EditServerMessages::EditWorkspaceCommand: // TAG: 19B86F0
             {
-              //  this->OnEditWorkspaceCommand(reader);
+                this->OnEditWorkspaceCommand(reader);
                 break;
             }
             case EditServerMessages::SaveWorkspace: // TAG: 19B88E0
             {
-              //  this->OnSaveWorkspace(reader);
+                this->OnSaveWorkspace(reader);
                 break;
             }
             case EditServerMessages::SaveWorkspaceReply: // TAG: 19B8950
             {
-              //  this->OnSaveWorkspaceReply(reader);
+                this->OnSaveWorkspaceReply(reader);
                 break;
             }
             case EditServerMessages::BuildWorkspace: // TAG: 19B89C0
             {
-              //  this->OnBuildWorkspace(reader);
+                this->OnBuildWorkspace(reader);
                 break;
             }
             case EditServerMessages::UpdateWorkspaceClientBuiltBakeData: // TAG: 19B8A30
             {
-              //  this->OnUpdateWorkspaceClientBuiltBakeData(reader);
+                this->OnUpdateWorkspaceClientBuiltBakeData(reader);
                 break;
             }
             case EditServerMessages::BuildWorkspaceCompileReply: // TAG: 19B8AA0
             {
-               // this->OnBuildWorkspaceCompileReply(reader);
+                this->OnBuildWorkspaceCompileReply(reader);
                 break;
             }
             case EditServerMessages::BuildWorkspaceProgressUpdate: // TAG: 19B8B10
             {
-               // this->OnBuildWorkspaceProgressUpdate(reader);
+                this->OnBuildWorkspaceProgressUpdate(reader);
                 break;
             }
             case EditServerMessages::BuildWorkspaceUploadReply: // TAG: 19B8B80
             {
-               // this->OnBuildWorkspaceUploadReply(reader);
+                this->OnBuildWorkspaceUploadReply(reader);
                 break;
             }
             case EditServerMessages::WorkspaceReadyReply: // TAG: 19B8BF0
             {
-               // this->OnWorkspaceReadyReply(reader);
+                this->OnWorkspaceReadyReply(reader);
                 break;
             }
             case EditServerMessages::SaveWorkspaceSelectionToInventory: // TAG: 19B8DB0
             {
-               // this->OnSaveWorkspaceSelectionToInventory(reader);
+                this->OnSaveWorkspaceSelectionToInventory(reader);
                 break;
             }
             case EditServerMessages::SaveWorkspaceSelectionToInventoryReply: // TAG: 19B8E20
             {
-               // this->OnSaveWorkspaceSelectionToInventoryReply(reader);
+                this->OnSaveWorkspaceSelectionToInventoryReply(reader);
                 break;
             }
             case EditServerMessages::InventoryCreateItem: // TAG: 19B8E90
             {
-               // this->OnInventoryCreateItem(reader);
+                this->OnInventoryCreateItem(reader);
                 break;
             }
             case EditServerMessages::InventoryDeleteItem: // TAG: 19B8F00
             {
-               // this->OnInventoryDeleteItem(reader);
+                this->OnInventoryDeleteItem(reader);
                 break;
             }
             case EditServerMessages::InventoryChangeItemName: // TAG: 19B8F70
             {
-                //this->OnInventoryChangeItemName(reader);
+                this->OnInventoryChangeItemName(reader);
                 break;
             }
             case EditServerMessages::InventoryChangeItemState: // TAG: 19B8FE0
             {
-               // this->OnInventoryChangeItemState(reader);
+                this->OnInventoryChangeItemState(reader);
                 break;
             }
             case EditServerMessages::InventoryModifyItemThumbnailAssetId: // TAG: 19B9050
             {
-               // this->OnInventoryModifyItemThumbnailAssetId(reader);
+                this->OnInventoryModifyItemThumbnailAssetId(reader);
                 break;
             }
             case EditServerMessages::InventoryModifyItemCapabilities: // TAG: 19B90C0
             {
-               // this->OnInventoryModifyItemCapabilities(reader);
+                this->OnInventoryModifyItemCapabilities(reader);
                 break;
             }
             case EditServerMessages::InventorySaveItem: // TAG: 19B9130
             {
-               // this->OnInventorySaveItem(reader);
+                this->OnInventorySaveItem(reader);
                 break;
             }
             case EditServerMessages::InventoryUpdateItemReply: // TAG: 19B91A0
             {
-               // this->OnInventoryUpdateItemReply(reader);
+                this->OnInventoryUpdateItemReply(reader);
                 break;
             }
             case EditServerMessages::InventoryItemUpload: // TAG: 19B9210
@@ -196,12 +196,12 @@ public:
             }
             case EditServerMessages::BeginEditServerSpawn: // TAG: 19B93D0
             {
-               // this->OnBeginEditServerSpawn(reader);
+                this->OnBeginEditServerSpawn(reader);
                 break;
             }
             case EditServerMessages::EditServerSpawnReady: // TAG: 19B9440
             {
-               // this->OnEditServerSpawnReady(reader);
+                this->OnEditServerSpawnReady(reader);
                 break;
             }
             default:
@@ -218,7 +218,7 @@ public:
         auto authorization = reader.ReadString();
         auto secret = reader.ReadUint32();
 
-        printf("[%s] this->OnUserLogin\n  authorization = %s\n  secret = %u\n",
+        printf("[%s] EditServerMessages::OnUserLogin\n  authorization = %s\n  secret = %u\n",
             _isSender ? "OUT" : "IN",
             authorization.c_str(),
             secret
@@ -256,22 +256,50 @@ public:
     void OnRemoveUser(PacketReader &reader) // TAG: 19B8300
     {
         auto sessionId = reader.ReadUint32();
+
+        printf("[%s] EditServerMessages::OnRemoveUser\n  sessionId = %d\n",
+            _isSender ? "OUT" : "IN",
+            sessionId
+        );
     }
 
     void OnOpenWorkspace(PacketReader &reader) // TAG: 19B84C0
     {
         auto worldSourceInventoryItemId = reader.ReadUUID();
         auto worldSourceResourceId = reader.ReadString();
+
+        printf("[%s] EditServerMessages::OnOpenWorkspace\n  worldSourceInventoryItemId = %s\n  worldSourceResourceId = %s\n",
+            _isSender ? "OUT" : "IN",
+            worldSourceInventoryItemId.c_str(),
+            worldSourceResourceId.c_str()
+        );
     }
 
     void OnCloseWorkspace(PacketReader &reader) // TAG: 19B8530
     {
         auto workspaceId = reader.ReadUint32();
+        printf("[%s] EditServerMessages::OnCloseWorkspace\n  workspaceId = %d\n",
+            _isSender ? "OUT" : "IN",
+            workspaceId
+        );
     }
 
     void OnEditWorkspaceCommand(PacketReader &reader) // TAG: 19B86F0
     {
         auto commandData = reader.ReadArray();
+
+        printf("[%s] EditServerMessages::OnEditWorkspaceCommand\n  commandData = [%d]\n",
+            _isSender ? "OUT" : "IN",
+            commandData.size()
+        );
+
+        if (commandData.size() == 100 && commandData[0x42] == 0x90 && commandData[0x43] == 0x40)
+        {
+            commandData[0x44] = 2;
+            commandData[0x58] = 2;
+        }
+
+        Utils::DumpPacket((const char *)&commandData[0], commandData.size(), true, 0, 0);
     }
 
     void OnSaveWorkspace(PacketReader &reader) // TAG: 19B88E0
@@ -279,6 +307,13 @@ public:
         auto authorization = reader.ReadString();
         auto sessionData = reader.ReadArray();
         auto sceneName = reader.ReadString();
+
+        printf("[%s] EditServerMessages::OnSaveWorkspaceReply\n  authorization = %s\n  sessionData = [%d]\n  sceneName = %s\n",
+            _isSender ? "OUT" : "IN",
+            authorization.c_str(),
+            sessionData.size(),
+            sceneName.c_str()
+        );
     }
 
     void OnSaveWorkspaceReply(PacketReader &reader) // TAG: 19B8950
@@ -287,6 +322,14 @@ public:
         auto itemInventoryId = reader.ReadString();
         auto itemResourceId = reader.ReadString();
         auto itemName = reader.ReadString();
+
+        printf("[%s] EditServerMessages::OnSaveWorkspaceReply\n  success = %d\n  itemInventoryId = %s\n  itemResourceId = %s\n  itemName = %s\n",
+            _isSender ? "OUT" : "IN",
+            success,
+            itemInventoryId.c_str(),
+            itemResourceId.c_str(),
+            itemName.c_str()
+        );
     }
 
     void OnBuildWorkspace(PacketReader &reader) // TAG: 19B89C0
@@ -294,12 +337,25 @@ public:
         auto authorization = reader.ReadString();
         auto sceneName = reader.ReadString();
         auto start = reader.ReadUint8();
+
+        printf("[%s] EditServerMessages::OnBuildWorkspaceUploadReply\n  authorization = %s\n  sceneName = %s\n  start = %d\n",
+            _isSender ? "OUT" : "IN",
+            authorization.c_str(),
+            sceneName.c_str(),
+            start
+        );
     }
 
     void OnUpdateWorkspaceClientBuiltBakeData(PacketReader &reader) // TAG: 19B8A30
     {
         auto authorization = reader.ReadString();
         auto bakeData = reader.ReadArray();
+
+        printf("[%s] EditServerMessages::OnUpdateWorkspaceClientBuiltBakeData\n  authorization = %s\n  bakeData = [%d]\n",
+            _isSender ? "OUT" : "IN",
+            authorization.c_str(),
+            bakeData.size()
+        );
     }
 
     void OnBuildWorkspaceCompileReply(PacketReader &reader) // TAG: 19B8AA0
@@ -308,18 +364,38 @@ public:
         auto isCanceled = reader.ReadUint8();
         auto errors = reader.ReadStringList();
         auto nonErrorMessage = reader.ReadStringList();
+
+        printf("[%s] EditServerMessages::OnBuildWorkspaceProgressUpdate\n  compileStatus = %d\n  isCanceled = %d\n  errors = %d\n  nonErrorMessage = %d\n",
+            _isSender ? "OUT" : "IN",
+            compileStatus,
+            isCanceled,
+            errors.size(),
+            nonErrorMessage.size()
+        );
     }
 
     void OnBuildWorkspaceProgressUpdate(PacketReader &reader) // TAG: 19B8B10
     {
         auto stage = reader.ReadUint32();
         auto percent = reader.ReadFloat();
+
+        printf("[%s] EditServerMessages::OnBuildWorkspaceProgressUpdate\n  stage = %d\n  percent = %f\n",
+            _isSender ? "OUT" : "IN",
+            stage,
+            percent
+        );
     }
 
     void OnBuildWorkspaceUploadReply(PacketReader &reader) // TAG: 19B8B80
     {
         auto success = reader.ReadUint8();
         auto worldDefinitionId = reader.ReadString();
+
+        printf("[%s] EditServerMessages::OnBuildWorkspaceUploadReply\n  success = %u\n  worldDefinitionId = %s\n",
+            _isSender ? "OUT" : "IN",
+            success,
+            worldDefinitionId.c_str()
+        );
     }
 
     void OnWorkspaceReadyReply(PacketReader &reader) // TAG: 19B8BF0
@@ -434,7 +510,7 @@ public:
         auto itemName = reader.ReadString();
         auto categoryName = reader.ReadString();
 
-        printf("[%s] this->OnInventoryCreateListing\n  authorization = %s\n  itemId = %s\n  itemName = %s\n categoryName = %s\n",
+        printf("[%s] EditServerMessages::OnInventoryCreateListing\n  authorization = %s\n  itemId = %s\n  itemName = %s\n categoryName = %s\n",
             _isSender ? "OUT" : "IN",
             authorization.c_str(),
             itemId.c_str(),
@@ -461,7 +537,7 @@ public:
         auto categoryName = reader.ReadString();
         auto bundleName = reader.ReadString();
 
-        printf("[%s] this->OnInventoryCreateListing\n  authorization = %s\n  itemId = %s\n  itemName = %s\n categoryName = %s\n bundleName = %s\n",
+        printf("[%s] EditServerMessages::OnInventoryCreateListing\n  authorization = %s\n  itemId = %s\n  itemName = %s\n categoryName = %s\n bundleName = %s\n",
             _isSender ? "OUT" : "IN",
             authorization.c_str(),
             itemId.c_str(),
@@ -478,7 +554,7 @@ public:
         auto itemName = reader.ReadString();
         auto categoryName = reader.ReadString();
 
-        printf("[%s] this->OnInventoryCreateListingReply\n  canBeListed = %d\n  itemId = %s\n  categoryName = %s\n",
+        printf("[%s] EditServerMessages::OnInventoryCreateListingReply\n  canBeListed = %d\n  itemId = %s\n  categoryName = %s\n",
             _isSender ? "OUT" : "IN",
             canBeListed,
             itemId.c_str(),
@@ -494,7 +570,7 @@ public:
         auto serial = reader.ReadUint32();
         auto inventoryName = reader.ReadString();
 
-        printf("[%s] this->OnBeginEditServerSpawn\n  inventoryId = %s\n  personaId = %s\n  serial = %u\n inventoryName = %s\n",
+        printf("[%s] EditServerMessages::OnBeginEditServerSpawn\n  inventoryId = %s\n  personaId = %s\n  serial = %u\n inventoryName = %s\n",
             _isSender ? "OUT" : "IN",
             inventoryId.c_str(),
             personaId.c_str(),
@@ -511,5 +587,15 @@ public:
         auto inventoryName = reader.ReadString();
         auto instanceNames = reader.ReadStringList();
         auto folderNames = reader.ReadStringList();
+
+        printf("[%s] EditServerMessages::OnEditServerSpawnReady\n  isValid = %d\n  serial = %d\n  instanceCount = %d\n  inventoryName = %s\n  instanceNames = [%d]\n  folderNames = [%d]\n",
+            _isSender ? "OUT" : "IN",
+            isValid,
+            serial,
+            instanceCount,
+            inventoryName.c_str(),
+            instanceNames.size(),
+            folderNames.size()
+        );
     }
 };

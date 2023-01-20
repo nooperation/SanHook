@@ -10,6 +10,9 @@ extern "C"
     void ProcessPacketSend(uint8_t *packet, uint64_t length);
     extern unsigned long long ReturnPoint_ProcessPacketSend;
 
+    void intercept_ProcessPacketSendB();
+    void ProcessPacketSendB(uint8_t *packet, uint64_t length);
+
     void intercept_ProcessHttpBodyRecv();
     void ProcessHttpBodyRecv(char *packet, uint64_t length);
     extern unsigned long long ReturnPoint_ProcessHttpBodyRecv;

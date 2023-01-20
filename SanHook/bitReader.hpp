@@ -116,7 +116,9 @@ public:
 
     float unpackFloat26(int32_t val, int32_t numbits)
     {
-        auto maxValue = pow(2, numbits - 1) - 1;
+        //auto maxValue = pow(2, numbits - 1) - 1;
+        auto maxValue = 0xFFFFFFFFFFFFFFFFul >> (64 - (numbits - 1));
+        
 
         // 0x1FFFFFF = 0b1111111111111111111111111
 
