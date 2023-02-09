@@ -10,6 +10,10 @@ extern "C"
     void ProcessPacketSend(uint8_t *packet, uint64_t length);
     extern unsigned long long ReturnPoint_ProcessPacketSend;
 
+    void intercept_GetPositionForVoiceServer();
+    void GetPositionForVoiceServer(float *position);
+    extern unsigned long long ReturnPoint_GetPositionForVoiceServer;
+
     void intercept_ProcessPacketSendB();
     void ProcessPacketSendB(uint8_t *packet, uint64_t length);
 

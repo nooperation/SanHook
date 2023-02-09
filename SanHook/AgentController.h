@@ -70,22 +70,22 @@ public:
             }
             case AgentControllerMessages::CharacterControlPointInput:  // TAG: 170F8E0
             {
-                //this->OnCharacterControlPointInput(reader);
+                this->OnCharacterControlPointInput(reader, isSending);
                 break;
             }
             case AgentControllerMessages::CharacterControlPointInputReliable:  // TAG: 170F950
             {
-                //this->OnCharacterControlPointInputReliable(reader);
+                this->OnCharacterControlPointInputReliable(reader, isSending);
                 break;
             }
             case AgentControllerMessages::CharacterControllerInput: // TAG: 170F9C0
             {
-                //this->OnCharacterControllerInput(reader);
+                this->OnCharacterControllerInput(reader, isSending);
                 break;
             }
             case AgentControllerMessages::CharacterControllerInputReliable: // TAG: 170FA30
             {
-               // this->OnCharacterControllerInputReliable(reader);
+                this->OnCharacterControllerInputReliable(reader, isSending);
                 break;
             }
             case AgentControllerMessages::AgentPlayAnimation:  // TAG: 170FAA0
@@ -234,87 +234,6 @@ public:
         return true;
     }
 
-
-    void OnCharacterControllerInput(PacketReader &reader) // TAG: 170F9C0
-    {
-        //if (myControllerId != 0xffffffff)
-        //{
-        //    auto buffer = reader.GetBuffer();
-
-        //    auto pAgentControllerId = (uint32_t *)&buffer[12];
-        //    *pAgentControllerId = myControllerId;
-        //}
-
-        //auto frame = reader.ReadUint64();
-        //auto agentControllerId = reader.ReadUint32();
-        //auto jumpState = reader.ReadUint8();
-        //auto jumpBtnPressed = reader.ReadUint8();
-
-        //auto moveRight = reader.ReadBits(12); //  - 2047) * 0.0004885197850512946
-        //auto moveForward = reader.ReadBits(12); // - 2047) * 0.0004885197850512946
-        //auto cameraYaw = reader.ReadBits(13); // - 4095) * 0.0002442002442002442
-        //auto cameraPitch = reader.ReadBits(13); // - 4095) * 0.0002442002442002442
-        //auto behaviorYawDelta = reader.ReadBits(11); // - 1023) * 0.0009775171065493646
-        //auto behaviorPitchDelta = reader.ReadBits(11); // - 1023) * 0.0009775171065493646
-        //auto characterForward = reader.ReadBits(15); // - 0x3FFF) * 0.00006103888176768602
-        //auto cameraForward = reader.ReadBits(28);
-
-        
-
-        /*
-        auto v34 = reader.ReadBits(2);
-        auto v33 = reader.ReadBits(1);
-        auto v32 = reader.ReadBits(1);
-        
-        if(v32) {
-            v32 = (reader.readBits(12) - 2047) * 0.0004885197850512946 * 0.1;
-            v32 = (reader.readBits(12) - 2047) * 0.0004885197850512946 * 0.1;
-        }
-        else {
-            v32 = (reader.readBits(12) - 2047) * 0.0004885197850512946 * 0.70710802;
-            v32 = (reader.readBits(12) - 2047) * 0.0004885197850512946 * 0.70710802;
-        }
-
-        if(v33) {
-            shuffle -60
-        }
-
-        if(v34 == 0) {
-            // ??
-            shuffle -86
-            shuffle 0
-
-            xor (shuffle 85)
-            xor (shuffle -1)
-        }
-        else if(v34 == 1) {
-            // ??
-            shuffle -86
-            shuffle -1
-
-            xor (shuffle 85)
-            xor (shuffle 0)
-        }
-        else if(v34 == 2) {
-            shuffle -1
-            shuffle -86
-            shuffle 85
-            xor
-        }
-        else {
-            shuffle -1
-            
-        }
-        */
-
-        //printf("OnCharacterControllerInput: Frame = %llu | Agent = %u | jumpState = %u | jump = %u\n",
-        //    frame,
-        //    agentControllerId,
-        //    jumpState,
-        //    jumpBtnPressed
-        //);
-    }
-
     void OnObjectInteractionUpdate(PacketReader &reader)  // TAG: 17102D0
     {
         //auto frame = reader.ReadUint64();
@@ -391,18 +310,22 @@ public:
         //);
     }
 
-    void OnCharacterControlPointInputReliable(PacketReader &reader)  // TAG: 170F950
+    void OnCharacterControlPointInputReliable(PacketReader &reader, bool isSending)  // TAG: 170F950
     {
-        //OnCharacterControlPointInput(reader);
     }
 
-    void OnCharacterControllerInputReliable(PacketReader &reader) // TAG: 170FA30
+    void OnCharacterControllerInputReliable(PacketReader &reader, bool isSending) // TAG: 170FA30
     {
-       // OnCharacterControllerInput(reader);
+    }
+    
+
+    void OnCharacterControllerInput(PacketReader &reader, bool isSending) // TAG: 170F9C0
+    {
     }
 
-    void OnCharacterControlPointInput(PacketReader &reader)  // TAG: 170F8E0
+    void OnCharacterControlPointInput(PacketReader &reader, bool isSending)  // TAG: 170F8E0
     {
+
        // auto frame = reader.ReadUint64();
        // auto agentControllerId = reader.ReadUint32();
 //

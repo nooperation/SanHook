@@ -78,12 +78,12 @@ public:
             }
             case AnimationComponentMessages::CharacterTransform: // TAG: 1580CD0
             {
-                this->OnCharacterTransform(reader);
+                this->OnCharacterTransform(reader, isSending);
                 break;
             }
             case AnimationComponentMessages::CharacterTransformPersistent: // TAG: 1580D40
             {
-                this->OnCharacterTransformPersistent(reader);
+                this->OnCharacterTransformPersistent(reader, isSending);
                 break;
             }
             case AnimationComponentMessages::CharacterAnimationDestroyed:  // TAG: 1580DB0
@@ -178,7 +178,7 @@ public:
         auto value = reader.ReadUint8();
     }
 
-    void OnCharacterTransform(PacketReader &reader) // TAG: 1580CD0
+    void OnCharacterTransform(PacketReader &reader, bool isSending) // TAG: 1580CD0
     {
         auto buffer = reader.GetBuffer();
 
@@ -249,9 +249,15 @@ public:
         //);
     }
 
-    void OnCharacterTransformPersistent(PacketReader &reader) // TAG: 1580D40
+    void OnCharacterTransformPersistent(PacketReader &reader, bool isSending) // TAG: 1580D40
     {
-        OnCharacterTransform(reader);
+       // if (isSending)
+       // {
+       //     auto buffer = reader.GetBuffer();
+       //     buffer -= sizeof(uint32_t);
+       //     memset(buffer, 0, reader.GetBufferSize());
+       // }
+       OnCharacterTransform(reader, isSending);
     }
 
     void OnCharacterAnimationDestroyed(PacketReader &reader) // TAG: 1580DB0
