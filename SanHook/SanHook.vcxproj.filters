@@ -21,6 +21,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Paths.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bitReader.hpp">
@@ -75,6 +78,9 @@
       <Filter>Header Files\Parsers</Filter>
     </ClInclude>
     <ClInclude Include="MessageHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Paths.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -10,6 +10,8 @@
 
 #include <windows.h>
 
+#include "Paths.h"
+
 namespace Utils
 {
     void DumpPacket(const char *buff, int len, bool is_sending, int socket=0, int port=0);
@@ -27,7 +29,7 @@ namespace Utils
 
         printf("Reading Key2Name DB...\n");
 
-        std::ifstream inFile("r:\\dec\\new_sansar_dec\\personas.csv");
+        std::ifstream inFile(sanhookPersonasPath.string().c_str());
         std::size_t currentIndex = 0;
         while (inFile.good() && inFile.is_open() && !inFile.eof())
         {

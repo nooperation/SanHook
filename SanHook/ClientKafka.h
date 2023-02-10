@@ -8,6 +8,7 @@
 #include "MessageHandler.h"
 #include "PacketReader.hpp"
 #include "Utils.hpp"
+#include "Paths.h"
 
 //void OnClientKafkaMessageScriptConsoleLog(PacketReader &reader);
 //void OnClientKafkaMessagePrivateChatUpdate(PacketReader &reader);
@@ -47,6 +48,8 @@
 //void OnClientKafkaMessageLeaveRegion(PacketReader &reader);
 //void OnClientKafkaMessageEnterRegion(PacketReader &reader);
 //void OnClientKafkaMessageLogin(PacketReader &reader);
+
+
 
 class ClientKafka : public MessageHandler
 {
@@ -428,7 +431,7 @@ public:
             auto fromPersonaIdptr = &buffer[4];
 
             FILE *inFile = nullptr;
-            fopen_s(&inFile, "r:\\sanhook_config.txt", "rb");
+            fopen_s(&inFile, sanhookConfigPath.string().c_str(), "rb");
 
             if (inFile != nullptr)
             {
@@ -496,6 +499,7 @@ public:
         }
     }
 
+
     void OnPrivateChat(PacketReader &reader)  // TAG: 17A1740
     {
         if (_isSender)
@@ -505,7 +509,7 @@ public:
             auto toPersonaIdptr = &buffer[28];
 
             FILE *inFile = nullptr;
-            fopen_s(&inFile, "r:\\sanhook_config_im.txt", "rb");
+            fopen_s(&inFile, sanhookConfigImPath.string().c_str(), "rb");
 
             if (inFile != nullptr)
             {
@@ -595,11 +599,10 @@ public:
             timestamp
         );
 
-        std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\shortlived.csv";
         FILE *outFile = nullptr;
         for (size_t i = 0; i < 10; i++)
         {
-            fopen_s(&outFile, userdumpPath.string().c_str(), "a");
+            fopen_s(&outFile, shortLivedPath.string().c_str(), "a");
             if (outFile != nullptr)
             {
                 fprintf(outFile, "%s,\n",
@@ -627,6 +630,7 @@ public:
         //);
     }
 
+
     void OnLongLivedNotification(PacketReader &reader) // TAG: 17A3260
     {
         auto id = reader.ReadUUID();
@@ -642,11 +646,10 @@ public:
             timestamp
         );
 
-        std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\longlived.csv";
         FILE *outFile = nullptr;
         for (size_t i = 0; i < 10; i++)
         {
-            fopen_s(&outFile, userdumpPath.string().c_str(), "a");
+            fopen_s(&outFile, longlivedPath.string().c_str(), "a");
             if (outFile != nullptr)
             {
                 fprintf(outFile, "%s,\n",

@@ -225,7 +225,7 @@ public:
         auto broadcast = reader.ReadUint8();   // TODO: Maybe an okay place to set everyone to broadcast locally, would this work though?
         auto mute = reader.ReadUint8();
 
-        std::ifstream inFile("r:\\sanhook_config_broadcast.txt");
+        std::ifstream inFile(sanhookConfigBrodcast.string().c_str());
         if (inFile.is_open())
         {
             inFile >> forceBroadcast;

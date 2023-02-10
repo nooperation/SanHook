@@ -67,6 +67,7 @@ extern "C" {
 //void OnClientRegiOnShowTutorialHint(PacketReader &reader);
 //void OnClientRegiOnTutorialHintsSetEnabled(PacketReader &reader);
 
+
 extern bool isFlyMode;
 
 class ClientRegion : public MessageHandler
@@ -443,7 +444,6 @@ public:
 
         if (!_isSender)
         {
-            std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\userdump.csv";
 
             bool needToAddHeader = false;
             if (!std::filesystem::exists(userdumpPath) || std::filesystem::file_size(userdumpPath) == 0)

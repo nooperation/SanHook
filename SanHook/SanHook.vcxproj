@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Paths.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AgentController.h" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Magic.h" />
     <ClInclude Include="Messages.h" />
     <ClInclude Include="PacketReader.hpp" />
+    <ClInclude Include="Paths.h" />
     <ClInclude Include="RegionRegion.h" />
     <ClInclude Include="Render.h" />
     <ClInclude Include="Simulation.h" />

@@ -32,6 +32,7 @@
 extern std::vector<float> currentTargetPosition;
 extern bool knowsTargetPosition;
 
+
 class AnimationComponent : public MessageHandler
 {
 public:
@@ -448,7 +449,6 @@ public:
             {
                 auto resourceUuid = Utils::ToUUID(resourceId);
 
-                std::filesystem::path userdumpPath = "R:\\dec\\new_sansar_dec\\animationdump.csv";
 
                 auto now = std::chrono::system_clock::now();
                 auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
@@ -456,7 +456,7 @@ public:
                 FILE *outFile = nullptr;
                 for (size_t i = 0; i < 10; i++)
                 {
-                    fopen_s(&outFile, userdumpPath.string().c_str(), "a");
+                    fopen_s(&outFile, animationDumpPath.string().c_str(), "a");
                     if (outFile != nullptr)
                     {
                         fprintf(outFile, "\"%lld\",\"%s\"\n",

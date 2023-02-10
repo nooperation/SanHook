@@ -6,6 +6,7 @@
 
 #include "PacketReader.hpp"
 #include "Utils.hpp"
+#include "Paths.h"
 
 //void OnAgentControllerMessageCharacterControllerInput(PacketReader &reader);
 //void OnAgentControllerMessageWarpCharacter(PacketReader &reader);
@@ -760,7 +761,7 @@ public:
             char emote_to_rez[13] = {};
 
             FILE *inFileCamRez = nullptr;
-            fopen_s(&inFileCamRez, "r:\\sanhook_config_camrez.txt", "rb");
+            fopen_s(&inFileCamRez, sanhookConfigCamrezPath.string().c_str(), "rb");
             if (inFileCamRez != nullptr)
             {
                 camrez_enabled = fgetc(inFileCamRez);
@@ -850,7 +851,7 @@ public:
             uint8_t newResourceId[16] = {};
             bool enabled = false;
             FILE *inFile = nullptr;
-            fopen_s(&inFile, "r:\\sanhook_config_rez.txt", "rb");
+            fopen_s(&inFile, sanhookConfigRezPath.string().c_str(), "rb");
             if (inFile != nullptr)
             {
                 auto resourceIdPtr = &buffer[16];
