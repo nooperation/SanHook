@@ -199,7 +199,7 @@ EXTERN ProcessPositionUpdate:PROC
 		pop rax
 
 		mov qword ptr [rsp+68h], r15
-		lea rcx, qword ptr [rax+1788h]
+		lea rcx, qword ptr [rax+1798h]
 
 		jmp ReturnPoint_ProcessPacketSend ; Jump back to where we left off
 	intercept_ProcessPacketSend ENDP

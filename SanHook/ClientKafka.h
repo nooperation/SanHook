@@ -53,7 +53,16 @@
 
 class ClientKafka : public MessageHandler
 {
+private:
+    HANDLE hLogFile = nullptr;
+
 public:
+    ClientKafka()
+    {
+        printf("Opening chat file...\n");
+        hLogFile = CreateFile("r:\\dec\\new_sansar_dec\\chat.txt", FILE_APPEND_DATA, FILE_SHARE_WRITE|FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    }
+
     bool OnMessage(uint32_t messageId, PacketReader &reader, bool isSending)
     {
         this->_isSender = isSending; // todo: get rid of this garbage
@@ -480,8 +489,17 @@ public:
         auto toPersonaIdButts = Utils::ClusterButt(toPersonaId);
         auto toPersonaIdFormatted = Utils::ToUUID(toPersonaId);
 
+        
         if (message.length() > 0)
         {
+            //if (hLogFile != INVALID_HANDLE_VALUE)
+            //{
+            //    std::stringstream ss;
+            //    ss << "[" << timestamp << "] " << fromPersonaIdFormatted << ": " << message << std::endl;
+            //
+            //    WriteFile(hLogFile, ss.str().c_str(), ss.str().length(), NULL, NULL);
+            //}
+
             printf("[%s] ClientKafkaMessages::RegionChat:\n  From = %s [%s]\n  To = %s [%s]\n  instanceAddress = %s\n  agentControllerId = %d\n  message = %s\n  timestamp = %llu\n  typing = %u\n  offset = %llu\n  highwaterMarkOffset = %llu\n",
                 _isSender ? "OUT" : "IN",
                 fromPersonaIdFormatted.c_str(),

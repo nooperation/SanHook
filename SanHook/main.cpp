@@ -938,7 +938,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x151E582, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + 0x1521172, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // TODO: May be outdated...
             /// WARNING
@@ -947,16 +947,19 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             /// WARNING
             /// WARNING
 
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x151E582 + sizeof(hijack_ProcessPacketRecv));
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x1521132 + sizeof(hijack_ProcessPacketRecv));
         }
 
         // OLD JUNK
-        if (true)
+        if (true) //true)
         {
             // Search for "OutgoingPacket"
             // next call, call qword ptr[rax+18] or whatever
+            // jne-call-je-je 
+            // rva at mov qword ptr[rsp+68], r15
+            // 
             // intercept_ProcessPacketSend hijack_ProcessPacketSend
-            // 4C 89 7C 24 68 48 8D 88 88 17 00 00 48 8B D3 4C 8B FB
+            // 4C 89 7C 24 68 48 8D 88 98 17 00 00 48 8B D3 4C 8B FB
         
             /// WARNING
             /// WARNING
@@ -970,28 +973,28 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
         
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x138B1D6, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + 0x138C226, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
         
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x138B1D6 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x138C226 + sizeof(hijack_ProcessPacketSend));
         }
 
 
         // 2023 - BROKEN 'send packet' hook that reads editserver stuff as well
-        if (false)
-        {
-            // CC CC CC CC 48 8B 89 F8 00 00 00 48 85 C9 74 07 48 8B 01 48 FF 60 50 32 C0 C3 CC CC
-            // one of those 5 or so line functions between 'ClientConnection::giveTime' and 'Connect: '
-
-            uint8_t hijack_ProcessPacketSendB[] = {
-                0x52,                                                        // PUSH RDX
-                0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
-                0xFF, 0xE2,                                                  // JMP RDX           
-             //   0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,   // 9x NOP
-            };
-
-            *((uint64_t *)&hijack_ProcessPacketSendB[3]) = (uint64_t)intercept_ProcessPacketSendB;
-            RewriteCode(base + 0x151F600, hijack_ProcessPacketSendB, sizeof(hijack_ProcessPacketSendB));
-        }
+        //if (false)
+        //{
+        //    // CC CC CC CC 48 8B 89 F8 00 00 00 48 85 C9 74 07 48 8B 01 48 FF 60 50 32 C0 C3 CC CC
+        //    // one of those 5 or so line functions between 'ClientConnection::giveTime' and 'Connect: '
+        //
+        //    uint8_t hijack_ProcessPacketSendB[] = {
+        //        0x52,                                                        // PUSH RDX
+        //        0x48, 0xBA, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RDX, [address]
+        //        0xFF, 0xE2,                                                  // JMP RDX           
+        //     //   0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,   // 9x NOP
+        //    };
+        //
+        //    *((uint64_t *)&hijack_ProcessPacketSendB[3]) = (uint64_t)intercept_ProcessPacketSendB;
+        //    RewriteCode(base + 0x15221F0, hijack_ProcessPacketSendB, sizeof(hijack_ProcessPacketSendB));
+        //}
 
 
         //if (false)  // OLD http recv
@@ -1012,53 +1015,53 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         //    };
 
         //    *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-        //    RewriteCode(base + 0x13A81BE, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+        //    RewriteCode(base + 0x13A926E, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
 
-        //    ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x13A81BE + sizeof(hijack_ProcessHttpBodyRecv));
+        //    ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x13A926E + sizeof(hijack_ProcessHttpBodyRecv));
         //}
 
-        if (0) // always false
-        {
-            // 48 3B 7C 24 60 4C 8B F7 4C 0F 4C 74 24 60 45 33 FF 4C 89 74 24 60 48 8B 5C 24 58
-            // NOT UPDATEd
-            // search for "%.*s"
-            // scan up until you get to the double call (with a jmp inbetween) (should be past the third call above the string).
-            // patch after the double call
-            uint8_t hijack_ProcessHttpSend[] = {
-                0x48, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RBX, [address]
-                0xFF, 0xE3,                                                  // JMP RBX           
-                0x90,                                                        // NOP
-                0x90,                                                        // NOP
-                0x90                                                         // NOP
-            };
+        //if (0) // always false
+        //{
+        //    // 48 3B 7C 24 60 4C 8B F7 4C 0F 4C 74 24 60 45 33 FF 4C 89 74 24 60 48 8B 5C 24 58
+        //    // NOT UPDATEd
+        //    // search for "%.*s"
+        //    // scan up until you get to the double call (with a jmp inbetween) (should be past the third call above the string).
+        //    // patch after the double call
+        //    uint8_t hijack_ProcessHttpSend[] = {
+        //        0x48, 0xBB, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RBX, [address]
+        //        0xFF, 0xE3,                                                  // JMP RBX           
+        //        0x90,                                                        // NOP
+        //        0x90,                                                        // NOP
+        //        0x90                                                         // NOP
+        //    };
+        //
+        //    *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSend;
+        //    RewriteCode(base + 0x13A7E2E, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
+        //
+        //    ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x13A7E2E + sizeof(hijack_ProcessHttpSend));
+        //}
 
-            *((uint64_t *)&hijack_ProcessHttpSend[2]) = (uint64_t)intercept_ProcessHttpSend;
-            RewriteCode(base + 0x13A6D7E, hijack_ProcessHttpSend, sizeof(hijack_ProcessHttpSend));
-
-            ReturnPoint_ProcessHttpSend = (uint64_t)(base + 0x13A6D7E + sizeof(hijack_ProcessHttpSend));
-        }
 
 
-
-        // NOTUPDATED OCT 2022
-        if (0) // Hack to force the logging flag for HTTP logs?
-        {
-            // 48 8B 88 B8 0F 00 00 48 C1 E9 25 F6 C1 01 0F 84 7D 01 00 00
-            // search for "%.*s". There's some condition nearby which skips and referrs to "HttpClient" something
-            uint8_t force_loghttp[] = {
-	            0x48, 0x33, 0xC9,                          // XOR RCX, RCX
-                0x48, 0xC1, 0xE1, 0x25,                    // SHL RCX, 0x25
-                0x48, 0x09, 0x88, 0xB8, 0x0F, 0x00, 0x00,  // MOV [RAX + 0xFB8], RCX
-                0x90,                                      // NOP
-                0x90,                                      // NOP
-                0x90,                                      // NOP
-                0x90,                                      // NOP
-                0x90,                                      // NOP
-                0x90                                       // NOP
-            };
-
-            RewriteCode(base + 0x13A6EA9, force_loghttp, sizeof(force_loghttp));
-        }
+        //// NOTUPDATED OCT 2022
+        //if (0) // Hack to force the logging flag for HTTP logs?
+        //{
+        //    // 48 8B 88 B8 0F 00 00 48 C1 E9 25 F6 C1 01 0F 84 7D 01 00 00
+        //    // search for "%.*s". There's some condition nearby which skips and referrs to "HttpClient" something
+        //    uint8_t force_loghttp[] = {
+	    //        0x48, 0x33, 0xC9,                          // XOR RCX, RCX
+        //        0x48, 0xC1, 0xE1, 0x25,                    // SHL RCX, 0x25
+        //        0x48, 0x09, 0x88, 0xB8, 0x0F, 0x00, 0x00,  // MOV [RAX + 0xFB8], RCX
+        //        0x90,                                      // NOP
+        //        0x90,                                      // NOP
+        //        0x90,                                      // NOP
+        //        0x90,                                      // NOP
+        //        0x90,                                      // NOP
+        //        0x90                                       // NOP
+        //    };
+        //
+        //    RewriteCode(base + 0x13A7F59, force_loghttp, sizeof(force_loghttp));
+        //}
         
         //if (false)  // DELETEME
         //{
@@ -1081,40 +1084,40 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         //    };
 
         //    *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-        //    RewriteCode(base + 0x13A81BE, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+        //    RewriteCode(base + 0x13A926E, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
 
-        //    ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x13A81BE + sizeof(hijack_ProcessHttpBodyRecv));
+        //    ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x13A926E + sizeof(hijack_ProcessHttpBodyRecv));
         //}
         
-        if (0)  // NEW process http recv (not updated 2023-02)
-        {
-            // 138E8E0
-
-            // search for "HttpClient::fireHandler" top of function, after the first je
-            // R14 = full response length
-            // R15 = full response
-            // 
-            // R11 = content body ?
-            // 
-            // [RSI+2C8] = message
-
-            // 00007FF75F12E8E0 | 48:83BF 78010000 00      | cmp qword ptr ds:[rdi+178],0                   |
-            // 00007FF75F12E8E8 | 48:899C24 30010000       | mov qword ptr ss:[rsp+130],rbx                 |
-
-            uint8_t hijack_ProcessHttpBodyRecv[] = {
-                0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RAX, [address]
-                0xFF, 0xE0,                                                  // JMP RAX           
-                0x90,                                                        // NOP
-                0x90,                                                        // NOP
-                0x90,                                                        // NOP
-                0x90,                                                        // NOP
-            };
-
-            *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
-            RewriteCode(base + 0x138F3B7, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
-
-            ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138F3B7 + sizeof(hijack_ProcessHttpBodyRecv));
-        }
+        // if (0)  // NEW process http recv (not updated 2023-02)
+        // {
+        //     // 138E8E0
+        // 
+        //     // search for "HttpClient::fireHandler" top of function, after the first je
+        //     // R14 = full response length
+        //     // R15 = full response
+        //     // 
+        //     // R11 = content body ?
+        //     // 
+        //     // [RSI+2C8] = message
+        // 
+        //     // 00007FF75F12E8E0 | 48:83BF 78010000 00      | cmp qword ptr ds:[rdi+178],0                   |
+        //     // 00007FF75F12E8E8 | 48:899C24 30010000       | mov qword ptr ss:[rsp+130],rbx                 |
+        // 
+        //     uint8_t hijack_ProcessHttpBodyRecv[] = {
+        //         0x48, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RAX, [address]
+        //         0xFF, 0xE0,                                                  // JMP RAX           
+        //         0x90,                                                        // NOP
+        //         0x90,                                                        // NOP
+        //         0x90,                                                        // NOP
+        //         0x90,                                                        // NOP
+        //     };
+        // 
+        //     *((uint64_t *)&hijack_ProcessHttpBodyRecv[2]) = (uint64_t)intercept_ProcessHttpBodyRecv;
+        //     RewriteCode(base + 0x138F3B7, hijack_ProcessHttpBodyRecv, sizeof(hijack_ProcessHttpBodyRecv));
+        // 
+        //     ReturnPoint_ProcessHttpBodyRecv = (uint64_t)(base + 0x138F3B7 + sizeof(hijack_ProcessHttpBodyRecv));
+        // }
 
 
 
@@ -1138,9 +1141,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             };
 
             *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
-            RewriteCode(base + 0x171F89C, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+            RewriteCode(base + 0x17226AC, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
 
-            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x171F89C + sizeof(hijack_PositionUpdate));
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x17226AC + sizeof(hijack_PositionUpdate));
         }
 
          if (0) // always falseish  // NOT YET UPDATED (2020-09-30)
@@ -1156,7 +1159,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         //     // further down is the canGrabEverything stuff
 
             // 48 01 AB 68 1B 00 00 4C 39 64 24 40
-            auto processBodyCinfoRva = 0x17E3B91;
+            auto processBodyCinfoRva = 0x17E8371;
             unsigned char processBodyCinfoData[] = {
                 0x48, 0xB9, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // MOV RCX, <address>
                 0xFF, 0xE1                                                   // JMP RCX
@@ -1168,7 +1171,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
          
             // search for "bodyResourceHandle" between "shape" and "name" (dealing with al). patch right after 'ja' (before al stuff happens)
             // 44 38 22 0F 95 C0 88 87 F0 03 00 00
-           auto canGrabEverythingRva = 0x17DE30E; // 0x17E3CAE
+           auto canGrabEverythingRva = 0x17E2AEE; // 0x17E3CAE
            unsigned char canGrabEverythingData[6] = {
                0xB0, 0x01,                   // MOV AL, 1
                0x90,                         // NOP
@@ -1181,7 +1184,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
            // 44 38 22 0F 95 C0 88 87 F1 03 00 00 48 FF 83 68 1B 00 00
            // 17C8DD0
-           auto canRideEverythingRva = 0x17DE390; // 0x17E3D30
+           auto canRideEverythingRva = 0x17E2B70; // 0x17E8500
            unsigned char canRideEverythingData[6] = {
                0xB0, 0x00,                   // MOV AL, 1
                0x90,                         // NOP
@@ -1195,7 +1198,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         // search for "spawnPointComponentDef", after "name". patch right after last 'ja', dealing with 'al'
         // 
         // 80 3A 00 0F 95 C0 88 87 C0 00 00 00 48 FF 83 68 1B 00 00
-              auto nothingFixedInWorldRva = 0x17D3552; // 0x17D6522
+              auto nothingFixedInWorldRva = 0x17D7D32; // 0x17DACF2
               unsigned char nothingFixedInWorldData[6] = {
                   0xB0, 0x00,                   // MOV AL, 0
                   0x90,                         // NOP
@@ -1213,7 +1216,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
 
             // Seating (desktop)
-            auto unlimitedItemPickRangeRva_DesktopSeat = 0x1786E34;
+            auto unlimitedItemPickRangeRva_DesktopSeat = 0x178B124;
             unsigned char unlimitedItemPickRangeData_DesktopSeat[1] = {
                 0xeb                            // JB -> JMP
             };
@@ -1221,14 +1224,14 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             
             
             // Items (desktop)
-            auto unlimitedItemPickRangeRva_DesktopItems = 0x1787202;
+            auto unlimitedItemPickRangeRva_DesktopItems = 0x178B4F2;
             unsigned char unlimitedItemPickRangeData_DesktopItems[1] = {
                 0xeb                            // JB -> JMP
             };
             RewriteCode(base + unlimitedItemPickRangeRva_DesktopItems, unlimitedItemPickRangeData_DesktopItems, sizeof(unlimitedItemPickRangeData_DesktopItems));
             
             // UnknownA
-            auto unlimitedItemPickRangeRva_UnknownA = 0x1787461;
+            auto unlimitedItemPickRangeRva_UnknownA = 0x178B751;
             unsigned char unlimitedItemPickRangeData_UnknownA[1] = {
                 0xeb                            // JB -> JMP
             };
@@ -1236,7 +1239,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                         
             
             // UnknownB
-            auto unlimitedItemPickRangeRva_UnknownB = 0x17876FF;
+            auto unlimitedItemPickRangeRva_UnknownB = 0x178B9EF;
             unsigned char unlimitedItemPickRangeData_UnknownB[1] = {
                 0xeb                            // JB -> JMP
             };
@@ -1244,64 +1247,114 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         }
 
 
-        if (true)
-        {
-            // 48 83 F9 01 7C 2F 48 69 C9 D0 00 00 00  (above. sub,je,sub,je,sub,  just nop it all and jjump to the exit state
-            auto skipUnknownEventCrash = 0x1720F61;
-            unsigned char skipUnknownEventCrashData[] = {
-	            0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
-	            0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xE9, 0xAF,
-	            0x01, 0x00, 0x00, 0x90  // Nop a bunch of stuff and force jump to exit state
-            };
-            RewriteCode(base + skipUnknownEventCrash, skipUnknownEventCrashData, sizeof(skipUnknownEventCrashData));
-
-
-            //{
-            //    auto skipUnknownEventCrash_Logging = 0x1C339AC;
-            //    unsigned char skipUnknownEventCrashData_Logging[] = {
-	        //        0xEB // JMP
-            //    };
-            //    RewriteCode(base + skipUnknownEventCrash_Logging, skipUnknownEventCrashData_Logging, sizeof(skipUnknownEventCrashData_Logging));
-            //}
-            //{
-            //  auto skipUnknownEventCrash_Logging = 0x1C3C481;
-            //   unsigned char skipUnknownEventCrashData_Logging[] = {
-	        //       0xE9, 0xA2, 0x00, 0x00, 0x00, 0x90  // JE -> JMP
-            //  };
-            //  RewriteCode(base + skipUnknownEventCrash_Logging, skipUnknownEventCrashData_Logging, sizeof(skipUnknownEventCrashData_Logging));
-           // }
-        }
+        // if (true)
+        // {
+        //     // 48 83 F9 01 7C 2F 48 69 C9 D0 00 00 00  (above. sub,je,sub,je,sub,  just nop it all and jjump to the exit state
+        //     auto skipUnknownEventCrash = 0x1723D71;
+        //     unsigned char skipUnknownEventCrashData[] = {
+	    //         0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
+	    //         0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0xE9, 0xAF,
+	    //         0x01, 0x00, 0x00, 0x90  // Nop a bunch of stuff and force jump to exit state
+        //     };
+        //     RewriteCode(base + skipUnknownEventCrash, skipUnknownEventCrashData, sizeof(skipUnknownEventCrashData));
+        // 
+        // 
+        //     //{
+        //     //    auto skipUnknownEventCrash_Logging = 0x1C339AC;
+        //     //    unsigned char skipUnknownEventCrashData_Logging[] = {
+	    //     //        0xEB // JMP
+        //     //    };
+        //     //    RewriteCode(base + skipUnknownEventCrash_Logging, skipUnknownEventCrashData_Logging, sizeof(skipUnknownEventCrashData_Logging));
+        //     //}
+        //     //{
+        //     //  auto skipUnknownEventCrash_Logging = 0x1C3C481;
+        //     //   unsigned char skipUnknownEventCrashData_Logging[] = {
+	    //     //       0xE9, 0xA2, 0x00, 0x00, 0x00, 0x90  // JE -> JMP
+        //     //  };
+        //     //  RewriteCode(base + skipUnknownEventCrash_Logging, skipUnknownEventCrashData_Logging, sizeof(skipUnknownEventCrashData_Logging));
+        //    // }
+        // }
 
         // OUT OF DATE, update me
-        if (false)
-        {
-            // 2B D1 75 07 48 FF C0 85 C9 75 ED 85 D2 75 42   nop the jne before 'client version is latest'
-            auto skipUnknownEventCrash = 0x1D00EBA;
-            unsigned char skipUnknownEventCrashData[] = {
-	            0x90, 0x90,
-            };
-            RewriteCode(base + skipUnknownEventCrash, skipUnknownEventCrashData, sizeof(skipUnknownEventCrashData));
-        }
+       // if (true)
+       // {
+       //     // 2B D1 75 07 48 FF C0 85 C9 75 ED 85 D2 75 42   nop the jne before 'client version is latest'
+       //     auto skipUnknownEventCrash = 0x1D056D5;
+       //     unsigned char skipUnknownEventCrashData[] = {
+	   //         0x90, 0x90,
+       //     };
+       //     RewriteCode(base + skipUnknownEventCrash, skipUnknownEventCrashData, sizeof(skipUnknownEventCrashData));
+       // }
 
+       // if (true)
+       //{
+       //    // 4C 63 D2 49 8D 82 1D 03 00 00 48 03 C0 0F 10 04 C1
+       //    auto novrCrashFix1 = 0x1D40953;
+       //    unsigned char novrCrashFix1Data[] = {
+       //        0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
+       //        0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90,
+       //        0x90, 0x90, 0x90, 0x90
+       //    };
+       //    RewriteCode(base + novrCrashFix1, novrCrashFix1Data, sizeof(novrCrashFix1Data));
+       //}
+
+      //  if (true)
+      //  {
+      //      // E8 EC 16 5C 00 48 83 7F 30 00 0F 84 8F 05 00 00
+      //      auto novrCrashFix2 = 0x177F25F;
+      //      unsigned char novrCrashFix2Data[] = {
+      //          0x48, 0xC7, 0x47, 0x30, 0x00, 0x00, 0x00, 0x00, 0x90, 0x90, 0xE9, 0x90, 0x05, 0x00, 0x00, 0x90
+      //      };
+      //      RewriteCode(base + novrCrashFix2, novrCrashFix2Data, sizeof(novrCrashFix2Data));
+      //  }
+      // 
+      // 
+       //if (true)
+       //{
+       //    // 48 8D 6C 24 98 48 81 EC 68 01 00 00 48 8B F9 0F 29 B4 24 30 01 00 00
+       //    auto novrCrashFix2 = 0x177F23D;
+       //    unsigned char novrCrashFix2Data[] = {
+       //        0xE9, 0xBC, 0x05, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90
+       //    };
+       //    RewriteCode(base + novrCrashFix2, novrCrashFix2Data, sizeof(novrCrashFix2Data));
+       //}
+      // if (true)
+      // {
+      //     // 48 69 C9 D0 00 00 00 48 03 88 48 34 00 00 48 8B 80 48 34 00 00 48 3B C1
+      //     auto novrCrashFix2 = 0x1723DC6;
+      //     unsigned char novrCrashFix2Data[] = {
+      //         0xEB, 0x49, 0x90, 0x90, 0x90, 0x90, 0x90 
+      //     };
+      //     RewriteCode(base + novrCrashFix2, novrCrashFix2Data, sizeof(novrCrashFix2Data));
+      // }  
+      //
+      // if (true)
+      // {
+      //     auto novrCrashFix3 = 0x177F1C6;
+      //     unsigned char novrCrashFix3Data[] = {
+      //         0xEB, 0x49, 0x90, 0x90
+      //     };
+      //     RewriteCode(base + novrCrashFix3, novrCrashFix3Data, sizeof(novrCrashFix3Data));
+      // }
 
         if (true)
         {
             // 0F 85 A6 00 00 00 40 38 73 52 0F 84 9C 00 00 00 48 8B 4B 10 48 8B 81 80 8E 00 00 80 78 38 01
-            auto doubleJumpFix1 = 0x17618EB;
+            auto doubleJumpFix1 = 0x176479B;
             unsigned char doubleJumpFix1Data[] = {
 	            0x90, 0x90, 0x90, 0x90,0x90, 0x90,
             };
             RewriteCode(base + doubleJumpFix1, doubleJumpFix1Data, sizeof(doubleJumpFix1Data));
 
             // 0F 84 9C 00 00 00 48 8B 4B 10 48 8B 81 80 8E 00 00 80 78 38 01 0F 84 87 00 00 00 48 8B 89 98 8E 00 00
-            auto doubleJumpFix2 = 0x17618F5;
+            auto doubleJumpFix2 = 0x17647A5;
             unsigned char doubleJumpFix2Data[] = {
 	            0x90, 0x90, 0x90, 0x90,0x90, 0x90,
             };
             RewriteCode(base + doubleJumpFix2, doubleJumpFix2Data, sizeof(doubleJumpFix2Data));
 
             // je right above 'started jumping'
-            auto doubleJumpFix3 = 0x176192F;
+            auto doubleJumpFix3 = 0x17647DF;
             unsigned char doubleJumpFix3Data[] = {
 	            0x90, 0x90,
             };
@@ -1311,7 +1364,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
         if (true)
         {
             // 0F 28 44 24 40 0F 11 87 20 43 00 00 48 85 DB
-            auto offset_GetPositionForVoiceServer = 0x121B8B5;
+            auto offset_GetPositionForVoiceServer = 0x121C7D5;
             unsigned char hijack_GetPositionForVoiceServer[] = {
                 0x48, 0xB9, 0x11, 0x89, 0x67, 0x45, 0x23, 0x01, 0x00, 0x00, // MOV RCX, [address]
                 0xFF, 0xE1                                                  // JMP RCX
@@ -1333,7 +1386,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
 
         // CameraPositionOffset: (Do not just copy rva - we have to break here, follow [rcx+30 in dump, copy rva of address)
         // 0F 28 49 30 0F 29 4B 30 48 8B 5C 24 70
-         CameraPositionOffset = (float *)(base + 0x4C99FA0);
+         CameraPositionOffset = (float *)(base + 0x4CA1FA0);
 
 
 
