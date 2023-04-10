@@ -937,8 +937,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                 0x90,                                                        // NOP
             };
 
+            const auto offset = 0x1521172;
             *((uint64_t *)&hijack_ProcessPacketRecv[2]) = (uint64_t)intercept_ProcessPacketRecv;
-            RewriteCode(base + 0x1521172, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
+            RewriteCode(base + offset, hijack_ProcessPacketRecv, sizeof(hijack_ProcessPacketRecv));
 
             // TODO: May be outdated...
             /// WARNING
@@ -947,7 +948,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
             /// WARNING
             /// WARNING
 
-            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + 0x1521132 + sizeof(hijack_ProcessPacketRecv));
+            ReturnPoint_ProcessPacketRecv = (uint64_t)(base + offset + sizeof(hijack_ProcessPacketRecv));
         }
 
         // OLD JUNK
@@ -972,10 +973,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                 0xFF, 0xE2                                                   // JMP RDX           
             };
         
+            const auto offset = 0x138C226;
             *((uint64_t *)&hijack_ProcessPacketSend[2]) = (uint64_t)intercept_ProcessPacketSend;
-            RewriteCode(base + 0x138C226, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
+            RewriteCode(base + offset, hijack_ProcessPacketSend, sizeof(hijack_ProcessPacketSend));
         
-            ReturnPoint_ProcessPacketSend = (uint64_t)(base + 0x138C226 + sizeof(hijack_ProcessPacketSend));
+            ReturnPoint_ProcessPacketSend = (uint64_t)(base + offset + sizeof(hijack_ProcessPacketSend));
         }
 
 
@@ -1140,10 +1142,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved)
                 0x90                                                        // NOP
             };
 
+            const auto offset = 0x17226AC;
             *((uint64_t *)&hijack_PositionUpdate[2]) = (uint64_t)intercept_ProcessPositionUpdate;
-            RewriteCode(base + 0x17226AC, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
+            RewriteCode(base + offset, hijack_PositionUpdate, sizeof(hijack_PositionUpdate));
 
-            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + 0x17226AC + sizeof(hijack_PositionUpdate));
+            ReturnPoint_ProcessPositionUpdate = (uint64_t)(base + offset + sizeof(hijack_PositionUpdate));
         }
 
          if (0) // always falseish  // NOT YET UPDATED (2020-09-30)
