@@ -142,7 +142,7 @@ int main()
 
  // (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\" -graphics.maxFps 30 -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -media.enabled false"), // -networking.useTcp 1
  
-       (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 0  -enableVR false  -media.enabled false -developer true "), // -networking.useTcp 1
+       (TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 0  -enableVR false  -media.enabled true -developer true "), // -networking.useTcp 1
 //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -log.logAllTagged true -log.disableTags ComponentManager MeshDuplicateCheck AssetSystem EventQueue ResourceLoader TextureStreamingManager"), // -networking.useTcp 1
 //(TCHAR*)TEXT("\"C:\\Program Files\\Sansar\\Client\\SansarClient.exe\"  -console.visible 1 -enablesteamlogin 0 -crash.enableCrashReporting false  -singleInstance 1  -enableVR false  -log.tags Configuration Application"), // -networking.useTcp 1
 
@@ -206,10 +206,7 @@ int main()
         auto base = GetBaseAddress(process_info.dwProcessId);
         SIZE_T written = 0;
 
-        // NOTE: COPY RVA, NOT FILE OFFSET!
-        // NOTE: COPY RVA, NOT FILE OFFSET!
-        // NOTE: COPY RVA, NOT FILE OFFSET!
-        // NOTE: COPY RVA, NOT FILE OFFSET!
+        // NOTE: RVA, not file offset
 
         ///////////////////////////////////
         /// GRAVITYS (right above collision hack, look for "skyCubemap", 4th one down)
@@ -236,7 +233,7 @@ int main()
             00007FF7B97805C8 | 44:382A                         | cmp byte ptr ds:[rdx],r13b                                   | Avatar collision
         */
 
-        auto gravityHackAddr = (void *)(base + 0x17C645B);
+        auto gravityHackAddr = (void *)(base + 0x17C7BCB);
         uint8_t gravityHack[] = {
             0xB8, 0x14, 0xAE, 0xE7, 0x3F, 0x90, 0x90
         };
@@ -269,7 +266,7 @@ int main()
             00007FF7B9780615 | 0F95C0                          | setne al                                                     |
         */
 
-        auto collisionHackAddr = (void *)(base + 0x17C64A4);
+        auto collisionHackAddr = (void *)(base + 0x17C7C14);
         uint8_t collisionHack[] = {
            // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
              0xB0, 0x01, 0x90
@@ -301,7 +298,7 @@ int main()
             00007FF7B978065A | 8987 B8020000                   | mov dword ptr ds:[rdi+2B8],eax                               |
         */
 
-        auto freecamHackAddr = (void *)(base + 0x17C64EF);
+        auto freecamHackAddr = (void *)(base + 0x17C7C5F);
         uint8_t freecamHack[] = {
             0xB0, 0x01, 0x90
         };
@@ -339,7 +336,7 @@ int main()
         */
 
         // not updated 2023-02
-        auto inventoryAlwaysHackAddr = (void *)(base + 0x17AE025);
+        auto inventoryAlwaysHackAddr = (void *)(base + 0x17CE055);
         uint8_t inventoryAlwaysHack[] = {
            0xB0, 0x01, 0x88, 0x07
         };
@@ -365,9 +362,9 @@ int main()
         uint8_t no1minTelemetry[] = {
             0xEB, 0x08
         };
-        auto telemetryCallerAddress = 0x117C2F5;
+        auto telemetryCallerAddress = 0x117CC45;
         written = 0;
-        WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
+        //WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
         printf("Written to %X: %d bytes\n", base + telemetryCallerAddress, written);
         
     }

@@ -16,3 +16,5 @@ extern std::filesystem::path sanhookConfigBrodcast;
 extern std::filesystem::path userdumpPath;
 
 extern std::filesystem::path animationDumpPath;
+
+extern std::filesystem::path chatDumpPath;

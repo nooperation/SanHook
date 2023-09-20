@@ -60,7 +60,7 @@ public:
     ClientKafka()
     {
         printf("Opening chat file...\n");
-        hLogFile = CreateFile("r:\\dec\\new_sansar_dec\\chat.txt", FILE_APPEND_DATA, FILE_SHARE_WRITE|FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        hLogFile = CreateFile(chatDumpPath.string().c_str(), FILE_APPEND_DATA, FILE_SHARE_WRITE | FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     }
 
     bool OnMessage(uint32_t messageId, PacketReader &reader, bool isSending)
