@@ -1,3 +1,9 @@
+parsers.csv offset -> address:
+    address + offset - 400 = real address
+    00007FF68FEF1000 + 1C4F940 - 400 = 00007FF691B40540
+
+
+
 hijack_ProcessPacketRecv:
 mov rdi,qword ptr ds:[r14+8]   | 
 mov r8d,dword ptr ds:[r14+10]  | 

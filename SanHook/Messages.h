@@ -238,6 +238,7 @@ public:
     static const uint32_t UpdateReactions = 0x9B5B20E9; // NEW: 2021-03-25
     static const uint32_t AddReaction = 0x28323E96; // NEW: 2021-03-25
     static const uint32_t RemoveReaction = 0x3F337471; // NEW: 2021-03-25
+    static const uint32_t UIScriptableScoreBoard = 0xDE4E07ED; // NEW: 2023-06-13
 };
 
 class EditServerMessages {

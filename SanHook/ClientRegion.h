@@ -347,6 +347,11 @@ public:
                 this->OnRemoveReaction(reader);
                 break;
             }
+            case  ClientRegionMessages::UIScriptableScoreBoard: // = 0xDE4E07ED; // NEW: 2023-06-13
+            {
+                this->OnUIScriptableScoreBoard(reader);
+                break;
+            }
             default:
             {
                 return false;
@@ -1232,5 +1237,18 @@ public:
     {
         // NEW: 2021-03-25
       //  auto reactionType = reader.ReadString();
+    }
+    void OnUIScriptableScoreBoard(PacketReader &reader) // TAG: 
+    {
+        // NEW: 2023-06-13
+        // auto boardId = reader.ReadUint32();
+        // auto score0 = reader.ReadString();
+        // auto score1 = reader.ReadString();
+        // auto colorScoreFg0 = reader.ReadUint64();
+        // auto colorScoreFg1 = reader.ReadVectorF(3);
+        // auto colorScoreBg0 = reader.ReadVectorF(3);
+        // auto colorScoreBg1 = reader.ReadVectorF(3);
+        // auto colorFg = reader.ReadVectorF(3);
+        // auto colorBg = reader.ReadVectorF(3);
     }
 };

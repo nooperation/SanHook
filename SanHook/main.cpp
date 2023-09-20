@@ -499,6 +499,7 @@ std::unordered_map<int, std::string> idToMessageMap = {
     { 0x9B5B20E9, "ClientRegion.UpdateReactions" }, // NEW: 2021-03-25
     { 0x28323E96, "ClientRegion.AddReaction" }, // NEW: 2021-03-25
     { 0x3F337471, "ClientRegion.RemoveReaction" }, // NEW: 2021-03-25
+    { 0xDE4E07ED, "ClientRegion.UIScriptableScoreBoard" }, // NEW: 2023-06-13
     {0x046D3C1E, "EditServer.UserLogin"},
     {0xE227C3E2, "EditServer.UserLoginReply"},
     {0x50155562, "EditServer.AddUser"},
