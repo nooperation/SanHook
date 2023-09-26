@@ -195,7 +195,7 @@ int main()
         printf("OK\n");
     }
 
-   // system("pause");
+  // system("pause");
     printf("Resuming process...\n");
     ResumeThread(process_info.hThread);
 
@@ -233,7 +233,7 @@ int main()
             00007FF7B97805C8 | 44:382A                         | cmp byte ptr ds:[rdx],r13b                                   | Avatar collision
         */
 
-        auto gravityHackAddr = (void *)(base + 0x17C7BCB);
+        auto gravityHackAddr = (void *)(base + 0x17C944B);
         uint8_t gravityHack[] = {
             0xB8, 0x14, 0xAE, 0xE7, 0x3F, 0x90, 0x90
         };
@@ -266,7 +266,7 @@ int main()
             00007FF7B9780615 | 0F95C0                          | setne al                                                     |
         */
 
-        auto collisionHackAddr = (void *)(base + 0x17C7C14);
+        auto collisionHackAddr = (void *)(base + 0x17C9494);
         uint8_t collisionHack[] = {
            // 0x33, 0xC0, 0xFF, 0xC0, 0x89, 0x87, 0xB4, 0x02, 0x00, 0x00, 0x90, 0x90
              0xB0, 0x01, 0x90
@@ -298,7 +298,7 @@ int main()
             00007FF7B978065A | 8987 B8020000                   | mov dword ptr ds:[rdi+2B8],eax                               |
         */
 
-        auto freecamHackAddr = (void *)(base + 0x17C7C5F);
+        auto freecamHackAddr = (void *)(base + 0x17C94DF);
         uint8_t freecamHack[] = {
             0xB0, 0x01, 0x90
         };
@@ -336,13 +336,13 @@ int main()
         */
 
         // not updated 2023-02
-        auto inventoryAlwaysHackAddr = (void *)(base + 0x17CE055);
-        uint8_t inventoryAlwaysHack[] = {
-           0xB0, 0x01, 0x88, 0x07
-        };
-        written = 0;
+      //  auto inventoryAlwaysHackAddr = (void *)(base + 0x17CF8D5);
+      //  uint8_t inventoryAlwaysHack[] = {
+      //     0xB0, 0x01, 0x88, 0x07
+      //  };
+      //  written = 0;
       //  WriteProcessMemory(process_info.hProcess, inventoryAlwaysHackAddr, inventoryAlwaysHack, sizeof(inventoryAlwaysHack), &written);
-        printf("Written to %X: %d bytes\n", inventoryAlwaysHackAddr, written);
+     //   printf("Written to %X: %d bytes\n", inventoryAlwaysHackAddr, written);
 
         //uint8_t hijackClientRegionMessage_AddUserLogin[] = {
         //    0x48, 0xB8, 0x30, 0x44, 0x8A, 0xEF, 0xF6, 0x7F, 0x00, 0x00, 0xFF, 0x20
@@ -362,9 +362,9 @@ int main()
         uint8_t no1minTelemetry[] = {
             0xEB, 0x08
         };
-        auto telemetryCallerAddress = 0x117CC45;
+        auto telemetryCallerAddress = 0x117D595;
         written = 0;
-        //WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
+        WriteProcessMemory(process_info.hProcess, (void*)(base + telemetryCallerAddress), no1minTelemetry, sizeof(no1minTelemetry), &written);
         printf("Written to %X: %d bytes\n", base + telemetryCallerAddress, written);
         
     }
